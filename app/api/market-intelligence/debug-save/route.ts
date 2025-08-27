@@ -88,6 +88,13 @@ export async function POST(request: NextRequest) {
     
     // Parse first article
     const firstItem = itemMatches[0]
+    if (!firstItem) {
+      return NextResponse.json({
+        success: false,
+        step: 'rss_parse',
+        error: 'First article item is undefined'
+      })
+    }
     
     const title = extractXMLContent(firstItem, 'title')
     const description = extractXMLContent(firstItem, 'description')
