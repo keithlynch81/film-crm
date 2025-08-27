@@ -184,6 +184,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'check_notifications') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for notification check')
+      }
+      
       // Check notifications for Market Intelligence
       const { data: notifications, error } = await supabaseAdmin
         .from('notifications')
