@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
         id: c.id,
         name: c.name
       })),
-      existing_matches: contactMatches?.map(m => ({
+      existing_matches: contactMatches?.map((m: any) => ({
         matched_text: m.matched_text,
         confidence: m.match_confidence,
         contact: `${m.contacts.first_name} ${m.contacts.last_name || ''}`,
