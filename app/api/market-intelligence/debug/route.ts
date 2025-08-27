@@ -155,6 +155,10 @@ export async function POST(request: NextRequest) {
     const { action, name } = body
 
     if (action === 'find_contact') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for contact search')
+      }
+      
       // Search for a specific contact across all workspaces
       const { data: contacts, error } = await supabaseAdmin
         .from('contacts')
