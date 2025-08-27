@@ -297,6 +297,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'find_matches') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for find matches')
+      }
+      
       // Find matches for a specific contact
       const { contact_id } = body
       const { data: matches, error } = await supabaseAdmin
