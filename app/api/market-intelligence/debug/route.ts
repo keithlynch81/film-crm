@@ -224,6 +224,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'check_article_matches') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for article matches check')
+      }
+      
       // Check matches for specific articles
       const { article_ids } = body
       const results = []
