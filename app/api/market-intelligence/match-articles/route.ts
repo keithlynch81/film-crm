@@ -364,7 +364,7 @@ async function saveMatches(articleId: string, contactMatches: any[], companyMatc
       }
 
       // For each contact, create/update ONE shared notification
-      for (const [contactId, matches] of contactGroups) {
+      for (const [contactId, matches] of Array.from(contactGroups.entries())) {
         console.log('📧 Processing shared notification for contact:', contactId, 'with', matches.length, 'matches')
         
         // Get contact info and workspace
