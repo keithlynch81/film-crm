@@ -1,6 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+// Helper functions
+function extractXMLContent(xml: string, tagName: string): string | null {
+  const regex = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i')
+  const match = xml.match(regex)
+  return match ? match[1].trim() : null
+}
+
+function cleanText(text: string): string {
+  return text
+    .replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .trim()
+}
+
 // Debug the RSS saving process step by step
 export async function POST(request: NextRequest) {
   try {
@@ -69,24 +88,6 @@ export async function POST(request: NextRequest) {
     
     // Parse first article
     const firstItem = itemMatches[0]
-    
-    function extractXMLContent(xml: string, tagName: string): string | null {
-      const regex = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i')
-      const match = xml.match(regex)
-      return match ? match[1].trim() : null
-    }
-    
-    function cleanText(text: string): string {
-      return text
-        .replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1')
-        .replace(/<[^>]*>/g, '')
-        .replace(/&quot;/g, '"')
-        .replace(/&apos;/g, "'")
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&amp;/g, '&')
-        .trim()
-    }
     
     const title = extractXMLContent(firstItem, 'title')
     const description = extractXMLContent(firstItem, 'description')
