@@ -198,7 +198,7 @@ export default function NewContactPage() {
     
     contacts?.forEach(contact => {
       if (contact.tags) {
-        contact.tags.forEach(tag => {
+        contact.tags.forEach((tag: string) => {
           // Remove # if it exists at the start
           const cleanTag = tag.startsWith('#') ? tag.slice(1) : tag
           tagCounts[cleanTag] = (tagCounts[cleanTag] || 0) + 1

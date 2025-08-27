@@ -387,7 +387,7 @@ export default function EditProjectPage() {
     
     projects?.forEach(project => {
       if (project.tags) {
-        project.tags.forEach(tag => {
+        project.tags.forEach((tag: string) => {
           const cleanTag = tag.startsWith('#') ? tag.slice(1) : tag
           tagCounts[cleanTag] = (tagCounts[cleanTag] || 0) + 1
         })
