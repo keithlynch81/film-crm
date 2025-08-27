@@ -188,7 +188,7 @@ export default function AnalyticsPage() {
           stageCounts[project.stage] = (stageCounts[project.stage] || 0) + 1
         }
         if (project.tags) {
-          project.tags.forEach(tag => {
+          project.tags.forEach((tag: string) => {
             const cleanTag = tag.replace('#', '')
             tagCounts[cleanTag] = (tagCounts[cleanTag] || 0) + 1
           })
