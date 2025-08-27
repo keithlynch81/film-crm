@@ -506,7 +506,7 @@ export default function MarketIntelligenceDebugPage() {
                     marginBottom: '8px',
                     border: '1px solid #e5e7eb'
                   }}>
-                    <div style={{ display: 'flex', justify: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
                       <strong style={{ fontSize: '14px', color: '#111827' }}>{article.title}</strong>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <span style={{ 
