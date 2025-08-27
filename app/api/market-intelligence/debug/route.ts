@@ -324,7 +324,7 @@ export async function POST(request: NextRequest) {
         success: true,
         contact_id,
         matches_found: matches?.length || 0,
-        results: matches?.map(m => ({
+        results: matches?.map((m: any) => ({
           matched_text: m.matched_text,
           confidence: m.match_confidence,
           match_type: m.match_type,
