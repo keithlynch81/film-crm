@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
         success: true,
         search_term: name,
         contacts_found: contacts?.length || 0,
-        results: contacts?.map(c => ({
+        results: contacts?.map((c: any) => ({
           id: c.id,
           name: `${c.first_name} ${c.last_name || ''}`,
           workspace_id: c.workspace_id,
