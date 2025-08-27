@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
         is_processed: a.is_processed,
         text_preview: `${a.title} ${a.summary || ''}`.substring(0, 100) + '...'
       })),
-      your_contacts: contacts?.map(c => ({
+      your_contacts: contacts?.map((c: any) => ({
         id: c.id,
         name: `${c.first_name} ${c.last_name || ''}`,
         company: c.companies?.name || 'No company'
