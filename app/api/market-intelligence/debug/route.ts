@@ -247,7 +247,7 @@ export async function POST(request: NextRequest) {
         results.push({
           article_id: articleId,
           matches_found: matches?.length || 0,
-          matches: matches?.map(m => ({
+          matches: matches?.map((m: any) => ({
             contact_id: m.contacts.id,
             contact_name: `${m.contacts.first_name} ${m.contacts.last_name}`,
             matched_text: m.matched_text,
