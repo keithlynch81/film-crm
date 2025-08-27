@@ -335,6 +335,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'disable_trigger') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for trigger operations')
+      }
+      
       // Try to disable the trigger by updating system tables
       try {
         // Check if trigger exists
@@ -371,6 +375,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'fix_trigger') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for trigger fix')
+      }
+      
       // Since we can't drop the trigger directly, let's work around it
       // by fixing the function that's causing the workspace_id ambiguity
       try {
@@ -476,6 +484,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'test_insert') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for test insert')
+      }
+      
       // Test inserting a simple contact match to isolate the workspace_id error
       try {
         const { error } = await supabaseAdmin
@@ -510,6 +522,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'cleanup_duplicate_notifications') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for cleanup')
+      }
+      
       // Delete duplicate Market Intelligence notifications, keeping only the latest ones
       try {
         // For each contact+article combination, keep only the most recent notification per user
@@ -594,6 +610,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'create_test_shared_notification') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for test notification')
+      }
+      
       // Manually create a shared notification for Margot Robbie to test the system
       try {
         const { error } = await supabaseAdmin
@@ -635,6 +655,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'delete_all_market_intel_notifications') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for notification deletion')
+      }
+      
       // Delete all Market Intelligence notifications to start fresh with consolidated system
       const { error } = await supabaseAdmin
         .from('notifications')
@@ -653,6 +677,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'delete_james_notifications') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for James notification deletion')
+      }
+      
       // Delete false positive James notifications (low confidence matches that shouldn't exist)
       const { error } = await supabaseAdmin
         .from('notifications')
