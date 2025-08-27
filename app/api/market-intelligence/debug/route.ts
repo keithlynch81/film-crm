@@ -699,6 +699,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'delete_false_positives') {
+      if (!supabaseAdmin) {
+        throw new Error('Service role key required for deleting false positives')
+      }
+      
       // Delete false positive matches (like Stephen King matches on Stephen Emery)
       const { error } = await supabaseAdmin
         .from('news_contact_matches')
