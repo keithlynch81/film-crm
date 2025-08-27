@@ -69,14 +69,15 @@ export async function GET(request: NextRequest) {
       const testArticle = articles[0]
       const testText = `${testArticle.title} ${testArticle.summary}`.toLowerCase()
       
-      const testResults = contacts.map(contact => {
+      const testResults = contacts.map((contact: any) => {
         const fullName = `${contact.first_name} ${contact.last_name || ''}`.toLowerCase()
         const firstName = contact.first_name.toLowerCase()
         const lastName = contact.last_name?.toLowerCase() || ''
+        const companyName = contact.companies?.name || 'No company'
         
         return {
           contact: `${contact.first_name} ${contact.last_name || ''}`,
-          company: contact.companies?.name || 'No company',
+          company: companyName,
           tests: {
             fullNameMatch: testText.includes(fullName),
             firstNameMatch: testText.includes(firstName),
