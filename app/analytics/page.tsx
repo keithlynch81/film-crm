@@ -141,8 +141,8 @@ export default function AnalyticsPage() {
 
       // Process project genres
       const projectGenreCounts: { [key: string]: number } = {}
-      projectGenresRes.data?.forEach(item => {
-        if (item.genres) {
+      projectGenresRes.data?.forEach((item: any) => {
+        if (item.genres && item.genres.name) {
           const genreName = item.genres.name
           projectGenreCounts[genreName] = (projectGenreCounts[genreName] || 0) + 1
         }
@@ -150,8 +150,8 @@ export default function AnalyticsPage() {
 
       // Process contact genres
       const contactGenreCounts: { [key: string]: number } = {}
-      contactGenresRes.data?.forEach(item => {
-        if (item.genres) {
+      contactGenresRes.data?.forEach((item: any) => {
+        if (item.genres && item.genres.name) {
           const genreName = item.genres.name
           contactGenreCounts[genreName] = (contactGenreCounts[genreName] || 0) + 1
         }
@@ -159,8 +159,8 @@ export default function AnalyticsPage() {
 
       // Process project mediums
       const projectMediumCounts: { [key: string]: number } = {}
-      projectMediumsRes.data?.forEach(item => {
-        if (item.mediums) {
+      projectMediumsRes.data?.forEach((item: any) => {
+        if (item.mediums && item.mediums.name) {
           const mediumName = item.mediums.name
           projectMediumCounts[mediumName] = (projectMediumCounts[mediumName] || 0) + 1
         }
@@ -168,8 +168,8 @@ export default function AnalyticsPage() {
 
       // Process contact mediums
       const contactMediumCounts: { [key: string]: number } = {}
-      contactMediumsRes.data?.forEach(item => {
-        if (item.mediums) {
+      contactMediumsRes.data?.forEach((item: any) => {
+        if (item.mediums && item.mediums.name) {
           const mediumName = item.mediums.name
           contactMediumCounts[mediumName] = (contactMediumCounts[mediumName] || 0) + 1
         }
