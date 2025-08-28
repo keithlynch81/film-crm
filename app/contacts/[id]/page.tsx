@@ -21,6 +21,24 @@ type Contact = {
   companies: {
     name: string
   } | null
+  contact_mediums?: {
+    mediums: {
+      id: string
+      name: string
+    }
+  }[]
+  contact_genres?: {
+    genres: {
+      id: string
+      name: string
+    }
+  }[]
+  contact_budget_ranges?: {
+    budget_ranges: {
+      id: string
+      label: string
+    }
+  }[]
 }
 
 type Meeting = {

@@ -20,6 +20,21 @@ type Contact = {
   companies: {
     name: string
   } | null
+  contact_mediums?: {
+    mediums: {
+      name: string
+    }
+  }[]
+  contact_genres?: {
+    genres: {
+      name: string
+    }
+  }[]
+  contact_budget_ranges?: {
+    budget_ranges: {
+      label: string
+    }
+  }[]
 }
 
 const buttonStyle = {
@@ -188,9 +203,9 @@ export default function ContactsPage() {
     ]
     
     const csvRows = fullContacts.map(contact => {
-      const mediums = contact.contact_mediums?.map(cm => cm.mediums.name).join(',') || ''
-      const genres = contact.contact_genres?.map(cg => cg.genres.name).join(',') || ''
-      const budgets = contact.contact_budget_ranges?.map(cbr => cbr.budget_ranges.label).join(',') || ''
+      const mediums = contact.contact_mediums?.map((cm: any) => cm.mediums.name).join(',') || ''
+      const genres = contact.contact_genres?.map((cg: any) => cg.genres.name).join(',') || ''
+      const budgets = contact.contact_budget_ranges?.map((cbr: any) => cbr.budget_ranges.label).join(',') || ''
       const tags = contact.tags?.join(',') || ''
       
       return [
@@ -237,7 +252,7 @@ export default function ContactsPage() {
         return
       }
 
-      const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toUpperCase())
+      const headers = lines[0].split(',').map((h: string) => h.replace(/"/g, '').trim().toUpperCase())
       
       // Validate required columns
       const requiredColumns = ['FIRST_NAME']
@@ -255,10 +270,10 @@ export default function ContactsPage() {
         supabase.from('companies').select('*').eq('workspace_id', activeWorkspaceId)
       ])
 
-      const mediumsMap = new Map((mediumsRes.data || []).map(m => [m.name.toLowerCase(), m]))
-      const genresMap = new Map((genresRes.data || []).map(g => [g.name.toLowerCase(), g]))
-      const budgetRangesMap = new Map((budgetRangesRes.data || []).map(br => [br.label.toLowerCase(), br]))
-      const companiesMap = new Map((companiesRes.data || []).map(c => [c.name.toLowerCase(), c]))
+      const mediumsMap = new Map((mediumsRes.data || []).map((m: any) => [m.name.toLowerCase(), m]))
+      const genresMap = new Map((genresRes.data || []).map((g: any) => [g.name.toLowerCase(), g]))
+      const budgetRangesMap = new Map((budgetRangesRes.data || []).map((br: any) => [br.label.toLowerCase(), br]))
+      const companiesMap = new Map((companiesRes.data || []).map((c: any) => [c.name.toLowerCase(), c]))
 
       const contactsToInsert = []
 
@@ -267,7 +282,7 @@ export default function ContactsPage() {
         const values = parseCSVRow(lines[i])
         if (values.length === 0) continue
 
-        const row = {}
+        const row: any = {}
         headers.forEach((header, index) => {
           row[header] = values[index] ? values[index].replace(/"/g, '').trim() : ''
         })
@@ -309,7 +324,7 @@ export default function ContactsPage() {
           remit_notes: row.REMIT_NOTES || null,
           taste_notes: row.TASTE_NOTES || null,
           additional_notes: row.ADDITIONAL_NOTES || null,
-          tags: row.TAGS ? row.TAGS.split(',').map(t => t.trim()).filter(t => t) : null
+          tags: row.TAGS ? row.TAGS.split(',').map((t: string) => t.trim()).filter((t: string) => t) : null
         }
 
         contactsToInsert.push({ 
@@ -340,7 +355,7 @@ export default function ContactsPage() {
 
         // Handle mediums
         if (item.mediums) {
-          const mediumNames = item.mediums.split(',').map(m => m.trim()).filter(m => m)
+          const mediumNames = item.mediums.split(',').map((m: string) => m.trim()).filter((m: string) => m)
           for (const mediumName of mediumNames) {
             const medium = mediumsMap.get(mediumName.toLowerCase())
             if (medium) {
@@ -354,7 +369,7 @@ export default function ContactsPage() {
 
         // Handle genres
         if (item.genres) {
-          const genreNames = item.genres.split(',').map(g => g.trim()).filter(g => g)
+          const genreNames = item.genres.split(',').map((g: string) => g.trim()).filter((g: string) => g)
           for (const genreName of genreNames) {
             const genre = genresMap.get(genreName.toLowerCase())
             if (genre) {
@@ -368,7 +383,7 @@ export default function ContactsPage() {
 
         // Handle budget ranges
         if (item.budgetRanges) {
-          const budgetRangeLabels = item.budgetRanges.split(',').map(br => br.trim()).filter(br => br)
+          const budgetRangeLabels = item.budgetRanges.split(',').map((br: string) => br.trim()).filter((br: string) => br)
           for (const budgetRangeLabel of budgetRangeLabels) {
             const budgetRange = budgetRangesMap.get(budgetRangeLabel.toLowerCase())
             if (budgetRange) {
@@ -387,13 +402,13 @@ export default function ContactsPage() {
       loadContacts() // Refresh the list
     } catch (error) {
       console.error('Error uploading CSV:', error)
-      alert('Error uploading CSV: ' + error.message)
+      alert('Error uploading CSV: ' + (error as any).message)
     }
     setUploading(false)
   }
 
   // Helper function to parse CSV rows properly
-  const parseCSVRow = (row) => {
+  const parseCSVRow = (row: string) => {
     const values = []
     let current = ''
     let inQuotes = false

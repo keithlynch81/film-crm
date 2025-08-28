@@ -62,7 +62,7 @@ export default function LoginPage() {
       if (!error && data) {
         setInviteEmail(data.email)
         setEmail(data.email) // Pre-fill the email field
-        setMessage(`You've been invited to join ${data.workspaces?.name || 'a workspace'}. Please create an account or sign in with ${data.email}.`)
+        setMessage(`You've been invited to join ${(data.workspaces as any)?.name || 'a workspace'}. Please create an account or sign in with ${data.email}.`)
       }
     } catch (error) {
       console.error('Error loading invite:', error)

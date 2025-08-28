@@ -218,7 +218,7 @@ export default function ProjectDetailPage() {
     if (error) {
       console.error('Error loading contacts:', error)
     } else {
-      setContacts(data || [])
+      setContacts((data as unknown as Contact[]) || [])
     }
     setLoading(false)
   }

@@ -193,7 +193,7 @@ export default function NewProjectPage() {
       if (error) throw error
 
       // Insert junction table data
-      const junctionInserts = []
+      const junctionInserts: any[] = []
       
       selectedGenres.forEach(genreId => {
         junctionInserts.push(

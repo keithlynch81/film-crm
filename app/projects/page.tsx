@@ -219,14 +219,14 @@ export default function ProjectsPage() {
   })
 
   // Get unique values for filter options
-  const uniqueStatuses = [...new Set(projects.map(p => p.status).filter(Boolean))]
-  const uniqueStages = [...new Set(projects.map(p => p.stage).filter(Boolean))]
-  const uniqueTags = [...new Set(
+  const uniqueStatuses = Array.from(new Set(projects.map(p => p.status).filter(Boolean)))
+  const uniqueStages = Array.from(new Set(projects.map(p => p.stage).filter(Boolean)))
+  const uniqueTags = Array.from(new Set(
     projects
       .flatMap(p => p.tags || [])
       .map(tag => tag.replace('#', ''))
       .filter(Boolean)
-  )].sort()
+  )).sort()
 
   const toggleMedium = (mediumName: string) => {
     setSelectedMediums(prev => 
@@ -293,8 +293,8 @@ export default function ProjectsPage() {
 
     const csvHeaders = ['TITLE', 'LOGLINE', 'STATUS', 'STAGE', 'MEDIUM', 'GENRES', 'TAGS', 'NOTES']
     const csvRows = fullProjects.map(project => {
-      const mediums = project.project_mediums?.map(pm => pm.mediums.name).join(',') || ''
-      const genres = project.project_genres?.map(pg => pg.genres.name).join(',') || ''
+      const mediums = project.project_mediums?.map((pm: any) => pm.mediums.name).join(',') || ''
+      const genres = project.project_genres?.map((pg: any) => pg.genres.name).join(',') || ''
       const tags = project.tags?.join(',') || ''
       
       return [
@@ -336,7 +336,7 @@ export default function ProjectsPage() {
         return
       }
 
-      const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toUpperCase())
+      const headers = lines[0].split(',').map((h: string) => h.replace(/"/g, '').trim().toUpperCase())
       
       // Validate required columns
       const requiredColumns = ['TITLE']
@@ -352,8 +352,8 @@ export default function ProjectsPage() {
         supabase.from('genres').select('*')
       ])
 
-      const mediumsMap = new Map((mediumsRes.data || []).map(m => [m.name.toLowerCase(), m]))
-      const genresMap = new Map((genresRes.data || []).map(g => [g.name.toLowerCase(), g]))
+      const mediumsMap = new Map((mediumsRes.data || []).map((m: any) => [m.name.toLowerCase(), m]))
+      const genresMap = new Map((genresRes.data || []).map((g: any) => [g.name.toLowerCase(), g]))
 
       const projectsToInsert = []
       const junctionData = { mediums: [], genres: [] }
@@ -363,7 +363,7 @@ export default function ProjectsPage() {
         const values = parseCSVRow(lines[i])
         if (values.length === 0) continue
 
-        const row = {}
+        const row: any = {}
         headers.forEach((header, index) => {
           row[header] = values[index] ? values[index].replace(/"/g, '').trim() : ''
         })
@@ -379,7 +379,7 @@ export default function ProjectsPage() {
           stage: row.STAGE || null,
           notes: row.NOTES || null,
           roles: ['Writer'], // Default role as requested
-          tags: row.TAGS ? row.TAGS.split(',').map(t => t.trim()).filter(t => t) : null
+          tags: row.TAGS ? row.TAGS.split(',').map((t: string) => t.trim()).filter((t: string) => t) : null
         }
 
         projectsToInsert.push({ data: projectData, mediums: row.MEDIUM || '', genres: row.GENRES || '' })
@@ -405,7 +405,7 @@ export default function ProjectsPage() {
 
         // Handle mediums
         if (item.mediums) {
-          const mediumNames = item.mediums.split(',').map(m => m.trim()).filter(m => m)
+          const mediumNames = item.mediums.split(',').map((m: string) => m.trim()).filter((m: string) => m)
           for (const mediumName of mediumNames) {
             const medium = mediumsMap.get(mediumName.toLowerCase())
             if (medium) {
@@ -419,7 +419,7 @@ export default function ProjectsPage() {
 
         // Handle genres
         if (item.genres) {
-          const genreNames = item.genres.split(',').map(g => g.trim()).filter(g => g)
+          const genreNames = item.genres.split(',').map((g: string) => g.trim()).filter((g: string) => g)
           for (const genreName of genreNames) {
             const genre = genresMap.get(genreName.toLowerCase())
             if (genre) {
@@ -438,13 +438,13 @@ export default function ProjectsPage() {
       loadProjects() // Refresh the list
     } catch (error) {
       console.error('Error uploading CSV:', error)
-      alert('Error uploading CSV: ' + error.message)
+      alert('Error uploading CSV: ' + (error as any).message)
     }
     setUploading(false)
   }
 
   // Helper function to parse CSV rows properly
-  const parseCSVRow = (row) => {
+  const parseCSVRow = (row: string) => {
     const values = []
     let current = ''
     let inQuotes = false
@@ -711,7 +711,7 @@ export default function ProjectsPage() {
                     >
                       <option value="">All Statuses</option>
                       {uniqueStatuses.map((status) => (
-                        <option key={status} value={status}>
+                        <option key={status} value={status || ''}>
                           {status}
                         </option>
                       ))}
@@ -732,7 +732,7 @@ export default function ProjectsPage() {
                     >
                       <option value="">All Stages</option>
                       {uniqueStages.map((stage) => (
-                        <option key={stage} value={stage}>
+                        <option key={stage} value={stage || ''}>
                           {stage}
                         </option>
                       ))}

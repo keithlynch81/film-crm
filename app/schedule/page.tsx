@@ -162,7 +162,7 @@ export default function SchedulePage() {
         if (!groupedTalkingPoints[tp.contact_id]) {
           groupedTalkingPoints[tp.contact_id] = []
         }
-        groupedTalkingPoints[tp.contact_id].push(tp)
+        groupedTalkingPoints[tp.contact_id].push(tp as any)
       })
       setTalkingPoints(groupedTalkingPoints)
     }

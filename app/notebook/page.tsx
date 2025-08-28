@@ -162,7 +162,7 @@ export default function NotebookPage() {
 
       // Try to load notebook entries, but handle gracefully if table doesn't exist
       try {
-        await loadNotebookEntries(activeWorkspaceId)
+        if (activeWorkspaceId) await loadNotebookEntries(activeWorkspaceId)
       } catch (error: any) {
         console.log('Notebook table not ready yet:', error.code)
         // Table doesn't exist yet - that's okay, we'll show empty state
@@ -321,7 +321,7 @@ export default function NotebookPage() {
       setShowForm(false)
       setEditingEntry(null)
       try {
-        await loadNotebookEntries(activeWorkspaceId)
+        if (activeWorkspaceId) await loadNotebookEntries(activeWorkspaceId)
       } catch (loadError) {
         console.log('Loading entries failed (expected if tables not created)')
       }
@@ -430,7 +430,7 @@ export default function NotebookPage() {
       setShowProjectSuggestions(false)
       setShowForm(false)
       setEditingEntry(null)
-      await loadNotebookEntries(activeWorkspaceId)
+      if (activeWorkspaceId) await loadNotebookEntries(activeWorkspaceId)
 
     } catch (error) {
       console.error('Error updating notebook entry:', error)
@@ -449,7 +449,7 @@ export default function NotebookPage() {
 
       if (error) throw error
 
-      await loadNotebookEntries(activeWorkspaceId)
+      if (activeWorkspaceId) await loadNotebookEntries(activeWorkspaceId)
     } catch (error) {
       console.error('Error deleting entry:', error)
       alert('Error deleting entry. Please try again.')
@@ -940,7 +940,6 @@ export default function NotebookPage() {
                   )}
                   
                   {/* Project Suggestions Dropdown */}
-                  {console.log('Dropdown render check:', { showProjectSuggestions, filteredProjectsLength: filteredProjects.length })}
                   {showProjectSuggestions && filteredProjects.length > 0 && (
                     <div style={{
                       position: 'absolute',
