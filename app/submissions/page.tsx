@@ -268,7 +268,34 @@ export default function SubmissionsPage() {
               </Center>
             </CardBody>
           ) : (
-            <TableContainer>
+            <CardBody>
+              {/* Mobile Card Layout */}
+              <Box display={{ base: "block", md: "none" }}>
+                <VStack spacing={3} align="stretch">
+                {filteredSubmissions.map((submission) => (
+                  <Card key={submission.id} size="sm">
+                    <CardBody>
+                      <VStack align="stretch" spacing={2}>
+                        <Text as={Link} href={`/projects/${submission.project_id}`} color="blue.500" fontWeight="medium" fontSize="md" _hover={{ textDecoration: "underline" }}>
+                          {submission.projects.title}
+                        </Text>
+                        <Text fontSize="sm" color="gray.600">
+                          <Text as={Link} href={`/contacts/${submission.contact_id}`} color="blue.500" fontWeight="medium" _hover={{ textDecoration: "underline" }}>
+                            {submission.contacts.first_name} {submission.contacts.last_name}
+                          </Text>
+                          {submission.contacts.companies?.name && (
+                            <Text as="span"> / {submission.contacts.companies.name}</Text>
+                          )}
+                        </Text>
+                      </VStack>
+                    </CardBody>
+                  </Card>
+                ))}
+                </VStack>
+              </Box>
+
+            {/* Desktop Table Layout */}
+            <TableContainer display={{ base: "none", md: "block" }}>
               <Table variant="simple">
                 <Thead bg="gray.50">
                   <Tr>
@@ -281,7 +308,7 @@ export default function SubmissionsPage() {
                     <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide">
                       Company
                     </Th>
-                    <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide" display={{ base: "none", md: "table-cell" }}>
+                    <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide">
                       Status
                     </Th>
                     <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide" display={{ base: "none", lg: "table-cell" }}>
@@ -310,7 +337,7 @@ export default function SubmissionsPage() {
                           {submission.contacts.companies?.name || '—'}
                         </Text>
                       </Td>
-                      <Td display={{ base: "none", md: "table-cell" }}>
+                      <Td>
                         <Badge colorScheme={getStatusColorScheme(submission.status)} borderRadius="full">
                           {submission.status || 'No Status'}
                         </Badge>
@@ -330,6 +357,7 @@ export default function SubmissionsPage() {
                 </Tbody>
               </Table>
             </TableContainer>
+            </CardBody>
           )}
         </Card>
 

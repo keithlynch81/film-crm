@@ -746,10 +746,41 @@ export default function ProjectsPage() {
               </Center>
             </CardBody>
           ) : (
-            <TableContainer>
-              <Table variant="simple">
-                <Thead bg="gray.50">
-                  <Tr>
+            <CardBody>
+              {/* Mobile Card Layout */}
+              <Box display={{ base: "block", md: "none" }}>
+                <VStack spacing={3} align="stretch">
+                  {sortedAndFilteredProjects.map((project) => (
+                    <Card key={project.id} size="sm">
+                      <CardBody>
+                        <VStack align="stretch" spacing={2}>
+                          <Flex justify="space-between" align="start">
+                            <Text as={Link} href={`/projects/${project.id}`} color="blue.500" fontWeight="medium" fontSize="md" _hover={{ textDecoration: "underline" }} flex="1" pr={2}>
+                              {project.title}
+                            </Text>
+                            {project.project_genres && project.project_genres.length > 0 && (
+                              <Badge colorScheme="purple" borderRadius="full" fontSize="xs" flexShrink={0}>
+                                {project.project_genres[0].genres.name}
+                              </Badge>
+                            )}
+                          </Flex>
+                          {project.logline && (
+                            <Text fontSize="sm" color="gray.600" noOfLines={2} wordBreak="break-word">
+                              {project.logline}
+                            </Text>
+                          )}
+                        </VStack>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </VStack>
+              </Box>
+
+              {/* Desktop Table Layout */}
+              <TableContainer display={{ base: "none", md: "block" }}>
+                <Table variant="simple">
+                  <Thead bg="gray.50">
+                    <Tr>
                     <Th 
                       fontSize="xs" 
                       fontWeight="medium" 
@@ -858,6 +889,7 @@ export default function ProjectsPage() {
                 </Tbody>
               </Table>
             </TableContainer>
+            </CardBody>
           )}
         </Card>
       </VStack>
