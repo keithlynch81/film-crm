@@ -87,6 +87,8 @@ export default function NotebookPage() {
   const [selectedIdeaTypeFilter, setSelectedIdeaTypeFilter] = useState<string>('')
   const [tagFilter, setTagFilter] = useState<string>('')
   const [hideUsedIdeas, setHideUsedIdeas] = useState<boolean>(false)
+  const [showFilters, setShowFilters] = useState<boolean>(false)
+  const [searchTerm, setSearchTerm] = useState<string>('')
 
   // Form state
   const [formData, setFormData] = useState({
@@ -113,7 +115,7 @@ export default function NotebookPage() {
   // Filter entries whenever filters change
   useEffect(() => {
     applyFilters()
-  }, [entries, selectedMediumFilter, selectedGenreFilter, selectedIdeaTypeFilter, tagFilter, hideUsedIdeas])
+  }, [entries, selectedMediumFilter, selectedGenreFilter, selectedIdeaTypeFilter, tagFilter, hideUsedIdeas, searchTerm])
 
   const loadData = async () => {
     if (!activeWorkspaceId) return
@@ -205,6 +207,15 @@ export default function NotebookPage() {
 
   const applyFilters = () => {
     let filtered = [...entries]
+
+    // Text search in title and content
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase()
+      filtered = filtered.filter(entry => 
+        entry.title.toLowerCase().includes(search) ||
+        entry.content.toLowerCase().includes(search)
+      )
+    }
 
     // Filter by medium
     if (selectedMediumFilter) {
@@ -586,7 +597,7 @@ export default function NotebookPage() {
             color: '#111827',
             fontWeight: 'bold'
           }}>
-            📝 Creative Notebook
+            Creative Notebook
           </h1>
           <button
             onClick={() => {
@@ -617,7 +628,7 @@ export default function NotebookPage() {
           </button>
         </div>
 
-        {/* Filters */}
+        {/* Search and Filters */}
         {!showForm && (
           <div style={{
             backgroundColor: 'white',
@@ -626,125 +637,191 @@ export default function NotebookPage() {
             padding: '20px',
             marginBottom: '20px'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', color: '#111827' }}>Filter Ideas</h3>
-              <button
-                onClick={clearFilters}
-                style={{
-                  padding: '6px 12px',
-                  fontSize: '12px',
-                  backgroundColor: '#f3f4f6',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  color: '#6b7280'
-                }}
-              >
-                Clear All
-              </button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-              {/* Medium Filter */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', color: '#6b7280' }}>Medium</label>
-                <select
-                  value={selectedMediumFilter}
-                  onChange={(e) => setSelectedMediumFilter(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px'
-                  }}
-                >
-                  <option value="">All Mediums</option>
-                  {mediums.map(medium => (
-                    <option key={medium.id} value={medium.name}>{medium.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Genre Filter */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', color: '#6b7280' }}>Genre</label>
-                <select
-                  value={selectedGenreFilter}
-                  onChange={(e) => setSelectedGenreFilter(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px'
-                  }}
-                >
-                  <option value="">All Genres</option>
-                  {genres.map(genre => (
-                    <option key={genre.id} value={genre.name}>{genre.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Idea Type Filter */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', color: '#6b7280' }}>Idea Type</label>
-                <select
-                  value={selectedIdeaTypeFilter}
-                  onChange={(e) => setSelectedIdeaTypeFilter(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px'
-                  }}
-                >
-                  <option value="">All Types</option>
-                  {ideaTypes.map(type => (
-                    <option key={type.id} value={type.name}>{type.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Tag Filter */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', color: '#6b7280' }}>Tag</label>
+            {/* Search Bar */}
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'end', marginBottom: showFilters ? '24px' : '0' }}>
+              <div style={{ flex: 1, maxWidth: '384px' }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '6px', 
+                  fontSize: '14px', 
+                  fontWeight: '500', 
+                  color: '#374151' 
+                }}>
+                  Search Ideas
+                </label>
                 <input
                   type="text"
-                  placeholder="Search tags..."
-                  value={tagFilter}
-                  onChange={(e) => setTagFilter(e.target.value)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by title or content..."
                   style={{
                     width: '100%',
-                    padding: '8px',
+                    padding: '10px 12px',
                     border: '1px solid #d1d5db',
-                    borderRadius: '6px',
+                    borderRadius: '8px',
                     fontSize: '14px'
                   }}
                 />
               </div>
+              
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: showFilters ? '#3b82f6' : '#ffffff',
+                    color: showFilters ? '#ffffff' : '#374151',
+                    border: '1px solid ' + (showFilters ? '#3b82f6' : '#d1d5db'),
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                >
+                  {showFilters ? 'Hide Filters' : 'Show Filters'}
+                </button>
+                
+                {(selectedMediumFilter || selectedGenreFilter || selectedIdeaTypeFilter || tagFilter || hideUsedIdeas || searchTerm) && (
+                  <button
+                    onClick={() => {
+                      clearFilters()
+                      setSearchTerm('')
+                    }}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#ffffff',
+                      color: '#dc2626',
+                      border: '1px solid #dc2626',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500'
+                    }}
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Hide Used Ideas Checkbox */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="checkbox"
-                id="hideUsedIdeas"
-                checked={hideUsedIdeas}
-                onChange={(e) => setHideUsedIdeas(e.target.checked)}
-                style={{ accentColor: '#3b82f6' }}
-              />
-              <label htmlFor="hideUsedIdeas" style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
-                Hide ideas already used in projects
-              </label>
-            </div>
+            {/* Advanced Filters */}
+            {showFilters && (
+              <div style={{
+                borderTop: '1px solid #e5e7eb',
+                paddingTop: '20px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', color: '#111827' }}>Advanced Filters</h3>
+                </div>
 
-            {/* Results Count */}
-            <div style={{ marginTop: '12px', fontSize: '13px', color: '#6b7280' }}>
-              Showing {filteredEntries.length} of {entries.length} ideas
-            </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+                  {/* Medium Filter */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', color: '#6b7280' }}>Medium</label>
+                    <select
+                      value={selectedMediumFilter}
+                      onChange={(e) => setSelectedMediumFilter(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        fontSize: '14px'
+                      }}
+                    >
+                      <option value="">All Mediums</option>
+                      {mediums.map(medium => (
+                        <option key={medium.id} value={medium.name}>{medium.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Genre Filter */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', color: '#6b7280' }}>Genre</label>
+                    <select
+                      value={selectedGenreFilter}
+                      onChange={(e) => setSelectedGenreFilter(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        fontSize: '14px'
+                      }}
+                    >
+                      <option value="">All Genres</option>
+                      {genres.map(genre => (
+                        <option key={genre.id} value={genre.name}>{genre.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Idea Type Filter */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', color: '#6b7280' }}>Idea Type</label>
+                    <select
+                      value={selectedIdeaTypeFilter}
+                      onChange={(e) => setSelectedIdeaTypeFilter(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        fontSize: '14px'
+                      }}
+                    >
+                      <option value="">All Types</option>
+                      {ideaTypes.map(type => (
+                        <option key={type.id} value={type.name}>{type.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Tag Filter */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', color: '#6b7280' }}>Tag</label>
+                    <input
+                      type="text"
+                      placeholder="Search tags..."
+                      value={tagFilter}
+                      onChange={(e) => setTagFilter(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Hide Used Ideas Checkbox */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="checkbox"
+                    id="hideUsedIdeas"
+                    checked={hideUsedIdeas}
+                    onChange={(e) => setHideUsedIdeas(e.target.checked)}
+                    style={{ accentColor: '#3b82f6' }}
+                  />
+                  <label htmlFor="hideUsedIdeas" style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
+                    Hide ideas already used in projects
+                  </label>
+                </div>
+
+                {/* Results Count */}
+                <div style={{ marginTop: '12px', fontSize: '13px', color: '#6b7280', backgroundColor: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
+                  Showing {filteredEntries.length} of {entries.length} ideas
+                  {(selectedMediumFilter || selectedGenreFilter || selectedIdeaTypeFilter || tagFilter || hideUsedIdeas || searchTerm) && (
+                    <span style={{ color: '#3b82f6', marginLeft: '8px' }}>
+                      (filtered)
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

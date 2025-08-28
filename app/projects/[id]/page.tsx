@@ -526,15 +526,20 @@ export default function ProjectDetailPage() {
             <div className="detail-page-edit-button" style={{ marginLeft: '24px' }}>
               <Link
                 href={`/projects/${project.id}/edit`}
-                style={secondaryButtonStyle}
+                style={{
+                  ...primaryButtonStyle,
+                  borderRadius: '20px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
               >
-                Edit Project
+                Edit
               </Link>
             </div>
           </div>
           
-          {/* Date in bottom right corner */}
-          <div style={{ position: 'absolute', bottom: '16px', right: '16px', fontSize: '12px', color: '#9ca3af' }}>
+          {/* Date in bottom left corner */}
+          <div style={{ position: 'absolute', bottom: '16px', left: '16px', fontSize: '12px', color: '#9ca3af' }}>
             Date Added {new Date(project.created_at).toLocaleDateString('en-GB')}
           </div>
         </div>
