@@ -444,18 +444,19 @@ export default function ContactsPage() {
   return (
     <Layout>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', margin: '0 0 8px 0' }}>Contacts</h1>
-            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+        <Flex direction={{ base: "column", md: "row" }} justify="space-between" align={{ base: "stretch", md: "center" }} gap={{ base: 4, md: 0 }}>
+          <Box>
+            <Heading size="xl" color="gray.800" mb={2}>Contacts</Heading>
+            <Text fontSize="sm" color="gray.600">
               Manage your industry contacts and relationships.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            </Text>
+          </Box>
+          <Flex direction={{ base: "column", sm: "row" }} gap={3}>
             <Button
               onClick={() => setShowUpload(!showUpload)}
               colorScheme="green"
               size="md"
+              w={{ base: "full", sm: "auto" }}
             >
               Upload CSV
             </Button>
@@ -463,6 +464,7 @@ export default function ContactsPage() {
               onClick={exportContactsCSV}
               colorScheme="purple"
               size="md"
+              w={{ base: "full", sm: "auto" }}
             >
               Export CSV
             </Button>
@@ -471,11 +473,12 @@ export default function ContactsPage() {
               href="/contacts/new"
               colorScheme="blue"
               size="md"
+              w={{ base: "full", sm: "auto" }}
             >
               Add Contact
             </Button>
-          </div>
-        </div>
+          </Flex>
+        </Flex>
 
         {/* CSV Upload Form */}
         {showUpload && (
@@ -608,7 +611,7 @@ export default function ContactsPage() {
                   )}
                 </div>
                 <div>Company</div>
-                <div>Email</div>
+                <div className="hidden-mobile">Email</div>
                 <div 
                   onClick={() => handleSort('created_at')}
                   style={{ 
@@ -619,6 +622,7 @@ export default function ContactsPage() {
                     gap: '4px',
                     color: '#4f46e5'
                   }}
+                  className="hidden-mobile"
                 >
                   Date Added
                   {sortField === 'created_at' && (
@@ -657,10 +661,10 @@ export default function ContactsPage() {
                   <div style={{ fontSize: '14px', color: '#374151' }}>
                     {contact.companies?.name || '—'}
                   </div>
-                  <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }} className="hidden-mobile">
                     {contact.email || '—'}
                   </div>
-                  <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }} className="hidden-mobile">
                     {contact.created_at ? new Date(contact.created_at).toLocaleDateString('en-GB') : '—'}
                   </div>
                   <div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

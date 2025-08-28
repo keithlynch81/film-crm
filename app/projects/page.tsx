@@ -460,18 +460,19 @@ export default function ProjectsPage() {
   return (
     <Layout>
       <VStack spacing={6} align="stretch">
-        <Flex justify="space-between" align="center">
+        <Flex direction={{ base: "column", md: "row" }} justify="space-between" align={{ base: "stretch", md: "center" }} gap={{ base: 4, md: 0 }}>
           <Box>
             <Heading size="xl" color="gray.800" mb={2}>Projects</Heading>
             <Text fontSize="sm" color="gray.600">
               Manage your film projects and track submissions.
             </Text>
           </Box>
-          <HStack spacing={3}>
+          <Flex direction={{ base: "column", sm: "row" }} gap={3}>
             <Button
               onClick={() => setShowUpload(!showUpload)}
               colorScheme="green"
               size="md"
+              w={{ base: "full", sm: "auto" }}
             >
               Upload CSV
             </Button>
@@ -479,6 +480,7 @@ export default function ProjectsPage() {
               onClick={exportProjectsCSV}
               colorScheme="purple"
               size="md"
+              w={{ base: "full", sm: "auto" }}
             >
               Export CSV
             </Button>
@@ -487,10 +489,11 @@ export default function ProjectsPage() {
               href="/projects/new"
               colorScheme="blue"
               size="md"
+              w={{ base: "full", sm: "auto" }}
             >
               Add Project
             </Button>
-          </HStack>
+          </Flex>
         </Flex>
 
         {/* CSV Upload Form */}
