@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { WorkspaceProvider } from '@/components/workspace/WorkspaceProvider'
 import './globals.css'
 
@@ -15,9 +16,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <WorkspaceProvider>
-          {children}
-        </WorkspaceProvider>
+        <ColorModeScript initialColorMode="light" />
+        <ChakraProvider>
+          <WorkspaceProvider>
+            {children}
+          </WorkspaceProvider>
+        </ChakraProvider>
       </body>
     </html>
   )

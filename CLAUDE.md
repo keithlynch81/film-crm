@@ -65,9 +65,11 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 ## Key Technical Decisions
 
 ### Styling Architecture:
-- **Uses inline CSS throughout** - No Tailwind CSS dependency
-- **Blue pill design system** - Consistent rounded buttons and form elements
-- **Responsive grid layouts** for data tables and forms
+- **Primary UI Library**: Chakra UI - Use Chakra components whenever possible for consistency and accessibility
+- **Migration Strategy**: Gradually migrating from inline CSS to Chakra UI components
+- **Blue pill design system** - Consistent rounded buttons and form elements (now using Chakra Button components)
+- **Responsive design** - Mobile-first approach using Chakra's responsive features
+- **Fallback**: Inline CSS only when Chakra doesn't provide suitable component
 
 ### Authentication Flow:
 - Supabase Auth with email confirmation
@@ -119,17 +121,34 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - `add-meeting-link.sql` - Meeting link field (NEEDS TO BE APPLIED ❌)
 
 ## Design System
-### Colors:
-- Primary Blue: #3b82f6
-- Background: #f9fafb
-- Text: #111827 (headings), #374151 (body), #6b7280 (secondary)
-- Success: #16a34a, Error: #dc2626
+### Chakra UI Integration:
+- **Primary Library**: Use Chakra UI components for all new development
+- **Component Mapping**:
+  - Buttons → `<Button>` with `colorScheme="blue"` for primary actions
+  - Forms → `<FormControl>`, `<Input>`, `<Select>`, `<Textarea>`
+  - Layout → `<Box>`, `<Flex>`, `<Grid>`, `<Container>`, `<Stack>`
+  - Navigation → `<Breadcrumb>`, responsive `<Box>` with `<Hide>`/`<Show>`
+  - Tables → `<Table>`, `<Tbody>`, `<Tr>`, `<Td>` with responsive features
+  - Cards → `<Card>` or `<Box>` with `shadow` and `borderRadius`
+  - Modals → `<Modal>`, `<AlertDialog>` for confirmations
 
-### Components:
-- **Pill Buttons**: Rounded buttons with hover states
-- **Form Inputs**: Consistent styling with proper focus states
-- **Cards**: White backgrounds with subtle borders and shadows
-- **Status Pills**: Color-coded status indicators
+### Responsive Design Guidelines:
+- **Mobile-first**: Use Chakra's array syntax `[base, md, lg]` for responsive props
+- **Breakpoints**: Follow Chakra's default breakpoints (sm: 30em, md: 48em, lg: 62em, xl: 80em)
+- **Navigation**: Use `<Hide>`/`<Show>` for mobile hamburger menus
+- **Typography**: Use `<Heading>` and `<Text>` with responsive fontSize
+
+### Colors (Chakra Theme):
+- Primary Blue: #3b82f6 (blue.500 in Chakra)
+- Background: #f9fafb (gray.50)
+- Text: #111827 (gray.900), #374151 (gray.700), #6b7280 (gray.500)
+- Success: #16a34a (green.600), Error: #dc2626 (red.600)
+
+### Legacy Components (being migrated):
+- **Pill Buttons**: Migrating to `<Button borderRadius="full">`
+- **Form Inputs**: Migrating to `<FormControl>` patterns
+- **Cards**: Migrating to `<Card>` or `<Box>` with consistent shadows
+- **Status Pills**: Migrating to `<Badge>` components
 
 ## 🚨 URGENT: Next Session Tasks (Market Intelligence 95% Complete)
 
