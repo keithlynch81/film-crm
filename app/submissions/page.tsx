@@ -281,13 +281,13 @@ export default function SubmissionsPage() {
                     <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide">
                       Company
                     </Th>
-                    <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide">
+                    <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide" display={{ base: "none", md: "table-cell" }}>
                       Status
                     </Th>
-                    <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide">
+                    <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide" display={{ base: "none", lg: "table-cell" }}>
                       Submitted
                     </Th>
-                    <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide">
+                    <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide" display={{ base: "none", lg: "table-cell" }}>
                       Notes
                     </Th>
                   </Tr>
@@ -310,17 +310,17 @@ export default function SubmissionsPage() {
                           {submission.contacts.companies?.name || '—'}
                         </Text>
                       </Td>
-                      <Td>
+                      <Td display={{ base: "none", md: "table-cell" }}>
                         <Badge colorScheme={getStatusColorScheme(submission.status)} borderRadius="full">
                           {submission.status || 'No Status'}
                         </Badge>
                       </Td>
-                      <Td>
+                      <Td display={{ base: "none", lg: "table-cell" }}>
                         <Text fontSize="sm" color="gray.600">
                           {new Date(submission.submitted_at).toLocaleDateString('en-GB')}
                         </Text>
                       </Td>
-                      <Td>
+                      <Td display={{ base: "none", lg: "table-cell" }}>
                         <Text fontSize="sm" color="gray.600" isTruncated maxW="200px">
                           {submission.notes || submission.feedback || '—'}
                         </Text>

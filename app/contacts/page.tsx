@@ -582,7 +582,7 @@ export default function ContactsPage() {
               {/* Header */}
               <div style={{ 
                 display: 'grid', 
-                gridTemplateColumns: '2fr 1.5fr 2fr 1fr 60px', 
+                gridTemplateColumns: '1fr 1fr 2fr 1fr 60px', 
                 gap: '16px', 
                 padding: '16px 24px', 
                 background: '#f9fafb',
@@ -591,7 +591,7 @@ export default function ContactsPage() {
                 color: '#6b7280',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
-              }}>
+              }} className="contacts-grid-mobile">
                 <div 
                   onClick={() => handleSort('name')}
                   style={{ 
@@ -640,13 +640,14 @@ export default function ContactsPage() {
                   key={contact.id} 
                   style={{ 
                     display: 'grid', 
-                    gridTemplateColumns: '2fr 1.5fr 2fr 1fr 60px', 
+                    gridTemplateColumns: '1fr 1fr 2fr 1fr 60px', 
                     gap: '16px', 
                     padding: '16px 24px', 
                     background: '#ffffff',
                     transition: 'background-color 0.2s',
                     cursor: 'pointer'
                   }}
+                  className="contacts-grid-mobile"
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
                 >
@@ -667,7 +668,7 @@ export default function ContactsPage() {
                   <div style={{ fontSize: '14px', color: '#6b7280' }} className="hidden-mobile">
                     {contact.created_at ? new Date(contact.created_at).toLocaleDateString('en-GB') : '—'}
                   </div>
-                  <div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }} className="hidden-mobile">
                     <Link
                       href={`/contacts/${contact.id}`}
                       style={{ 

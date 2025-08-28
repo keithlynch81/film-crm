@@ -11,6 +11,10 @@
       "allowedTools": [],
       "history": [
         {
+          "display": "Contact page is better on mobile but it's all bunched up on to the left as two lines for name, two lines for company. And i think we can lose the eye icon as they can just tap on the contacts name. And on Submissions can you see about only having Project, Contact name and Company, remove the other elements on mobile. ",
+          "pastedContents": {}
+        },
+        {
           "display": "i hit my usage limit, can you continue from where you left off?",
           "pastedContents": {}
         },

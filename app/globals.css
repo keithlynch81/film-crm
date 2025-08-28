@@ -15,4 +15,9 @@ body {
   .hidden-mobile {
     display: none !important;
   }
+  
+  /* Mobile grid adjustments for contacts */
+  .contacts-grid-mobile {
+    grid-template-columns: 1fr 1fr !important;
+  }
 }
