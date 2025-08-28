@@ -2,6 +2,35 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import {
+  Box,
+  Button,
+  Input,
+  Flex,
+  VStack,
+  HStack,
+  Text,
+  Card,
+  CardBody,
+  Spinner,
+  Center,
+  Collapse,
+  Heading,
+  Wrap,
+  WrapItem,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  IconButton,
+  Badge,
+  Grid,
+  GridItem,
+  Select
+} from '@chakra-ui/react'
 import { Layout } from '@/components/Layout'
 import { useWorkspace } from '@/components/workspace/WorkspaceProvider'
 import { supabase } from '@/lib/supabase'
@@ -29,57 +58,7 @@ type Genre = {
   name: string
 }
 
-const buttonStyle = {
-  padding: '8px 16px',
-  borderRadius: '6px',
-  fontSize: '14px',
-  fontWeight: '500',
-  textDecoration: 'none',
-  border: 'none',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontFamily: 'inherit',
-  lineHeight: '1',
-}
-
-const primaryButtonStyle = {
-  ...buttonStyle,
-  background: '#3b82f6',
-  color: '#ffffff',
-}
-
-const tagStyle = {
-  padding: '4px 8px',
-  borderRadius: '12px',
-  fontSize: '12px',
-  fontWeight: '500',
-  background: '#e5e7eb',
-  color: '#374151',
-  display: 'inline-block',
-}
-
-const pillButtonStyle = {
-  padding: '6px 12px',
-  borderRadius: '9999px',
-  fontSize: '12px',
-  fontWeight: '500',
-  border: '1px solid #d1d5db',
-  background: '#ffffff',
-  color: '#374151',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  display: 'inline-block',
-}
-
-const selectedPillStyle = {
-  ...pillButtonStyle,
-  background: '#3b82f6',
-  color: '#ffffff',
-  borderColor: '#3b82f6',
-}
+// Style constants removed - now using Chakra UI components
 
 export default function ProjectsPage() {
   const { activeWorkspaceId } = useWorkspace()
@@ -471,439 +450,414 @@ export default function ProjectsPage() {
   if (loading) {
     return (
       <Layout>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>Loading...</div>
+        <Center h="64">
+          <Spinner size="lg" color="blue.500" />
+        </Center>
       </Layout>
     )
   }
 
   return (
     <Layout>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', margin: '0 0 8px 0' }}>Projects</h1>
-            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+      <VStack spacing={6} align="stretch">
+        <Flex justify="space-between" align="center">
+          <Box>
+            <Heading size="xl" color="gray.800" mb={2}>Projects</Heading>
+            <Text fontSize="sm" color="gray.600">
               Manage your film projects and track submissions.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <button
+            </Text>
+          </Box>
+          <HStack spacing={3}>
+            <Button
               onClick={() => setShowUpload(!showUpload)}
-              style={{
-                ...buttonStyle,
-                background: '#10b981',
-                color: '#ffffff',
-              }}
+              colorScheme="green"
+              size="md"
             >
               Upload CSV
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={exportProjectsCSV}
-              style={{
-                ...buttonStyle,
-                background: '#6366f1',
-                color: '#ffffff',
-              }}
+              colorScheme="purple"
+              size="md"
             >
               Export CSV
-            </button>
-            <Link
+            </Button>
+            <Button
+              as={Link}
               href="/projects/new"
-              style={primaryButtonStyle}
+              colorScheme="blue"
+              size="md"
             >
               Add Project
-            </Link>
-          </div>
-        </div>
+            </Button>
+          </HStack>
+        </Flex>
 
         {/* CSV Upload Form */}
         {showUpload && (
-          <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>
-              Upload Projects CSV
-            </h3>
-            <div style={{ marginBottom: '16px' }}>
-              <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 12px 0' }}>
-                Upload a CSV file with columns: TITLE, LOGLINE, STATUS, STAGE, MEDIUM, GENRES, TAGS, NOTES
-              </p>
-              <ul style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 16px 0', paddingLeft: '20px' }}>
-                <li>TITLE is required for each row</li>
-                <li>ROLE will default to 'Writer' for all projects</li>
-                <li>Multiple mediums should be separated by commas (,)</li>
-                <li>Multiple genres should be separated by commas (,)</li>
-                <li>Multiple tags should be separated by commas (,)</li>
-              </ul>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <input
+          <Card>
+            <CardBody>
+              <Heading size="md" color="gray.800" mb={4}>
+                Upload Projects CSV
+              </Heading>
+              <VStack align="stretch" spacing={4} mb={4}>
+                <Text fontSize="sm" color="gray.600">
+                  Upload a CSV file with columns: TITLE, LOGLINE, STATUS, STAGE, MEDIUM, GENRES, TAGS, NOTES
+                </Text>
+                <Box as="ul" fontSize="sm" color="gray.600" pl={5}>
+                  <li>TITLE is required for each row</li>
+                  <li>ROLE will default to 'Writer' for all projects</li>
+                  <li>Multiple mediums should be separated by commas (,)</li>
+                  <li>Multiple genres should be separated by commas (,)</li>
+                  <li>Multiple tags should be separated by commas (,)</li>
+                </Box>
+              </VStack>
+              
+              <VStack spacing={4}>
+                <Input
                   type="file"
                   accept=".csv"
                   onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                  style={{ 
-                    width: '100%', 
-                    padding: '8px 12px', 
-                    border: '1px solid #d1d5db', 
-                    borderRadius: '6px',
-                    fontSize: '14px'
-                  }}
+                  size="md"
                 />
-              </div>
-              
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button
-                  onClick={() => setShowUpload(false)}
-                  style={{
-                    ...buttonStyle,
-                    background: '#ffffff',
-                    color: '#374151',
-                    border: '1px solid #d1d5db'
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleFileUpload}
-                  disabled={!uploadFile || uploading}
-                  style={{
-                    ...buttonStyle,
-                    background: uploading ? '#9ca3af' : '#10b981',
-                    color: '#ffffff',
-                    cursor: (!uploadFile || uploading) ? 'not-allowed' : 'pointer',
-                    opacity: (!uploadFile || uploading) ? '0.5' : '1'
-                  }}
-                >
-                  {uploading ? 'Uploading...' : 'Upload Projects'}
-                </button>
-              </div>
-            </div>
-          </div>
+                
+                <HStack spacing={3} justify="flex-end" w="full">
+                  <Button
+                    onClick={() => setShowUpload(false)}
+                    variant="outline"
+                    size="md"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleFileUpload}
+                    isDisabled={!uploadFile || uploading}
+                    isLoading={uploading}
+                    loadingText="Uploading..."
+                    colorScheme="green"
+                    size="md"
+                  >
+                    Upload Projects
+                  </Button>
+                </HStack>
+              </VStack>
+            </CardBody>
+          </Card>
         )}
 
         {/* Search and Filters */}
-        <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px' }}>
-          {/* Search Bar */}
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'end', marginBottom: showFilters ? '24px' : '0' }}>
-            <div style={{ flex: 1, maxWidth: '384px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                Search Projects
-              </label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by title, logline, or tags..."
-                style={{ 
-                  width: '100%', 
-                  padding: '8px 12px', 
-                  border: '1px solid #d1d5db', 
-                  borderRadius: '6px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-            
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                style={{
-                  ...buttonStyle,
-                  background: showFilters ? '#3b82f6' : '#ffffff',
-                  color: showFilters ? '#ffffff' : '#374151',
-                  border: '1px solid #d1d5db'
-                }}
-              >
-                {showFilters ? 'Hide Filters' : 'Show Filters'}
-              </button>
+        <Card>
+          <CardBody>
+            {/* Search Bar */}
+            <Flex gap={4} align="end" mb={showFilters ? 6 : 0}>
+              <Box flex={1} maxW="384px">
+                <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={2}>
+                  Search Projects
+                </Text>
+                <Input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by title, logline, or tags..."
+                  size="md"
+                />
+              </Box>
               
-              {hasActiveFilters && (
-                <button
-                  onClick={clearAllFilters}
-                  style={{
-                    ...buttonStyle,
-                    background: '#ffffff',
-                    color: '#dc2626',
-                    border: '1px solid #dc2626'
-                  }}
+              <Flex gap={3}>
+                <Button
+                  onClick={() => setShowFilters(!showFilters)}
+                  colorScheme={showFilters ? "blue" : "gray"}
+                  variant={showFilters ? "solid" : "outline"}
+                  size="md"
                 >
-                  Clear All
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Advanced Filters */}
-          {showFilters && (
-            <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Medium Filter */}
-              {mediums.length > 0 && (
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                    Medium ({selectedMediums.length} selected)
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {mediums.map((medium) => (
-                      <button
-                        key={medium.id}
-                        onClick={() => toggleMedium(medium.name)}
-                        style={selectedMediums.includes(medium.name) ? selectedPillStyle : pillButtonStyle}
-                      >
-                        {medium.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Genres Filter */}
-              {genres.length > 0 && (
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                    Genres ({selectedGenres.length} selected)
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {genres.map((genre) => (
-                      <button
-                        key={genre.id}
-                        onClick={() => toggleGenre(genre.name)}
-                        style={selectedGenres.includes(genre.name) ? selectedPillStyle : pillButtonStyle}
-                      >
-                        {genre.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Tags Filter */}
-              {uniqueTags.length > 0 && (
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                    Tags ({selectedTags.length} selected)
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {uniqueTags.map((tag) => (
-                      <button
-                        key={tag}
-                        onClick={() => toggleTag(tag)}
-                        style={selectedTags.includes(tag) ? selectedPillStyle : pillButtonStyle}
-                      >
-                        #{tag}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Status and Stage Filters */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                {/* Status Filter */}
-                {uniqueStatuses.length > 0 && (
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Status
-                    </label>
-                    <select
-                      value={selectedStatus}
-                      onChange={(e) => setSelectedStatus(e.target.value)}
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }}
-                    >
-                      <option value="">All Statuses</option>
-                      {uniqueStatuses.map((status) => (
-                        <option key={status} value={status || ''}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Stage Filter */}
-                {uniqueStages.length > 0 && (
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                      Stage
-                    </label>
-                    <select
-                      value={selectedStage}
-                      onChange={(e) => setSelectedStage(e.target.value)}
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }}
-                    >
-                      <option value="">All Stages</option>
-                      {uniqueStages.map((stage) => (
-                        <option key={stage} value={stage || ''}>
-                          {stage}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-
-              {/* Results Summary */}
-              <div style={{ padding: '12px 16px', background: '#f9fafb', borderRadius: '6px', fontSize: '14px', color: '#6b7280' }}>
-                Showing {sortedAndFilteredProjects.length} of {projects.length} projects
+                  {showFilters ? 'Hide Filters' : 'Show Filters'}
+                </Button>
+                
                 {hasActiveFilters && (
-                  <span style={{ color: '#3b82f6', marginLeft: '8px' }}>
-                    (filtered)
-                  </span>
+                  <Button
+                    onClick={clearAllFilters}
+                    colorScheme="red"
+                    variant="outline"
+                    size="md"
+                  >
+                    Clear All
+                  </Button>
                 )}
-              </div>
-            </div>
-          )}
-        </div>
+              </Flex>
+            </Flex>
+
+            {/* Advanced Filters */}
+            <Collapse in={showFilters}>
+              <Box borderTop="1px" borderColor="gray.200" pt={6}>
+                <VStack align="stretch" spacing={5}>
+                  {/* Medium Filter */}
+                  {mediums.length > 0 && (
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={2}>
+                        Medium ({selectedMediums.length} selected)
+                      </Text>
+                      <Wrap spacing={2}>
+                        {mediums.map((medium) => (
+                          <WrapItem key={medium.id}>
+                            <Button
+                              onClick={() => toggleMedium(medium.name)}
+                              colorScheme={selectedMediums.includes(medium.name) ? "blue" : "gray"}
+                              variant={selectedMediums.includes(medium.name) ? "solid" : "outline"}
+                              size="sm"
+                              borderRadius="full"
+                            >
+                              {medium.name}
+                            </Button>
+                          </WrapItem>
+                        ))}
+                      </Wrap>
+                    </Box>
+                  )}
+
+                  {/* Genres Filter */}
+                  {genres.length > 0 && (
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={2}>
+                        Genres ({selectedGenres.length} selected)
+                      </Text>
+                      <Wrap spacing={2}>
+                        {genres.map((genre) => (
+                          <WrapItem key={genre.id}>
+                            <Button
+                              onClick={() => toggleGenre(genre.name)}
+                              colorScheme={selectedGenres.includes(genre.name) ? "blue" : "gray"}
+                              variant={selectedGenres.includes(genre.name) ? "solid" : "outline"}
+                              size="sm"
+                              borderRadius="full"
+                            >
+                              {genre.name}
+                            </Button>
+                          </WrapItem>
+                        ))}
+                      </Wrap>
+                    </Box>
+                  )}
+
+                  {/* Tags Filter */}
+                  {uniqueTags.length > 0 && (
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={2}>
+                        Tags ({selectedTags.length} selected)
+                      </Text>
+                      <Wrap spacing={2}>
+                        {uniqueTags.map((tag) => (
+                          <WrapItem key={tag}>
+                            <Button
+                              onClick={() => toggleTag(tag)}
+                              colorScheme={selectedTags.includes(tag) ? "blue" : "gray"}
+                              variant={selectedTags.includes(tag) ? "solid" : "outline"}
+                              size="sm"
+                              borderRadius="full"
+                            >
+                              #{tag}
+                            </Button>
+                          </WrapItem>
+                        ))}
+                      </Wrap>
+                    </Box>
+                  )}
+
+                  {/* Status and Stage Filters */}
+                  <Grid templateColumns="1fr 1fr" gap={4}>
+                    {/* Status Filter */}
+                    {uniqueStatuses.length > 0 && (
+                      <GridItem>
+                        <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={2}>
+                          Status
+                        </Text>
+                        <Select
+                          value={selectedStatus}
+                          onChange={(e) => setSelectedStatus(e.target.value)}
+                          size="md"
+                        >
+                          <option value="">All Statuses</option>
+                          {uniqueStatuses.map((status) => (
+                            <option key={status} value={status || ''}>
+                              {status}
+                            </option>
+                          ))}
+                        </Select>
+                      </GridItem>
+                    )}
+
+                    {/* Stage Filter */}
+                    {uniqueStages.length > 0 && (
+                      <GridItem>
+                        <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={2}>
+                          Stage
+                        </Text>
+                        <Select
+                          value={selectedStage}
+                          onChange={(e) => setSelectedStage(e.target.value)}
+                          size="md"
+                        >
+                          <option value="">All Stages</option>
+                          {uniqueStages.map((stage) => (
+                            <option key={stage} value={stage || ''}>
+                              {stage}
+                            </option>
+                          ))}
+                        </Select>
+                      </GridItem>
+                    )}
+                  </Grid>
+
+                  {/* Results Summary */}
+                  <Box p={3} bg="gray.50" borderRadius="md" fontSize="sm" color="gray.600">
+                    <Text>
+                      Showing {sortedAndFilteredProjects.length} of {projects.length} projects
+                      {hasActiveFilters && (
+                        <Text as="span" color="blue.500" ml={2}>
+                          (filtered)
+                        </Text>
+                      )}
+                    </Text>
+                  </Box>
+                </VStack>
+              </Box>
+            </Collapse>
+          </CardBody>
+        </Card>
 
         {/* Projects Grid */}
-        <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+        <Card>
           {sortedAndFilteredProjects.length === 0 ? (
-            <div style={{ padding: '48px', textAlign: 'center', color: '#6b7280' }}>
-              {projects.length === 0 ? (
-                <div>
-                  <p style={{ margin: '0 0 8px 0' }}>No projects yet.</p>
-                  <Link
-                    href="/projects/new"
-                    style={{ color: '#3b82f6', textDecoration: 'none' }}
-                  >
-                    Create your first project
-                  </Link>
-                </div>
-              ) : (
-                <p style={{ margin: 0 }}>No projects match your current filters.</p>
-              )}
-            </div>
+            <CardBody>
+              <Center py={12}>
+                <VStack spacing={2}>
+                  {projects.length === 0 ? (
+                    <>
+                      <Text color="gray.600" mb={2}>No projects yet.</Text>
+                      <Text as={Link} href="/projects/new" color="blue.500" textDecoration="none">
+                        Create your first project
+                      </Text>
+                    </>
+                  ) : (
+                    <Text color="gray.600">No projects match your current filters.</Text>
+                  )}
+                </VStack>
+              </Center>
+            </CardBody>
           ) : (
-            <div style={{ display: 'grid', gap: '1px', background: '#e5e7eb' }}>
-              {/* Header */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '2fr 4fr 1fr 60px', 
-                gap: '16px', 
-                padding: '16px 24px', 
-                background: '#f9fafb',
-                fontSize: '12px',
-                fontWeight: '500',
-                color: '#6b7280',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}>
-                <div 
-                  onClick={() => handleSort('title')}
-                  style={{ 
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    color: '#4f46e5'
-                  }}
-                >
-                  Title
-                  {sortField === 'title' && (
-                    <span style={{ fontSize: '10px' }}>
-                      {sortDirection === 'asc' ? '↑' : '↓'}
-                    </span>
-                  )}
-                </div>
-                <div>Logline</div>
-                <div 
-                  onClick={() => handleSort('created_at')}
-                  style={{ 
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    color: '#4f46e5'
-                  }}
-                >
-                  Date Added
-                  {sortField === 'created_at' && (
-                    <span style={{ fontSize: '10px' }}>
-                      {sortDirection === 'asc' ? '↑' : '↓'}
-                    </span>
-                  )}
-                </div>
-                <div></div>
-              </div>
-
-              {/* Rows */}
-              {sortedAndFilteredProjects.map((project) => (
-                <div 
-                  key={project.id} 
-                  style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: '2fr 4fr 1fr 60px', 
-                    gap: '16px', 
-                    padding: '16px 24px', 
-                    background: '#ffffff',
-                    transition: 'background-color 0.2s',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
-                >
-                  <div>
-                    <Link
-                      href={`/projects/${project.id}`}
-                      style={{ color: '#3b82f6', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}
+            <TableContainer>
+              <Table variant="simple">
+                <Thead bg="gray.50">
+                  <Tr>
+                    <Th 
+                      fontSize="xs" 
+                      fontWeight="medium" 
+                      color="indigo.600" 
+                      textTransform="uppercase" 
+                      letterSpacing="wide"
+                      cursor="pointer"
+                      onClick={() => handleSort('title')}
+                      _hover={{ bg: "gray.100" }}
                     >
-                      {project.title}
-                    </Link>
-                    {project.tags && project.tags.length > 0 && (
-                      <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                        {project.tags.slice(0, 3).map((tag, index) => (
-                          <span key={index} style={tagStyle}>
-                            {tag.startsWith('#') ? tag : `#${tag}`}
-                          </span>
-                        ))}
-                        {project.tags.length > 3 && (
-                          <span style={{ fontSize: '12px', color: '#6b7280' }}>
-                            +{project.tags.length - 3} more
-                          </span>
+                      <HStack spacing={1}>
+                        <Text>Title</Text>
+                        {sortField === 'title' && (
+                          <Text fontSize="xs">
+                            {sortDirection === 'asc' ? '↑' : '↓'}
+                          </Text>
                         )}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ fontSize: '14px', color: '#374151', lineHeight: '1.4' }}>
-                    {project.logline || '—'}
-                  </div>
-                  <div style={{ fontSize: '14px', color: '#6b7280' }}>
-                    {new Date(project.created_at).toLocaleDateString('en-GB')}
-                  </div>
-                  <div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Link
-                      href={`/projects/${project.id}`}
-                      style={{ 
-                        color: '#3b82f6', 
-                        textDecoration: 'none', 
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '4px'
-                      }}
+                      </HStack>
+                    </Th>
+                    <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide">
+                      Logline
+                    </Th>
+                    <Th 
+                      fontSize="xs" 
+                      fontWeight="medium" 
+                      color="indigo.600" 
+                      textTransform="uppercase" 
+                      letterSpacing="wide"
+                      cursor="pointer"
+                      onClick={() => handleSort('created_at')}
+                      _hover={{ bg: "gray.100" }}
                     >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                      <HStack spacing={1}>
+                        <Text>Date Added</Text>
+                        {sortField === 'created_at' && (
+                          <Text fontSize="xs">
+                            {sortDirection === 'asc' ? '↑' : '↓'}
+                          </Text>
+                        )}
+                      </HStack>
+                    </Th>
+                    <Th></Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {sortedAndFilteredProjects.map((project) => (
+                    <Tr key={project.id} _hover={{ bg: "gray.50" }}>
+                      <Td>
+                        <VStack align="start" spacing={2}>
+                          <Text as={Link} href={`/projects/${project.id}`} color="blue.500" fontWeight="medium" fontSize="sm" _hover={{ textDecoration: "underline" }}>
+                            {project.title}
+                          </Text>
+                          {project.tags && project.tags.length > 0 && (
+                            <HStack spacing={1} wrap="wrap">
+                              {project.tags.slice(0, 3).map((tag, index) => (
+                                <Badge key={index} colorScheme="gray" borderRadius="full" fontSize="xs">
+                                  {tag.startsWith('#') ? tag : `#${tag}`}
+                                </Badge>
+                              ))}
+                              {project.tags.length > 3 && (
+                                <Text fontSize="xs" color="gray.600">
+                                  +{project.tags.length - 3} more
+                                </Text>
+                              )}
+                            </HStack>
+                          )}
+                        </VStack>
+                      </Td>
+                      <Td>
+                        <Text fontSize="sm" color="gray.700" lineHeight="1.4">
+                          {project.logline || '—'}
+                        </Text>
+                      </Td>
+                      <Td>
+                        <Text fontSize="sm" color="gray.600">
+                          {new Date(project.created_at).toLocaleDateString('en-GB')}
+                        </Text>
+                      </Td>
+                      <Td>
+                        <IconButton
+                          as={Link}
+                          href={`/projects/${project.id}`}
+                          icon={
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                              <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                          }
+                          aria-label="View project"
+                          size="sm"
+                          variant="ghost"
+                          colorScheme="blue"
+                        />
+                      </Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            </TableContainer>
           )}
-        </div>
-      </div>
+        </Card>
+      </VStack>
     </Layout>
   )
 }

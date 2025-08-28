@@ -2,6 +2,35 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import {
+  Box,
+  Button,
+  Input,
+  Flex,
+  VStack,
+  HStack,
+  Text,
+  Card,
+  CardBody,
+  Spinner,
+  Center,
+  Collapse,
+  Heading,
+  Wrap,
+  WrapItem,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  IconButton,
+  Badge,
+  Grid,
+  GridItem,
+  Select
+} from '@chakra-ui/react'
 import { Layout } from '@/components/Layout'
 import { useWorkspace } from '@/components/workspace/WorkspaceProvider'
 import { supabase } from '@/lib/supabase'
@@ -37,37 +66,7 @@ type Contact = {
   }[]
 }
 
-const buttonStyle = {
-  padding: '8px 16px',
-  borderRadius: '6px',
-  fontSize: '14px',
-  fontWeight: '500',
-  textDecoration: 'none',
-  border: 'none',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontFamily: 'inherit',
-  lineHeight: '1',
-}
-
-const primaryButtonStyle = {
-  ...buttonStyle,
-  background: '#3b82f6',
-  color: '#ffffff',
-}
-
-const tagStyle = {
-  padding: '4px 8px',
-  borderRadius: '12px',
-  fontSize: '12px',
-  fontWeight: '500',
-  background: '#e5e7eb',
-  color: '#374151',
-  display: 'inline-block',
-}
+// Style constants removed - now using Chakra UI components
 
 export default function ContactsPage() {
   const { activeWorkspaceId } = useWorkspace()
@@ -435,7 +434,9 @@ export default function ContactsPage() {
   if (loading) {
     return (
       <Layout>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>Loading...</div>
+        <Center h="64">
+          <Spinner size="lg" color="blue.500" />
+        </Center>
       </Layout>
     )
   }
@@ -451,32 +452,28 @@ export default function ContactsPage() {
             </p>
           </div>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <button
+            <Button
               onClick={() => setShowUpload(!showUpload)}
-              style={{
-                ...buttonStyle,
-                background: '#10b981',
-                color: '#ffffff',
-              }}
+              colorScheme="green"
+              size="md"
             >
               Upload CSV
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={exportContactsCSV}
-              style={{
-                ...buttonStyle,
-                background: '#6366f1',
-                color: '#ffffff',
-              }}
+              colorScheme="purple"
+              size="md"
             >
               Export CSV
-            </button>
-            <Link
+            </Button>
+            <Button
+              as={Link}
               href="/contacts/new"
-              style={primaryButtonStyle}
+              colorScheme="blue"
+              size="md"
             >
               Add Contact
-            </Link>
+            </Button>
           </div>
         </div>
 
@@ -514,32 +511,25 @@ export default function ContactsPage() {
                 />
               </div>
               
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button
+              <HStack spacing={3} justify="flex-end">
+                <Button
                   onClick={() => setShowUpload(false)}
-                  style={{
-                    ...buttonStyle,
-                    background: '#ffffff',
-                    color: '#374151',
-                    border: '1px solid #d1d5db'
-                  }}
+                  variant="outline"
+                  size="md"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleFileUpload}
-                  disabled={!uploadFile || uploading}
-                  style={{
-                    ...buttonStyle,
-                    background: uploading ? '#9ca3af' : '#10b981',
-                    color: '#ffffff',
-                    cursor: (!uploadFile || uploading) ? 'not-allowed' : 'pointer',
-                    opacity: (!uploadFile || uploading) ? '0.5' : '1'
-                  }}
+                  isDisabled={!uploadFile || uploading}
+                  isLoading={uploading}
+                  loadingText="Uploading..."
+                  colorScheme="green"
+                  size="md"
                 >
-                  {uploading ? 'Uploading...' : 'Upload Contacts'}
-                </button>
-              </div>
+                  Upload Contacts
+                </Button>
+              </HStack>
             </div>
           </div>
         )}
