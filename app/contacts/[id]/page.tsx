@@ -784,8 +784,8 @@ export default function ContactDetailPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Contact Header */}
         <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1 }}>
+          <div className="detail-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div className="detail-page-content" style={{ flex: 1 }}>
               <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', margin: '0 0 16px 0' }}>
                 {contact.first_name} {contact.last_name}
               </h1>
@@ -831,7 +831,7 @@ export default function ContactDetailPage() {
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {contact.tags.map((tag, index) => (
                       <span key={index} style={tagStyle}>
-                        #{tag}
+                        {tag.startsWith('#') ? tag : `#${tag}`}
                       </span>
                     ))}
                   </div>
@@ -899,12 +899,24 @@ export default function ContactDetailPage() {
               )}
             </div>
             
-            <div style={{ marginLeft: '24px' }}>
+            <div className="detail-page-edit-button" style={{ marginLeft: '24px' }}>
               <Link
                 href={`/contacts/${contact.id}/edit`}
-                style={secondaryButtonStyle}
+                style={{
+                  display: 'inline-block',
+                  padding: '8px 16px',
+                  backgroundColor: '#3b82f6',
+                  color: '#ffffff',
+                  textDecoration: 'none',
+                  borderRadius: '20px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
               >
-                Edit Contact
+                Edit
               </Link>
             </div>
           </div>

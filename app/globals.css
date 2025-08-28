@@ -20,4 +20,19 @@ body {
   .contacts-grid-mobile {
     grid-template-columns: 1fr 1fr !important;
   }
+  
+  /* Mobile full-width layout for project/contact detail pages */
+  .detail-page-header {
+    flex-direction: column !important;
+  }
+  
+  .detail-page-content {
+    width: 100% !important;
+  }
+  
+  .detail-page-edit-button {
+    margin-left: 0 !important;
+    margin-top: 16px !important;
+    align-self: flex-end !important;
+  }
 }

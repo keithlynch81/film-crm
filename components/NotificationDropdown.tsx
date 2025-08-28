@@ -49,9 +49,9 @@ const notificationBadgeStyle = {
 const dropdownStyle = {
   position: 'absolute' as const,
   top: '100%',
-  right: '0',
-  width: '400px',
-  maxHeight: '500px',
+  right: '-20px',
+  width: '300px',
+  maxHeight: '400px',
   overflowY: 'auto' as const,
   background: '#ffffff',
   border: '1px solid #e5e7eb',
@@ -62,10 +62,11 @@ const dropdownStyle = {
 }
 
 const notificationItemStyle = {
-  padding: '16px',
+  padding: '12px',
   borderBottom: '1px solid #f3f4f6',
   cursor: 'pointer',
   transition: 'background-color 0.2s',
+  fontSize: '14px',
 }
 
 const unreadNotificationStyle = {
@@ -276,7 +277,7 @@ export function NotificationDropdown() {
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: 0 }}>
+            <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: 0 }}>
               Notifications
             </h3>
             {unreadCount > 0 && (
@@ -320,7 +321,7 @@ export function NotificationDropdown() {
                 >
                   <div style={{ marginBottom: '4px' }}>
                     <div style={{ 
-                      fontSize: '14px', 
+                      fontSize: '13px', 
                       fontWeight: '600', 
                       color: '#111827',
                       marginBottom: '2px'

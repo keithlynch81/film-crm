@@ -447,8 +447,8 @@ export default function ProjectDetailPage() {
         
         {/* Project Header */}
         <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px', position: 'relative' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1 }}>
+          <div className="detail-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div className="detail-page-content" style={{ flex: 1 }}>
               {/* Title and Medium */}
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
                 <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', margin: '0' }}>{project.title}</h1>
@@ -523,7 +523,7 @@ export default function ProjectDetailPage() {
               </div>
             </div>
             
-            <div style={{ marginLeft: '24px' }}>
+            <div className="detail-page-edit-button" style={{ marginLeft: '24px' }}>
               <Link
                 href={`/projects/${project.id}/edit`}
                 style={secondaryButtonStyle}

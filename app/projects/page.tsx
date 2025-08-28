@@ -800,9 +800,6 @@ export default function ProjectsPage() {
                         )}
                       </HStack>
                     </Th>
-                    <Th fontSize="xs" fontWeight="medium" color="gray.600" textTransform="uppercase" letterSpacing="wide">
-                      Logline
-                    </Th>
                     <Th 
                       fontSize="xs" 
                       fontWeight="medium" 
@@ -830,29 +827,38 @@ export default function ProjectsPage() {
                     <Tr key={project.id} _hover={{ bg: "gray.50" }}>
                       <Td>
                         <VStack align="start" spacing={2}>
-                          <Text as={Link} href={`/projects/${project.id}`} color="blue.500" fontWeight="medium" fontSize="sm" _hover={{ textDecoration: "underline" }}>
-                            {project.title}
-                          </Text>
-                          {project.tags && project.tags.length > 0 && (
-                            <HStack spacing={1} wrap="wrap">
-                              {project.tags.slice(0, 3).map((tag, index) => (
-                                <Badge key={index} colorScheme="gray" borderRadius="full" fontSize="xs">
-                                  {tag.startsWith('#') ? tag : `#${tag}`}
+                          <Flex justify="space-between" align="center" width="full">
+                            <Text as={Link} href={`/projects/${project.id}`} color="blue.500" fontWeight="medium" fontSize="sm" _hover={{ textDecoration: "underline" }} flex="1">
+                              {project.title}
+                            </Text>
+                            <HStack spacing={2}>
+                              {project.tags && project.tags.length > 0 && (
+                                <HStack spacing={1} wrap="wrap">
+                                  {project.tags.slice(0, 2).map((tag, index) => (
+                                    <Badge key={index} colorScheme="gray" borderRadius="full" fontSize="xs">
+                                      {tag.startsWith('#') ? tag : `#${tag}`}
+                                    </Badge>
+                                  ))}
+                                  {project.tags.length > 2 && (
+                                    <Text fontSize="xs" color="gray.600">
+                                      +{project.tags.length - 2}
+                                    </Text>
+                                  )}
+                                </HStack>
+                              )}
+                              {project.project_genres && project.project_genres.length > 0 && (
+                                <Badge colorScheme="purple" borderRadius="full" fontSize="xs">
+                                  {project.project_genres[0].genres.name}
                                 </Badge>
-                              ))}
-                              {project.tags.length > 3 && (
-                                <Text fontSize="xs" color="gray.600">
-                                  +{project.tags.length - 3} more
-                                </Text>
                               )}
                             </HStack>
+                          </Flex>
+                          {project.logline && (
+                            <Text fontSize="sm" color="gray.700" lineHeight="1.4">
+                              {project.logline}
+                            </Text>
                           )}
                         </VStack>
-                      </Td>
-                      <Td>
-                        <Text fontSize="sm" color="gray.700" lineHeight="1.4">
-                          {project.logline || '—'}
-                        </Text>
                       </Td>
                       <Td>
                         <Text fontSize="sm" color="gray.600">

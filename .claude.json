@@ -11,6 +11,20 @@
       "allowedTools": [],
       "history": [
         {
+          "display": "i hit my usage limit. can you pick up from where you left off?",
+          "pastedContents": {}
+        },
+        {
+          "display": "\nThere are some more changes we need to make to both the non-mobile and mobile versions as some of the mobile layout changes have messed up the non-mobile layout. Can changes be made to one without messing up the other?\nThe following changes should only be done to the Non-mobile layout:\nThe main project page. The genres are missing and the logline column is a large gap away from the title. Can we maybe lose the ‘logline’ heading and move the logline down on to the second line below the project title (where tags are currently) and then move tags up on to the same line as the project title but justify them to the right of the box ([Pasted text #1 +6 lines]",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "but genre at the very right of the box but then to the left of that put the tags).\nThe following changes should only be done to the mobile layout:\nOn a specific Projects page, the logline and Notes aren’t filling the full width of the box, it’s like there’s two columns in the box and they’re only in the left hand one. Fix this. A similar thing is happening with the contact page. The taste notes, remit notes and additional notes aren’t filling the full width of the box. On the Notebook page, move the Edit button to the bottom right hand corner of the box and make it a blue pill button. Remove the delete button, but once you click on Edit, on that next page there should be a Delete button and should be a red pill button. Back on the main Notebook page, remove the date added info. That’s not needed on here. With those things moved or deleted, the idea title should fill the full width of the box if needed. On the main nav bar, when i click on the Notifications icon, the dropdown is right justified to the icon which means a lot of the dropdown is cut off the left side. Can we do something about this? Maybe reducing the size of the dropdown and the text size to make it fit.\nThe following changes should be done to Both layouts:\nIn a specific Contact’s page, can we change the ‘Edit Contact’ button to just be ‘Edit’ and maybe make it a blue pill button. Also can it be in the bottom right hand corner of the box to give more room to the contact’s name, which should fill the full width of the box.\nI’ve noticed that if im adding or editing a contact and use one of the suggested tags (eg #contained) then once i come out to that contacts page, I’m still seeing it as ‘##contained’. This issue isn’t happening on a specific Project’s page, so look at that to see how that is working.\n"
+            }
+          }
+        },
+        {
           "display": "I’m thinking we do something similar for the projects page. We could get rid of the tags and on that second line, we could have the logline. If it’s too long for a mobile screen, the logline should be contracted with ‘...’ rather than go off the edge of the page. Also, lets put the genre on the same line as the title but justify it to the right of the box. And then can you push both sets of changes to github",
           "pastedContents": {}
         },

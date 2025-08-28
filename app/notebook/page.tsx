@@ -1043,21 +1043,43 @@ export default function NotebookPage() {
               </div>
 
               {/* Submit Button */}
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  style={{
-                    padding: '10px 20px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    backgroundColor: 'white',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  Cancel
-                </button>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: editingEntry ? 'space-between' : 'flex-end' }}>
+                {editingEntry && (
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(editingEntry.id)}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#dc2626',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '20px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+                  >
+                    Delete
+                  </button>
+                )}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    style={{
+                      padding: '10px 20px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '8px',
+                      backgroundColor: 'white',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Cancel
+                  </button>
                 <button
                   type="submit"
                   style={{
@@ -1073,6 +1095,7 @@ export default function NotebookPage() {
                 >
                   Save Idea
                 </button>
+                </div>
               </div>
             </form>
           </div>
@@ -1102,58 +1125,23 @@ export default function NotebookPage() {
                   boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', color: '#111827' }}>
-                      {entry.title}
-                    </h3>
-                    {entry.projects?.title && (
-                      <div style={{ 
-                        fontSize: '12px', 
-                        color: '#059669',
-                        backgroundColor: '#d1fae5',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        display: 'inline-block',
-                        marginBottom: '8px'
-                      }}>
-                        🔗 Used in: {entry.projects.title}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ fontSize: '13px', color: '#6b7280' }}>
-                      {formatDate(entry.updated_at)}
+                <div style={{ marginBottom: '12px' }}>
+                  <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', color: '#111827', width: '100%' }}>
+                    {entry.title}
+                  </h3>
+                  {entry.projects?.title && (
+                    <div style={{ 
+                      fontSize: '12px', 
+                      color: '#059669',
+                      backgroundColor: '#d1fae5',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      display: 'inline-block',
+                      marginBottom: '8px'
+                    }}>
+                      🔗 Used in: {entry.projects.title}
                     </div>
-                    <button
-                      onClick={() => handleEdit(entry)}
-                      style={{
-                        padding: '4px 8px',
-                        fontSize: '12px',
-                        backgroundColor: '#f3f4f6',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        color: '#374151'
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(entry.id)}
-                      style={{
-                        padding: '4px 8px',
-                        fontSize: '12px',
-                        backgroundColor: '#fef2f2',
-                        border: '1px solid #fecaca',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        color: '#dc2626'
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  )}
                 </div>
                 
                 <p style={{ margin: '0 0 16px 0', color: '#374151', lineHeight: '1.5' }}>
@@ -1241,6 +1229,28 @@ export default function NotebookPage() {
                       ))}
                     </div>
                   )}
+                </div>
+                
+                {/* Edit button positioned at bottom right */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+                  <button
+                    onClick={() => handleEdit(entry)}
+                    style={{
+                      padding: '8px 16px',
+                      fontSize: '14px',
+                      backgroundColor: '#3b82f6',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '20px',
+                      cursor: 'pointer',
+                      fontWeight: '500',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+                  >
+                    Edit
+                  </button>
                 </div>
               </div>
             ))
