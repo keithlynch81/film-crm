@@ -81,7 +81,7 @@ async function getMatchingData() {
     })
     
     // Show unique workspace IDs
-    const workspaceIds = [...new Set(contactsRes.data.map(c => c.workspace_id))]
+    const workspaceIds = Array.from(new Set(contactsRes.data.map(c => c.workspace_id)))
     console.log('Workspaces represented in contacts:', workspaceIds)
   }
   
