@@ -11,8 +11,16 @@ body {
 }
 
 /* Responsive utilities */
+.desktop-only {
+  display: block;
+}
+
 @media (max-width: 768px) {
   .hidden-mobile {
+    display: none !important;
+  }
+  
+  .desktop-only {
     display: none !important;
   }
   

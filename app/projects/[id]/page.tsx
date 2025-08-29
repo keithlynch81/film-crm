@@ -737,7 +737,7 @@ export default function ProjectDetailPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '14px', color: '#6b7280' }}>
                           <div>Submitted: {new Date(submission.submitted_at).toLocaleDateString('en-GB')}</div>
                           {submission.notes && (
-                            <div>Notes: {submission.notes}</div>
+                            <div className="desktop-only">Notes: {submission.notes}</div>
                           )}
                         </div>
                       </div>
@@ -761,6 +761,7 @@ export default function ProjectDetailPage() {
                             cursor: 'pointer',
                             transition: 'background-color 0.2s'
                           }}
+                          className="desktop-only"
                         >
                           Remove
                         </button>

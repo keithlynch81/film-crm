@@ -854,16 +854,23 @@ export default function ProjectsPage() {
                             </HStack>
                           </Flex>
                           {project.logline && (
-                            <Text fontSize="sm" color="gray.700" lineHeight="1.4">
+                            <Text fontSize="sm" color="gray.700" lineHeight="1.4" noOfLines={{ base: 2, md: 1 }} wordBreak="break-word">
                               {project.logline}
                             </Text>
                           )}
                         </VStack>
                       </Td>
                       <Td>
-                        <Text fontSize="sm" color="gray.600">
-                          {new Date(project.created_at).toLocaleDateString('en-GB')}
-                        </Text>
+                        <VStack align="start" spacing={2}>
+                          {project.status && (
+                            <Badge colorScheme="green" borderRadius="full" fontSize="xs">
+                              {project.status}
+                            </Badge>
+                          )}
+                          <Text fontSize="sm" color="gray.600">
+                            {new Date(project.created_at).toLocaleDateString('en-GB')}
+                          </Text>
+                        </VStack>
                       </Td>
                       <Td>
                         <IconButton
