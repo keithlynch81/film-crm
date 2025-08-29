@@ -49,3 +49,6 @@ Thumbs.db
 # SQL migration files (keep the main ones but exclude temp files)
 *-Copy.*
 *.example:Zone.Identifier
+
+# Reference screenshots and documentation
+refs/
