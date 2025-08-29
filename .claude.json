@@ -4,7 +4,8 @@
   "autoUpdates": true,
   "tipsHistory": {
     "new-user-warmup": 1,
-    "memory-command": 1
+    "memory-command": 1,
+    "theme-command": 1
   },
   "userID": "2b1eec430de6f74f1354ac3e5714b099a3edb84ac622807a5188689f5d921f7b",
   "fallbackAvailableWarningThreshold": 0.5,
@@ -12,6 +13,10 @@
     "/home/keith": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "I can see the changes to the Project Detail page but none of the others have changed. Can you take another look and see what's happening?",
+          "pastedContents": {}
+        },
         {
           "display": "there are some issues i noticed this morning: Genres and tags still not visible on the desktop version\nOn desktop projects page, the date needs space between it and the Status field above it\nOn mobile on main Projects page, can the logline go over two lines and be contracted with a … if necessary to stop it extending off the right hand side of the mobile screen.\nOn mobile, on a specific projects page, with the Submissions section, the REMOVE button is half in, half out of the right hand side of the box. Can you remove the REMOVE button. Also on the mobile version, can you remove the ‘notes’ field from displaying in the Submissions section on a specific project’s page.\n- can you fix and push to github",
           "pastedContents": {}

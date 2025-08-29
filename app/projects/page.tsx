@@ -748,7 +748,7 @@ export default function ProjectsPage() {
           ) : (
             <CardBody>
               {/* Mobile Card Layout */}
-              <Box display={{ base: "none" }}>
+              <Box display={{ base: "block", md: "none" }}>
                 <VStack spacing={3} align="stretch">
                   {sortedAndFilteredProjects.map((project) => (
                     <Card key={project.id} size="sm">
@@ -777,7 +777,7 @@ export default function ProjectsPage() {
               </Box>
 
               {/* Desktop Table Layout */}
-              <TableContainer display={{ base: "block" }}>
+              <TableContainer display={{ base: "none", md: "block" }}>
                 <Table variant="simple">
                   <Thead bg="gray.50">
                     <Tr>
