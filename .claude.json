@@ -5,7 +5,10 @@
   "tipsHistory": {
     "new-user-warmup": 1,
     "memory-command": 1,
-    "theme-command": 1
+    "theme-command": 1,
+    "status-line": 1,
+    "prompt-queue": 1,
+    "enter-to-steer-in-relatime": 1
   },
   "userID": "2b1eec430de6f74f1354ac3e5714b099a3edb84ac622807a5188689f5d921f7b",
   "fallbackAvailableWarningThreshold": 0.5,
@@ -13,6 +16,18 @@
     "/home/keith": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "Yes the test projects have tags, genres and status field filled. The genres and tags are missing from the main projects page. The issue with the status field on the Project Detail page, is that the field (eg 'In Development') is slightly obscured by the date added field as the date added field needs to be moved down. The gao between 'Status' and the status field eg In Development, is a good example of the space needed between 'In Development' and date added.",
+          "pastedContents": {}
+        },
+        {
+          "display": "I tried Ctrl+F5 but no change. My desktop window is on a widescreen so plenty wide. I was testing on both Vercel and localhost:3001 but just tried again on localhost:3001 and the site isn't loading. Did you turn of the npm dev server?",
+          "pastedContents": {}
+        },
+        {
+          "display": "the change to the logline on the mobile version is working now but i'm still not seeing the changes I've requested to the Desktop version. Can you investigate what's happening?",
+          "pastedContents": {}
+        },
         {
           "display": "I can see the changes to the Project Detail page but none of the others have changed. Can you take another look and see what's happening?",
           "pastedContents": {}

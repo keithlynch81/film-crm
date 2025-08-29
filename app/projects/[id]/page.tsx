@@ -499,7 +499,7 @@ export default function ProjectDetailPage() {
                 </div>
               )}
               
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', paddingBottom: '32px' }}>
                 {project.status && (
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>Status</div>
@@ -539,7 +539,7 @@ export default function ProjectDetailPage() {
           </div>
           
           {/* Date in bottom left corner */}
-          <div style={{ position: 'absolute', bottom: '16px', left: '16px', fontSize: '12px', color: '#9ca3af' }}>
+          <div style={{ position: 'absolute', bottom: '8px', left: '16px', fontSize: '12px', color: '#9ca3af' }}>
             Date Added {new Date(project.created_at).toLocaleDateString('en-GB')}
           </div>
         </div>

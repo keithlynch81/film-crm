@@ -827,13 +827,18 @@ export default function ProjectsPage() {
                     <Tr key={project.id} _hover={{ bg: "gray.50" }}>
                       <Td>
                         <VStack align="start" spacing={2}>
-                          <Flex justify="space-between" align="center" width="full">
-                            <Text as={Link} href={`/projects/${project.id}`} color="blue.500" fontWeight="medium" fontSize="sm" _hover={{ textDecoration: "underline" }} flex="1">
+                          <Flex justify="space-between" align="flex-start" width="full">
+                            <Text as={Link} href={`/projects/${project.id}`} color="blue.500" fontWeight="medium" fontSize="sm" _hover={{ textDecoration: "underline" }} flex="1" pr={4}>
                               {project.title}
                             </Text>
-                            <HStack spacing={2}>
+                            <Flex direction="column" align="flex-end" flexShrink={0}>
+                              {project.project_genres && project.project_genres.length > 0 && (
+                                <Badge colorScheme="purple" borderRadius="full" fontSize="xs" mb={1}>
+                                  {project.project_genres[0].genres.name}
+                                </Badge>
+                              )}
                               {project.tags && project.tags.length > 0 && (
-                                <HStack spacing={1} wrap="wrap">
+                                <HStack spacing={1} wrap="wrap" justify="flex-end">
                                   {project.tags.slice(0, 2).map((tag, index) => (
                                     <Badge key={index} colorScheme="gray" borderRadius="full" fontSize="xs">
                                       {tag.startsWith('#') ? tag : `#${tag}`}
@@ -846,12 +851,7 @@ export default function ProjectsPage() {
                                   )}
                                 </HStack>
                               )}
-                              {project.project_genres && project.project_genres.length > 0 && (
-                                <Badge colorScheme="purple" borderRadius="full" fontSize="xs">
-                                  {project.project_genres[0].genres.name}
-                                </Badge>
-                              )}
-                            </HStack>
+                            </Flex>
                           </Flex>
                           {project.logline && (
                             <Text fontSize="sm" color="gray.700" lineHeight="1.4" noOfLines={{ base: 2, md: 1 }} wordBreak="break-word">
