@@ -167,6 +167,19 @@ function findMatches(articleText: string, searchTerms: string[]): Array<{term: s
 // Match articles to contacts
 async function matchContacts(article: any, contacts: any[]) {
   const articleText = `${article.title} ${article.summary} ${article.content || ''}`
+  
+  // Debug for Bob Iger specifically
+  const bobIger = contacts.find(c => 
+    c.first_name?.toLowerCase() === 'bob' && c.last_name?.toLowerCase() === 'iger'
+  )
+  if (bobIger && articleText.toLowerCase().includes('iger')) {
+    console.log('DEBUG: Found Bob Iger in article:', {
+      article_title: article.title,
+      article_contains_iger: articleText.toLowerCase().includes('iger'),
+      article_contains_bob_iger: articleText.toLowerCase().includes('bob iger'),
+      bob_contact: `${bobIger.first_name} ${bobIger.last_name}`
+    })
+  }
   const matches = []
   
   for (const contact of contacts) {
