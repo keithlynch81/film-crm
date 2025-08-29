@@ -24,6 +24,22 @@
       "allowedTools": [],
       "history": [
         {
+          "display": "i hit my usage limit. can you carry on with what you were doing?",
+          "pastedContents": {}
+        },
+        {
+          "display": "I do want to get Market Intelligence working, i don't see it as optional. I've added your NEXT_PUBLIC_SITE_URL variable. I pressed the button and it found 167 articles but no contact matches. This seems a little odd seeing as in my new workspace i've put 20 of the biggest names in hollywood in as contacts, including Margot Robbie, who originally got a match",
+          "pastedContents": {}
+        },
+        {
+          "display": "I already have that environment variable, but the value it's using is the same as the one in my env.local which is: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxZWZndHVjendqZmZ1eWRqd21iIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTY4NDQ2MiwiZXhwIjoyMDcxMjYwNDYyfQ.14yQ9aRDZjTgN_esrmVtqycvLzKhRugJWGJxaf0r4AE",
+          "pastedContents": {}
+        },
+        {
+          "display": "I hadn't tried the 'Update Market Intelligence' button on the vercel site but just did and got: Error Updating Market Intelligence\nFailed to update market intelligence - and this is the console log: /api/market-intelligence/update:1 \n Failed to load resource: the server responded with a status of 500 ()\n938-402f3bc19e337b98.js:1 Error updating market intelligence: Error: Failed to update market intelligence\n    at j (page-b61fc2400091be94.js:1:980)\nwindow.console.error    @    938-402f3bc19e337b98.js:1",
+          "pastedContents": {}
+        },
+        {
           "display": "on vercel i got this Build Error: [12:35:42.263] Running build in Washington, D.C., USA (East) – iad1\n[12:35:42.263] Build machine configuration: 2 cores, 8 GB\n[12:35:42.315] Cloning github.com/keithlynch81/film-crm (Branch: main, Commit: d6b8a0e)\n[12:35:42.886] Cloning completed: 569.000ms\n[12:35:44.118] Restored build cache from previous deployment (7cxLkWEjcMY6czy6ax33KX99kPTS)\n[12:35:44.577] Running \"vercel build\"\n[12:35:44.996] Vercel CLI 46.0.5\n[12:35:45.352] Installing dependencies...\n[12:35:47.039] \n[12:35:47.041] up to date in 1s\n[12:35:47.041] \n[12:35:47.042] 128 packages are looking for funding\n[12:35:47.043]   run `npm fund` for details\n[12:35:47.072] Detected Next.js version: 14.0.4\n[12:35:47.076] Running \"npm run build\"\n[12:35:47.191] \n[12:35:47.192] > film-crm@0.1.0 build\n[12:35:47.192] > next build\n[12:35:47.192] \n[12:35:47.942]    ▲ Next.js 14.0.4\n[12:35:47.943] \n[12:35:47.943]    Creating an optimized production build ...\n[12:35:54.851]  ✓ Compiled successfully\n[12:35:54.852]    Linting and checking validity of types ...\n[12:36:07.313] Failed to compile.\n[12:36:07.313] \n[12:36:07.316] ./app/projects/page.tsx:781:51\n[12:36:07.317] Type error: Type '{ children: Element[]; variant: \"simple\"; size: \"sm\"; tableLayout: string; }' is not assignable to type 'IntrinsicAttributes & Omit<DetailedHTMLProps<TableHTMLAttributes<HTMLTableElement>, HTMLTableElement>, keyof TableProps> & { ...; } & TableProps & { ...; }'.\n[12:36:07.317]   Property 'tableLayout' does not exist on type 'IntrinsicAttributes & Omit<DetailedHTMLProps<TableHTMLAttributes<HTMLTableElement>, HTMLTableElement>, keyof TableProps> & { ...; } & TableProps & { ...; }'.\n[12:36:07.317] \n[12:36:07.317]  779 |/* Desktop Table Layout */\n[12:36:07.317]  780 |[33m[33m display=[33m [33m md:\"block\"[33m\n[12:36:07.318] >                 <Table[33m\"simple\"[33m\"sm\"[33m\"fixed\">                                                    ^                    <Thead[33m\"gray.50\">                      <Tr>                      <Th\n[12:36:07.402] Error: Command \"npm run build\" exited with 1",
           "pastedContents": {}
         },

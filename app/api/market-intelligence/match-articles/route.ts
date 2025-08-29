@@ -55,6 +55,17 @@ async function getMatchingData() {
     projectsError: projectsRes.error?.message
   })
   
+  // Debug: Log first few contacts to see the data structure
+  if (contactsRes.data && contactsRes.data.length > 0) {
+    console.log('Sample contacts:', contactsRes.data.slice(0, 5).map(c => ({
+      id: c.id,
+      first_name: c.first_name,
+      last_name: c.last_name,
+      full_name: `${c.first_name} ${c.last_name}`,
+      workspace_id: c.workspace_id
+    })))
+  }
+  
   return {
     contacts: contactsRes.data || [],
     companies: companiesRes.data || [],
