@@ -64,6 +64,25 @@ async function getMatchingData() {
       full_name: `${c.first_name} ${c.last_name}`,
       workspace_id: c.workspace_id
     })))
+    
+    // Check for specific names we're looking for
+    const margotRobbie = contactsRes.data.find(c => 
+      c.first_name?.toLowerCase() === 'margot' && c.last_name?.toLowerCase() === 'robbie'
+    )
+    const bobIger = contactsRes.data.find(c => 
+      c.first_name?.toLowerCase() === 'bob' && c.last_name?.toLowerCase() === 'iger'
+    )
+    
+    console.log('Looking for specific contacts:', {
+      margot_robbie_found: !!margotRobbie,
+      margot_robbie_workspace: margotRobbie?.workspace_id,
+      bob_iger_found: !!bobIger,
+      bob_iger_workspace: bobIger?.workspace_id
+    })
+    
+    // Show unique workspace IDs
+    const workspaceIds = [...new Set(contactsRes.data.map(c => c.workspace_id))]
+    console.log('Workspaces represented in contacts:', workspaceIds)
   }
   
   return {
