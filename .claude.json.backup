@@ -24,6 +24,10 @@
       "allowedTools": [],
       "history": [
         {
+          "display": "yeah thats working now. The only issue is that it's only displaying one of the genres thats selected 'Comedy' but is missing 'Crime' and 'Sci-Fi'. It has both the tags though.",
+          "pastedContents": {}
+        },
+        {
           "display": "yes i see ⭐ TESTING ⭐ - i didn't even have to refresh the page, it just appeared",
           "pastedContents": {}
         },

@@ -778,7 +778,7 @@ export default function ProjectsPage() {
 
               {/* Desktop Table Layout */}
               <TableContainer display={{ base: "none", md: "block" }}>
-                <Table variant="simple" size="sm" tableLayout="fixed">
+                <Table variant="simple" size="sm">
                   <Thead bg="gray.50">
                     <Tr>
                     <Th 
