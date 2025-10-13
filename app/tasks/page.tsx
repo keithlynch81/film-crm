@@ -195,6 +195,27 @@ export default function TasksPage() {
     return new Date(targetDate) < new Date(new Date().setHours(0, 0, 0, 0))
   }
 
+  const isDueToday = (targetDate: string | null, status: string) => {
+    if (!targetDate || status === 'Completed') return false
+    const today = new Date().setHours(0, 0, 0, 0)
+    const taskDate = new Date(targetDate).setHours(0, 0, 0, 0)
+    return taskDate === today
+  }
+
+  const isDueThisWeek = (targetDate: string | null, status: string) => {
+    if (!targetDate || status === 'Completed') return false
+    const today = new Date().setHours(0, 0, 0, 0)
+    const taskDate = new Date(targetDate).setHours(0, 0, 0, 0)
+    const weekFromNow = new Date(today + 7 * 24 * 60 * 60 * 1000)
+    return taskDate > today && taskDate <= weekFromNow.getTime()
+  }
+
+  // Calculate task counts for summary banner
+  const overdueTasks = tasks.filter(t => isOverdue(t.target_date, t.status))
+  const todayTasks = tasks.filter(t => isDueToday(t.target_date, t.status))
+  const weekTasks = tasks.filter(t => isDueThisWeek(t.target_date, t.status))
+  const hasSummaryItems = overdueTasks.length > 0 || todayTasks.length > 0 || weekTasks.length > 0
+
   const filteredTasks = tasks.filter(task => {
     // Hide completed tasks unless showCompleted is true
     if (!showCompleted && task.status === 'Completed') return false
@@ -274,6 +295,88 @@ export default function TasksPage() {
             Add Task
           </Button>
         </Flex>
+
+        {/* Task Summary Banner */}
+        {hasSummaryItems && (
+          <Card bg="blue.50" borderColor="blue.200" borderWidth="1px">
+            <CardBody>
+              <Flex direction={{ base: "column", md: "row" }} gap={4} align={{ base: "stretch", md: "center" }}>
+                <Box>
+                  <Flex align="center" gap={2} mb={2}>
+                    <Text fontSize="md" fontWeight="bold" color="gray.800">
+                      📋 Task Summary
+                    </Text>
+                  </Flex>
+                  <Text fontSize="sm" color="gray.600">
+                    Quick overview of your upcoming and overdue tasks
+                  </Text>
+                </Box>
+
+                <Flex gap={3} flex={1} justify={{ base: "flex-start", md: "flex-end" }} flexWrap="wrap">
+                  {overdueTasks.length > 0 && (
+                    <Box
+                      bg="red.100"
+                      borderColor="red.300"
+                      borderWidth="1px"
+                      borderRadius="md"
+                      px={4}
+                      py={2}
+                      textAlign="center"
+                      minW="120px"
+                    >
+                      <Text fontSize="2xl" fontWeight="bold" color="red.700">
+                        {overdueTasks.length}
+                      </Text>
+                      <Text fontSize="xs" color="red.700" fontWeight="medium">
+                        🔴 OVERDUE
+                      </Text>
+                    </Box>
+                  )}
+
+                  {todayTasks.length > 0 && (
+                    <Box
+                      bg="orange.100"
+                      borderColor="orange.300"
+                      borderWidth="1px"
+                      borderRadius="md"
+                      px={4}
+                      py={2}
+                      textAlign="center"
+                      minW="120px"
+                    >
+                      <Text fontSize="2xl" fontWeight="bold" color="orange.700">
+                        {todayTasks.length}
+                      </Text>
+                      <Text fontSize="xs" color="orange.700" fontWeight="medium">
+                        🟠 DUE TODAY
+                      </Text>
+                    </Box>
+                  )}
+
+                  {weekTasks.length > 0 && (
+                    <Box
+                      bg="yellow.100"
+                      borderColor="yellow.300"
+                      borderWidth="1px"
+                      borderRadius="md"
+                      px={4}
+                      py={2}
+                      textAlign="center"
+                      minW="120px"
+                    >
+                      <Text fontSize="2xl" fontWeight="bold" color="yellow.700">
+                        {weekTasks.length}
+                      </Text>
+                      <Text fontSize="xs" color="yellow.700" fontWeight="medium">
+                        🟡 THIS WEEK
+                      </Text>
+                    </Box>
+                  )}
+                </Flex>
+              </Flex>
+            </CardBody>
+          </Card>
+        )}
 
         {/* Search and Filters */}
         <Card>
