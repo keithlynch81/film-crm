@@ -42,6 +42,7 @@ type Project = {
   status: string | null
   stage: string | null
   tags: string[] | null
+  pinned: boolean
   created_at: string
   project_mediums: { mediums: { name: string } }[]
   project_genres: { genres: { name: string } }[]
@@ -109,6 +110,7 @@ export default function ProjectsPage() {
         )
       `)
       .eq('workspace_id', activeWorkspaceId)
+      .order('pinned', { ascending: false })
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -127,6 +129,31 @@ export default function ProjectsPage() {
 
     if (mediumsRes.data) setMediums(mediumsRes.data)
     if (genresRes.data) setGenres(genresRes.data)
+  }
+
+  const togglePin = async (projectId: string, currentPinned: boolean) => {
+    const { error } = await supabase
+      .from('projects')
+      .update({ pinned: !currentPinned })
+      .eq('id', projectId)
+      .eq('workspace_id', activeWorkspaceId)
+
+    if (error) {
+      console.error('Error toggling pin:', error)
+    } else {
+      // Update local state immediately for better UX
+      setProjects(prevProjects => {
+        const updated = prevProjects.map(p =>
+          p.id === projectId ? { ...p, pinned: !currentPinned } : p
+        )
+        // Sort to move pinned items to top
+        return updated.sort((a, b) => {
+          if (a.pinned && !b.pinned) return -1
+          if (!a.pinned && b.pinned) return 1
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        })
+      })
+    }
   }
 
   const handleSort = (field: 'title' | 'created_at') => {
@@ -173,13 +200,18 @@ export default function ProjectsPage() {
     return matchesSearch && matchesMedium && matchesGenre && matchesStatus && matchesStage && matchesTags
   })
 
-  // Sort filtered projects
+  // Sort filtered projects - always keep pinned items at the top
   const sortedAndFilteredProjects = [...filteredProjects].sort((a, b) => {
+    // First, sort by pinned status
+    if (a.pinned && !b.pinned) return -1
+    if (!a.pinned && b.pinned) return 1
+
+    // Then apply user sorting if set
     if (!sortField) return 0
-    
+
     let aValue: string | Date
     let bValue: string | Date
-    
+
     if (sortField === 'title') {
       aValue = a.title.toLowerCase()
       bValue = b.title.toLowerCase()
@@ -189,7 +221,7 @@ export default function ProjectsPage() {
     } else {
       return 0
     }
-    
+
     if (sortDirection === 'asc') {
       return aValue < bValue ? -1 : aValue > bValue ? 1 : 0
     } else {
@@ -755,9 +787,35 @@ export default function ProjectsPage() {
                       <CardBody>
                         <VStack align="stretch" spacing={2}>
                           <Flex justify="space-between" align="start">
-                            <Text as={Link} href={`/projects/${project.id}`} color="blue.500" fontWeight="medium" fontSize="md" _hover={{ textDecoration: "underline" }} flex="1" pr={2}>
-                              {project.title}
-                            </Text>
+                            <HStack spacing={2} flex="1" pr={2}>
+                              <IconButton
+                                icon={
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill={project.pinned ? "currentColor" : "none"}
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                                  </svg>
+                                }
+                                aria-label={project.pinned ? "Unpin project" : "Pin project"}
+                                size="sm"
+                                variant="ghost"
+                                colorScheme={project.pinned ? "yellow" : "gray"}
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  togglePin(project.id, project.pinned)
+                                }}
+                              />
+                              <Text as={Link} href={`/projects/${project.id}`} color="blue.500" fontWeight="medium" fontSize="md" _hover={{ textDecoration: "underline" }} flex="1">
+                                {project.title}
+                              </Text>
+                            </HStack>
                             {project.project_genres && project.project_genres.length > 0 && (
                               <Badge colorScheme="purple" borderRadius="full" fontSize="xs" flexShrink={0}>
                                 {project.project_genres[0].genres.name}
@@ -777,20 +835,20 @@ export default function ProjectsPage() {
               </Box>
 
               {/* Desktop Table Layout */}
-              <TableContainer display={{ base: "none", md: "block" }}>
-                <Table variant="simple" size="sm">
+              <TableContainer display={{ base: "none", md: "block" }} overflowX="auto">
+                <Table variant="simple" size="sm" style={{ tableLayout: 'fixed', width: '100%' }}>
                   <Thead bg="gray.50">
                     <Tr>
-                    <Th 
-                      fontSize="xs" 
-                      fontWeight="medium" 
-                      color="indigo.600" 
-                      textTransform="uppercase" 
+                    <Th width="50px"></Th>
+                    <Th
+                      fontSize="xs"
+                      fontWeight="medium"
+                      color="indigo.600"
+                      textTransform="uppercase"
                       letterSpacing="wide"
                       cursor="pointer"
                       onClick={() => handleSort('title')}
                       _hover={{ bg: "gray.100" }}
-                      width="60%"
                     >
                       <HStack spacing={1}>
                         <Text>Title</Text>
@@ -801,16 +859,16 @@ export default function ProjectsPage() {
                         )}
                       </HStack>
                     </Th>
-                    <Th 
-                      fontSize="xs" 
-                      fontWeight="medium" 
-                      color="indigo.600" 
-                      textTransform="uppercase" 
+                    <Th
+                      fontSize="xs"
+                      fontWeight="medium"
+                      color="indigo.600"
+                      textTransform="uppercase"
                       letterSpacing="wide"
                       cursor="pointer"
                       onClick={() => handleSort('created_at')}
                       _hover={{ bg: "gray.100" }}
-                      width="25%"
+                      width="180px"
                     >
                       <HStack spacing={1}>
                         <Text>Date Added</Text>
@@ -821,15 +879,41 @@ export default function ProjectsPage() {
                         )}
                       </HStack>
                     </Th>
-                    <Th width="15%"></Th>
+                    <Th width="60px"></Th>
                   </Tr>
                 </Thead>
                 <Tbody>
                   {sortedAndFilteredProjects.map((project) => (
                     <Tr key={project.id} _hover={{ bg: "gray.50" }}>
                       <Td>
-                        <VStack align="start" spacing={2}>
-                          <HStack spacing={2} align="center">
+                        <IconButton
+                          icon={
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill={project.pinned ? "currentColor" : "none"}
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                            </svg>
+                          }
+                          aria-label={project.pinned ? "Unpin project" : "Pin project"}
+                          size="sm"
+                          variant="ghost"
+                          colorScheme={project.pinned ? "yellow" : "gray"}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            togglePin(project.id, project.pinned)
+                          }}
+                        />
+                      </Td>
+                      <Td>
+                        <VStack align="start" spacing={2} w="100%">
+                          <HStack spacing={2} align="center" flexWrap="wrap">
                             <Text as={Link} href={`/projects/${project.id}`} color="blue.500" fontWeight="medium" fontSize="sm" _hover={{ textDecoration: "underline" }}>
                               {project.title}
                             </Text>
@@ -858,9 +942,20 @@ export default function ProjectsPage() {
                             )}
                           </HStack>
                           {project.logline && (
-                            <Text fontSize="sm" color="gray.700" lineHeight="1.4" noOfLines={{ base: 2, md: 1 }} wordBreak="break-word">
+                            <div
+                              style={{
+                                fontSize: '14px',
+                                color: '#374151',
+                                lineHeight: '1.4',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                width: '100%',
+                                display: 'block'
+                              }}
+                            >
                               {project.logline}
-                            </Text>
+                            </div>
                           )}
                         </VStack>
                       </Td>
