@@ -74,6 +74,9 @@ export default function TasksPage() {
   const [selectedProject, setSelectedProject] = useState('')
   const [selectedContact, setSelectedContact] = useState('')
 
+  // Summary filter state
+  const [summaryFilter, setSummaryFilter] = useState<'overdue' | 'today' | 'week' | null>(null)
+
   const toast = useToast()
 
   useEffect(() => {
@@ -195,6 +198,18 @@ export default function TasksPage() {
     return new Date(targetDate) < new Date(new Date().setHours(0, 0, 0, 0))
   }
 
+  const getTaskHighlightColor = (task: Task) => {
+    if (!summaryFilter) {
+      // Default behavior - only highlight overdue tasks if no filter is active
+      return isOverdue(task.target_date, task.status) ? "red.50" : "white"
+    }
+    // When a summary filter is active, highlight matching tasks
+    if (summaryFilter === 'overdue' && isOverdue(task.target_date, task.status)) return "red.100"
+    if (summaryFilter === 'today' && isDueToday(task.target_date, task.status)) return "orange.100"
+    if (summaryFilter === 'week' && isDueThisWeek(task.target_date, task.status)) return "yellow.100"
+    return "white"
+  }
+
   const isDueToday = (targetDate: string | null, status: string) => {
     if (!targetDate || status === 'Completed') return false
     const today = new Date().setHours(0, 0, 0, 0)
@@ -219,6 +234,13 @@ export default function TasksPage() {
   const filteredTasks = tasks.filter(task => {
     // Hide completed tasks unless showCompleted is true
     if (!showCompleted && task.status === 'Completed') return false
+
+    // Summary filter (overdue, today, or this week)
+    if (summaryFilter) {
+      if (summaryFilter === 'overdue' && !isOverdue(task.target_date, task.status)) return false
+      if (summaryFilter === 'today' && !isDueToday(task.target_date, task.status)) return false
+      if (summaryFilter === 'week' && !isDueThisWeek(task.target_date, task.status)) return false
+    }
 
     // Text search
     const search = searchTerm.toLowerCase()
@@ -261,9 +283,19 @@ export default function TasksPage() {
     setSelectedProject('')
     setSelectedContact('')
     setSearchTerm('')
+    setSummaryFilter(null)
   }
 
-  const hasActiveFilters = selectedStatus || selectedPriority || selectedProject || selectedContact || searchTerm
+  const handleSummaryFilterClick = (filter: 'overdue' | 'today' | 'week') => {
+    // Toggle filter - if already selected, clear it
+    if (summaryFilter === filter) {
+      setSummaryFilter(null)
+    } else {
+      setSummaryFilter(filter)
+    }
+  }
+
+  const hasActiveFilters = selectedStatus || selectedPriority || selectedProject || selectedContact || searchTerm || summaryFilter
 
   if (loading) {
     return (
@@ -315,14 +347,18 @@ export default function TasksPage() {
                 <Flex gap={3} flex={1} justify={{ base: "flex-start", md: "flex-end" }} flexWrap="wrap">
                   {overdueTasks.length > 0 && (
                     <Box
-                      bg="red.100"
-                      borderColor="red.300"
-                      borderWidth="1px"
+                      bg={summaryFilter === 'overdue' ? "red.200" : "red.100"}
+                      borderColor={summaryFilter === 'overdue' ? "red.500" : "red.300"}
+                      borderWidth={summaryFilter === 'overdue' ? "2px" : "1px"}
                       borderRadius="md"
                       px={4}
                       py={2}
                       textAlign="center"
                       minW="120px"
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      _hover={{ bg: "red.200", transform: "translateY(-2px)", shadow: "md" }}
+                      onClick={() => handleSummaryFilterClick('overdue')}
                     >
                       <Text fontSize="2xl" fontWeight="bold" color="red.700">
                         {overdueTasks.length}
@@ -330,19 +366,28 @@ export default function TasksPage() {
                       <Text fontSize="xs" color="red.700" fontWeight="medium">
                         🔴 OVERDUE
                       </Text>
+                      {summaryFilter === 'overdue' && (
+                        <Text fontSize="10px" color="red.600" mt={1}>
+                          (filtering)
+                        </Text>
+                      )}
                     </Box>
                   )}
 
                   {todayTasks.length > 0 && (
                     <Box
-                      bg="orange.100"
-                      borderColor="orange.300"
-                      borderWidth="1px"
+                      bg={summaryFilter === 'today' ? "orange.200" : "orange.100"}
+                      borderColor={summaryFilter === 'today' ? "orange.500" : "orange.300"}
+                      borderWidth={summaryFilter === 'today' ? "2px" : "1px"}
                       borderRadius="md"
                       px={4}
                       py={2}
                       textAlign="center"
                       minW="120px"
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      _hover={{ bg: "orange.200", transform: "translateY(-2px)", shadow: "md" }}
+                      onClick={() => handleSummaryFilterClick('today')}
                     >
                       <Text fontSize="2xl" fontWeight="bold" color="orange.700">
                         {todayTasks.length}
@@ -350,19 +395,28 @@ export default function TasksPage() {
                       <Text fontSize="xs" color="orange.700" fontWeight="medium">
                         🟠 DUE TODAY
                       </Text>
+                      {summaryFilter === 'today' && (
+                        <Text fontSize="10px" color="orange.600" mt={1}>
+                          (filtering)
+                        </Text>
+                      )}
                     </Box>
                   )}
 
                   {weekTasks.length > 0 && (
                     <Box
-                      bg="yellow.100"
-                      borderColor="yellow.300"
-                      borderWidth="1px"
+                      bg={summaryFilter === 'week' ? "yellow.200" : "yellow.100"}
+                      borderColor={summaryFilter === 'week' ? "yellow.500" : "yellow.300"}
+                      borderWidth={summaryFilter === 'week' ? "2px" : "1px"}
                       borderRadius="md"
                       px={4}
                       py={2}
                       textAlign="center"
                       minW="120px"
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      _hover={{ bg: "yellow.200", transform: "translateY(-2px)", shadow: "md" }}
+                      onClick={() => handleSummaryFilterClick('week')}
                     >
                       <Text fontSize="2xl" fontWeight="bold" color="yellow.700">
                         {weekTasks.length}
@@ -370,6 +424,11 @@ export default function TasksPage() {
                       <Text fontSize="xs" color="yellow.700" fontWeight="medium">
                         🟡 THIS WEEK
                       </Text>
+                      {summaryFilter === 'week' && (
+                        <Text fontSize="10px" color="yellow.600" mt={1}>
+                          (filtering)
+                        </Text>
+                      )}
                     </Box>
                   )}
                 </Flex>
@@ -553,7 +612,7 @@ export default function TasksPage() {
               <Box display={{ base: "block", md: "none" }}>
                 <VStack spacing={3} align="stretch">
                   {sortedTasks.map((task) => (
-                    <Card key={task.id} size="sm" bg={isOverdue(task.target_date, task.status) ? "red.50" : "white"}>
+                    <Card key={task.id} size="sm" bg={getTaskHighlightColor(task)}>
                       <CardBody>
                         <VStack align="stretch" spacing={3}>
                           <Flex justify="space-between" align="start">
@@ -651,7 +710,7 @@ export default function TasksPage() {
                       <Tr
                         key={task.id}
                         _hover={{ bg: "gray.50" }}
-                        bg={isOverdue(task.target_date, task.status) ? "red.50" : "white"}
+                        bg={getTaskHighlightColor(task)}
                       >
                         <Td>
                           <Badge colorScheme="blue" borderRadius="full" fontSize="xs">
