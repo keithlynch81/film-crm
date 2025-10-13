@@ -62,6 +62,52 @@ type TalkingPoint = {
   }
 }
 
+type ProjectAttachment = {
+  id: string
+  production_company_contact_id: string | null
+  sales_agent: string | null
+  financier: string | null
+  distributor: string | null
+  production_company_contact?: {
+    first_name: string
+    last_name: string | null
+    companies: {
+      name: string
+    } | null
+  }
+}
+
+type ProjectProducer = {
+  id: string
+  contact_id: string
+  contacts: {
+    first_name: string
+    last_name: string | null
+  }
+}
+
+type ProjectCast = {
+  id: string
+  name: string
+  role: string | null
+}
+
+type ProjectCrew = {
+  id: string
+  name: string
+  role: string | null
+}
+
+type Task = {
+  id: string
+  heading: string
+  description: string | null
+  target_date: string | null
+  priority: number
+  status: 'Outstanding' | 'In Process' | 'Completed'
+  contacts?: { first_name: string; last_name: string | null } | null
+}
+
 const buttonStyle = {
   padding: '8px 16px',
   borderRadius: '6px',
@@ -131,6 +177,7 @@ export default function ProjectDetailPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [contacts, setContacts] = useState<Contact[]>([])
   const [talkingPoints, setTalkingPoints] = useState<TalkingPoint[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
   const [selectedContact, setSelectedContact] = useState('')
   const [loading, setLoading] = useState(true)
   const [showSubmissionForm, setShowSubmissionForm] = useState(false)
@@ -144,6 +191,19 @@ export default function ProjectDetailPage() {
     status: '',
     notes: ''
   })
+  const [showAttachments, setShowAttachments] = useState(false)
+  const [attachments, setAttachments] = useState<ProjectAttachment | null>(null)
+  const [producers, setProducers] = useState<ProjectProducer[]>([])
+  const [cast, setCast] = useState<ProjectCast[]>([])
+  const [crew, setCrew] = useState<ProjectCrew[]>([])
+  const [filteredProductionCompanies, setFilteredProductionCompanies] = useState<Contact[]>([])
+  const [filteredProducerContacts, setFilteredProducerContacts] = useState<Contact[]>([])
+  const [productionCompanySearch, setProductionCompanySearch] = useState('')
+  const [producerSearch, setProducerSearch] = useState('')
+  const [newCastName, setNewCastName] = useState('')
+  const [newCastRole, setNewCastRole] = useState('')
+  const [newCrewName, setNewCrewName] = useState('')
+  const [newCrewRole, setNewCrewRole] = useState('')
 
   useEffect(() => {
     if (activeWorkspaceId && params.id) {
@@ -151,6 +211,11 @@ export default function ProjectDetailPage() {
       loadSubmissions()
       loadContacts()
       loadTalkingPoints()
+      loadTasks()
+      loadAttachments()
+      loadProducers()
+      loadCast()
+      loadCrew()
     }
   }, [activeWorkspaceId, params.id])
 
@@ -249,6 +314,110 @@ export default function ProjectDetailPage() {
     }
   }
 
+  const loadTasks = async () => {
+    if (!activeWorkspaceId || !params.id) return
+
+    const { data, error } = await supabase
+      .from('tasks')
+      .select(`
+        *,
+        contacts(first_name, last_name)
+      `)
+      .eq('project_id', params.id)
+      .eq('workspace_id', activeWorkspaceId)
+      .order('priority')
+      .order('target_date')
+
+    if (error) {
+      console.error('Error loading tasks:', error)
+    } else {
+      setTasks((data as unknown as Task[]) || [])
+    }
+  }
+
+  const loadAttachments = async () => {
+    if (!activeWorkspaceId || !params.id) return
+
+    const { data, error } = await supabase
+      .from('project_attachments')
+      .select(`
+        *,
+        production_company_contact:production_company_contact_id (
+          first_name,
+          last_name,
+          companies:company_id (
+            name
+          )
+        )
+      `)
+      .eq('project_id', params.id)
+      .eq('workspace_id', activeWorkspaceId)
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error loading attachments:', error)
+    } else {
+      setAttachments(data)
+    }
+  }
+
+  const loadProducers = async () => {
+    if (!activeWorkspaceId || !params.id) return
+
+    const { data, error } = await supabase
+      .from('project_producers')
+      .select(`
+        *,
+        contacts:contact_id (
+          first_name,
+          last_name
+        )
+      `)
+      .eq('project_id', params.id)
+      .eq('workspace_id', activeWorkspaceId)
+      .order('created_at')
+
+    if (error) {
+      console.error('Error loading producers:', error)
+    } else {
+      setProducers((data as unknown as ProjectProducer[]) || [])
+    }
+  }
+
+  const loadCast = async () => {
+    if (!activeWorkspaceId || !params.id) return
+
+    const { data, error } = await supabase
+      .from('project_cast')
+      .select('*')
+      .eq('project_id', params.id)
+      .eq('workspace_id', activeWorkspaceId)
+      .order('created_at')
+
+    if (error) {
+      console.error('Error loading cast:', error)
+    } else {
+      setCast(data || [])
+    }
+  }
+
+  const loadCrew = async () => {
+    if (!activeWorkspaceId || !params.id) return
+
+    const { data, error } = await supabase
+      .from('project_crew')
+      .select('*')
+      .eq('project_id', params.id)
+      .eq('workspace_id', activeWorkspaceId)
+      .order('created_at')
+
+    if (error) {
+      console.error('Error loading crew:', error)
+    } else {
+      setCrew(data || [])
+    }
+  }
+
   const addTalkingPoint = async () => {
     if (!activeWorkspaceId || !params.id || !selectedContact) return
 
@@ -283,11 +452,30 @@ export default function ProjectDetailPage() {
         .eq('workspace_id', activeWorkspaceId)
 
       if (error) throw error
-      
+
       loadTalkingPoints()
     } catch (error: any) {
       console.error('Error removing talking point:', error)
       alert('Error removing talking point: ' + error.message)
+    }
+  }
+
+  const handleTaskStatusChange = async (taskId: string, newStatus: string) => {
+    if (!activeWorkspaceId) return
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: newStatus })
+        .eq('id', taskId)
+        .eq('workspace_id', activeWorkspaceId)
+
+      if (error) throw error
+
+      loadTasks()
+    } catch (error: any) {
+      console.error('Error updating task status:', error)
+      alert('Error updating task status: ' + error.message)
     }
   }
 
@@ -371,6 +559,179 @@ export default function ProjectDetailPage() {
     } catch (error: any) {
       console.error('Error deleting submission:', error)
       alert('Error deleting submission: ' + error.message)
+    }
+  }
+
+  // Auto-suggest functionality
+  const handleProductionCompanySearch = (value: string) => {
+    setProductionCompanySearch(value)
+    if (value.length >= 1) {
+      const filtered = contacts.filter(contact =>
+        contact.companies?.name?.toLowerCase().includes(value.toLowerCase())
+      )
+      setFilteredProductionCompanies(filtered.slice(0, 10))
+    } else {
+      setFilteredProductionCompanies([])
+    }
+  }
+
+  const handleProducerSearch = (value: string) => {
+    setProducerSearch(value)
+    if (value.length >= 1) {
+      const filtered = contacts.filter(contact =>
+        `${contact.first_name} ${contact.last_name}`.toLowerCase().includes(value.toLowerCase()) ||
+        contact.companies?.name?.toLowerCase().includes(value.toLowerCase())
+      ).filter(contact => !producers.some(p => p.contact_id === contact.id))
+      setFilteredProducerContacts(filtered.slice(0, 10))
+    } else {
+      setFilteredProducerContacts([])
+    }
+  }
+
+  // Attachment management functions
+  const saveAttachments = async (data: Partial<ProjectAttachment>) => {
+    if (!activeWorkspaceId || !params.id) return
+
+    try {
+      if (attachments) {
+        // Update existing
+        const { error } = await supabase
+          .from('project_attachments')
+          .update(data)
+          .eq('project_id', params.id)
+          .eq('workspace_id', activeWorkspaceId)
+        if (error) throw error
+      } else {
+        // Create new
+        const { error } = await supabase
+          .from('project_attachments')
+          .insert([{
+            ...data,
+            project_id: params.id as string,
+            workspace_id: activeWorkspaceId
+          }])
+        if (error) throw error
+      }
+      loadAttachments()
+    } catch (error: any) {
+      console.error('Error saving attachments:', error)
+      alert('Error saving attachments: ' + error.message)
+    }
+  }
+
+  const addProducer = async (contactId: string) => {
+    if (!activeWorkspaceId || !params.id) return
+
+    try {
+      const { error } = await supabase
+        .from('project_producers')
+        .insert([{
+          project_id: params.id as string,
+          workspace_id: activeWorkspaceId,
+          contact_id: contactId
+        }])
+      if (error) throw error
+      setProducerSearch('')
+      setFilteredProducerContacts([])
+      loadProducers()
+    } catch (error: any) {
+      console.error('Error adding producer:', error)
+      alert('Error adding producer: ' + error.message)
+    }
+  }
+
+  const removeProducer = async (producerId: string) => {
+    if (!activeWorkspaceId) return
+
+    try {
+      const { error } = await supabase
+        .from('project_producers')
+        .delete()
+        .eq('id', producerId)
+        .eq('workspace_id', activeWorkspaceId)
+      if (error) throw error
+      loadProducers()
+    } catch (error: any) {
+      console.error('Error removing producer:', error)
+      alert('Error removing producer: ' + error.message)
+    }
+  }
+
+  const addCast = async (name: string, role: string) => {
+    if (!activeWorkspaceId || !params.id || !name.trim()) return
+
+    try {
+      const { error } = await supabase
+        .from('project_cast')
+        .insert([{
+          project_id: params.id as string,
+          workspace_id: activeWorkspaceId,
+          name: name.trim(),
+          role: role.trim() || null
+        }])
+      if (error) throw error
+      setNewCastName('')
+      setNewCastRole('')
+      loadCast()
+    } catch (error: any) {
+      console.error('Error adding cast member:', error)
+      alert('Error adding cast member: ' + error.message)
+    }
+  }
+
+  const removeCast = async (castId: string) => {
+    if (!activeWorkspaceId) return
+
+    try {
+      const { error } = await supabase
+        .from('project_cast')
+        .delete()
+        .eq('id', castId)
+        .eq('workspace_id', activeWorkspaceId)
+      if (error) throw error
+      loadCast()
+    } catch (error: any) {
+      console.error('Error removing cast member:', error)
+      alert('Error removing cast member: ' + error.message)
+    }
+  }
+
+  const addCrew = async (name: string, role: string) => {
+    if (!activeWorkspaceId || !params.id || !name.trim()) return
+
+    try {
+      const { error } = await supabase
+        .from('project_crew')
+        .insert([{
+          project_id: params.id as string,
+          workspace_id: activeWorkspaceId,
+          name: name.trim(),
+          role: role.trim() || null
+        }])
+      if (error) throw error
+      setNewCrewName('')
+      setNewCrewRole('')
+      loadCrew()
+    } catch (error: any) {
+      console.error('Error adding crew member:', error)
+      alert('Error adding crew member: ' + error.message)
+    }
+  }
+
+  const removeCrew = async (crewId: string) => {
+    if (!activeWorkspaceId) return
+
+    try {
+      const { error } = await supabase
+        .from('project_crew')
+        .delete()
+        .eq('id', crewId)
+        .eq('workspace_id', activeWorkspaceId)
+      if (error) throw error
+      loadCrew()
+    } catch (error: any) {
+      console.error('Error removing crew member:', error)
+      alert('Error removing crew member: ' + error.message)
     }
   }
 
@@ -543,6 +904,87 @@ export default function ProjectDetailPage() {
             Date Added {new Date(project.created_at).toLocaleDateString('en-GB')}
           </div>
         </div>
+
+        {/* Tasks Section - Only show if tasks exist */}
+        {tasks.length > 0 && (
+          <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>Tasks</h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {tasks.map((task) => (
+                <div
+                  key={task.id}
+                  style={{
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    background: task.status === 'Completed' ? '#f9fafb' : '#ffffff',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '16px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                        <div style={{
+                          fontSize: '15px',
+                          fontWeight: '500',
+                          color: task.status === 'Completed' ? '#6b7280' : '#111827',
+                          textDecoration: task.status === 'Completed' ? 'line-through' : 'none'
+                        }}>
+                          {task.heading}
+                        </div>
+                      </div>
+
+                      {task.description && (
+                        <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>
+                          {task.description.length > 150 ? task.description.substring(0, 150) + '...' : task.description}
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>
+                        {task.target_date && (
+                          <div><strong>Target Date:</strong> {new Date(task.target_date).toLocaleDateString('en-GB')}</div>
+                        )}
+                        {task.contacts && (
+                          <div>👤 {task.contacts.first_name} {task.contacts.last_name || ''}</div>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <select
+                          value={task.status}
+                          onChange={(e) => handleTaskStatusChange(task.id, e.target.value)}
+                          style={{
+                            padding: '4px 12px',
+                            borderRadius: '6px',
+                            fontSize: '14px',
+                            border: '1px solid #d1d5db',
+                            background: '#ffffff',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value="Outstanding">Outstanding</option>
+                          <option value="In Process">In Process</option>
+                          <option value="Completed">Completed</option>
+                        </select>
+                        <Link
+                          href={`/tasks/${task.id}/edit`}
+                          style={{
+                            ...secondaryButtonStyle,
+                            fontSize: '12px',
+                            padding: '6px 12px'
+                          }}
+                        >
+                          Edit
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Submissions Section */}
         <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px' }}>
@@ -882,6 +1324,418 @@ export default function ProjectDetailPage() {
                     </button>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Attachments Section */}
+        <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px' }}>
+          <div 
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', cursor: 'pointer' }}
+            onClick={() => setShowAttachments(!showAttachments)}
+          >
+            <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0 }}>Attachments</h2>
+            <span style={{ fontSize: '16px', color: '#6b7280', transition: 'transform 0.2s' }}>
+              {showAttachments ? '▲' : '▼'}
+            </span>
+          </div>
+
+          {showAttachments && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {/* Production Company Field */}
+              <div style={{ position: 'relative' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                  Production Company
+                </label>
+                <input
+                  type="text"
+                  value={productionCompanySearch}
+                  onChange={(e) => handleProductionCompanySearch(e.target.value)}
+                  placeholder="Start typing to search production companies..."
+                  style={{ 
+                    width: '100%', 
+                    padding: '8px 12px', 
+                    border: '1px solid #d1d5db', 
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                />
+                {filteredProductionCompanies.length > 0 && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    background: '#ffffff',
+                    border: '1px solid #d1d5db',
+                    borderTop: 'none',
+                    borderRadius: '0 0 6px 6px',
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    zIndex: 10
+                  }}>
+                    {filteredProductionCompanies.map((contact) => (
+                      <div
+                        key={contact.id}
+                        onClick={() => {
+                          setProductionCompanySearch(contact.companies?.name || `${contact.first_name} ${contact.last_name}`)
+                          setFilteredProductionCompanies([])
+                          saveAttachments({ production_company_contact_id: contact.id })
+                        }}
+                        style={{
+                          padding: '8px 12px',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid #f3f4f6'
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff' }}
+                      >
+                        <div style={{ fontSize: '14px', fontWeight: '500' }}>
+                          {contact.companies?.name || `${contact.first_name} ${contact.last_name}`}
+                        </div>
+                        {contact.companies?.name && (
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                            {contact.first_name} {contact.last_name}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {attachments?.production_company_contact && (
+                  <div style={{ marginTop: '8px', padding: '8px', background: '#f9fafb', borderRadius: '6px', fontSize: '14px' }}>
+                    <strong>Selected:</strong> {attachments.production_company_contact.companies?.name || `${attachments.production_company_contact.first_name} ${attachments.production_company_contact.last_name}`}
+                    <button
+                      onClick={() => {
+                        setProductionCompanySearch('')
+                        saveAttachments({ production_company_contact_id: null })
+                      }}
+                      style={{ marginLeft: '8px', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Producer Field with Multiple Support */}
+              <div style={{ position: 'relative' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                  Producer
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={producerSearch}
+                    onChange={(e) => handleProducerSearch(e.target.value)}
+                    placeholder="Start typing to search producers..."
+                    style={{ 
+                      flex: 1, 
+                      padding: '8px 12px', 
+                      border: '1px solid #d1d5db', 
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+                {filteredProducerContacts.length > 0 && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    background: '#ffffff',
+                    border: '1px solid #d1d5db',
+                    borderTop: 'none',
+                    borderRadius: '0 0 6px 6px',
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    zIndex: 10,
+                    marginTop: '-1px'
+                  }}>
+                    {filteredProducerContacts.map((contact) => (
+                      <div
+                        key={contact.id}
+                        onClick={() => {
+                          addProducer(contact.id)
+                        }}
+                        style={{
+                          padding: '8px 12px',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid #f3f4f6'
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff' }}
+                      >
+                        <div style={{ fontSize: '14px', fontWeight: '500' }}>
+                          {contact.first_name} {contact.last_name}
+                        </div>
+                        {contact.companies?.name && (
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                            {contact.companies.name}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {producers.length > 0 && (
+                  <div style={{ marginTop: '12px' }}>
+                    <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Selected Producers:</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {producers.map((producer) => (
+                        <div key={producer.id} style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between', 
+                          alignItems: 'center',
+                          padding: '6px 12px', 
+                          background: '#f9fafb', 
+                          borderRadius: '6px', 
+                          fontSize: '14px' 
+                        }}>
+                          <span>{producer.contacts.first_name} {producer.contacts.last_name}</span>
+                          <button
+                            onClick={() => removeProducer(producer.id)}
+                            style={{ color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Sales Agent, Financier, Distributor Fields */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    Sales Agent
+                  </label>
+                  <input
+                    type="text"
+                    value={attachments?.sales_agent || ''}
+                    onChange={(e) => saveAttachments({ sales_agent: e.target.value })}
+                    placeholder="Sales agent name or company..."
+                    style={{ 
+                      width: '100%', 
+                      padding: '8px 12px', 
+                      border: '1px solid #d1d5db', 
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    Financier
+                  </label>
+                  <input
+                    type="text"
+                    value={attachments?.financier || ''}
+                    onChange={(e) => saveAttachments({ financier: e.target.value })}
+                    placeholder="Financier name or company..."
+                    style={{ 
+                      width: '100%', 
+                      padding: '8px 12px', 
+                      border: '1px solid #d1d5db', 
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    Distributor
+                  </label>
+                  <input
+                    type="text"
+                    value={attachments?.distributor || ''}
+                    onChange={(e) => saveAttachments({ distributor: e.target.value })}
+                    placeholder="Distributor name or company..."
+                    style={{ 
+                      width: '100%', 
+                      padding: '8px 12px', 
+                      border: '1px solid #d1d5db', 
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Cast Field with Role */}
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                  Cast
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={newCastName}
+                    onChange={(e) => setNewCastName(e.target.value)}
+                    placeholder="Actor name..."
+                    style={{ 
+                      flex: 1, 
+                      padding: '8px 12px', 
+                      border: '1px solid #d1d5db', 
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                  />
+                  <input
+                    type="text"
+                    value={newCastRole}
+                    onChange={(e) => setNewCastRole(e.target.value)}
+                    placeholder="Character name..."
+                    style={{ 
+                      flex: 1, 
+                      padding: '8px 12px', 
+                      border: '1px solid #d1d5db', 
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        addCast(newCastName, newCastRole)
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => addCast(newCastName, newCastRole)}
+                    disabled={!newCastName.trim()}
+                    style={{
+                      padding: '8px 12px',
+                      background: newCastName.trim() ? '#3b82f6' : '#d1d5db',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      cursor: newCastName.trim() ? 'pointer' : 'not-allowed',
+                      fontWeight: '500'
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+                {cast.length > 0 && (
+                  <div style={{ marginTop: '12px' }}>
+                    <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Cast Members:</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {cast.map((castMember) => (
+                        <div key={castMember.id} style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between', 
+                          alignItems: 'center',
+                          padding: '6px 12px', 
+                          background: '#f9fafb', 
+                          borderRadius: '6px', 
+                          fontSize: '14px' 
+                        }}>
+                          <span>
+                            <strong>{castMember.name}</strong>
+                            {castMember.role && <span style={{ color: '#6b7280' }}> as {castMember.role}</span>}
+                          </span>
+                          <button
+                            onClick={() => removeCast(castMember.id)}
+                            style={{ color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Crew Field with Role */}
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                  Crew
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={newCrewName}
+                    onChange={(e) => setNewCrewName(e.target.value)}
+                    placeholder="Crew member name..."
+                    style={{ 
+                      flex: 1, 
+                      padding: '8px 12px', 
+                      border: '1px solid #d1d5db', 
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                  />
+                  <input
+                    type="text"
+                    value={newCrewRole}
+                    onChange={(e) => setNewCrewRole(e.target.value)}
+                    placeholder="Role (e.g. Director, DP, Editor)..."
+                    style={{ 
+                      flex: 1, 
+                      padding: '8px 12px', 
+                      border: '1px solid #d1d5db', 
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        addCrew(newCrewName, newCrewRole)
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => addCrew(newCrewName, newCrewRole)}
+                    disabled={!newCrewName.trim()}
+                    style={{
+                      padding: '8px 12px',
+                      background: newCrewName.trim() ? '#3b82f6' : '#d1d5db',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      cursor: newCrewName.trim() ? 'pointer' : 'not-allowed',
+                      fontWeight: '500'
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+                {crew.length > 0 && (
+                  <div style={{ marginTop: '12px' }}>
+                    <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Crew Members:</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {crew.map((crewMember) => (
+                        <div key={crewMember.id} style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between', 
+                          alignItems: 'center',
+                          padding: '6px 12px', 
+                          background: '#f9fafb', 
+                          borderRadius: '6px', 
+                          fontSize: '14px' 
+                        }}>
+                          <span>
+                            <strong>{crewMember.name}</strong>
+                            {crewMember.role && <span style={{ color: '#6b7280' }}> - {crewMember.role}</span>}
+                          </span>
+                          <button
+                            onClick={() => removeCrew(crewMember.id)}
+                            style={{ color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

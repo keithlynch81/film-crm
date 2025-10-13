@@ -38,6 +38,7 @@ const navigationItems = [
   { href: '/contacts', label: 'Contacts' },
   { href: '/submissions', label: 'Submissions' },
   { href: '/schedule', label: 'Schedule' },
+  { href: '/tasks', label: 'Tasks' },
   { href: '/analytics', label: 'Analytics' },
   { href: '/notebook', label: 'Notebook' },
 ]

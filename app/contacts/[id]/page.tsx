@@ -101,6 +101,16 @@ type NewsArticle = {
   matched_text: string
 }
 
+type Task = {
+  id: string
+  heading: string
+  description: string | null
+  target_date: string | null
+  priority: number
+  status: 'Outstanding' | 'In Process' | 'Completed'
+  projects?: { title: string } | null
+}
+
 const buttonStyle = {
   padding: '8px 16px',
   borderRadius: '6px',
@@ -266,6 +276,7 @@ export default function ContactDetailPage() {
   const [talkingPoints, setTalkingPoints] = useState<TalkingPoint[]>([])
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([])
   const [loadingNews, setLoadingNews] = useState(false)
+  const [tasks, setTasks] = useState<Task[]>([])
 
   useEffect(() => {
     if (activeWorkspaceId && params.id) {
@@ -274,6 +285,7 @@ export default function ContactDetailPage() {
       loadSubmissions()
       loadTalkingPoints()
       loadNewsArticles()
+      loadTasks()
     }
   }, [activeWorkspaceId, params.id])
 
@@ -380,6 +392,27 @@ export default function ContactDetailPage() {
       console.error('Error loading talking points:', error)
     } else {
       setTalkingPoints(data || [])
+    }
+  }
+
+  const loadTasks = async () => {
+    if (!activeWorkspaceId || !params.id) return
+
+    const { data, error } = await supabase
+      .from('tasks')
+      .select(`
+        *,
+        projects(title)
+      `)
+      .eq('contact_id', params.id)
+      .eq('workspace_id', activeWorkspaceId)
+      .order('priority')
+      .order('target_date')
+
+    if (error) {
+      console.error('Error loading tasks:', error)
+    } else {
+      setTasks((data as unknown as Task[]) || [])
     }
   }
 
@@ -523,6 +556,25 @@ export default function ContactDetailPage() {
 
   const isInTalkingPoints = (projectId: string) => {
     return talkingPoints.some(tp => tp.project_id === projectId)
+  }
+
+  const handleTaskStatusChange = async (taskId: string, newStatus: string) => {
+    if (!activeWorkspaceId) return
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: newStatus })
+        .eq('id', taskId)
+        .eq('workspace_id', activeWorkspaceId)
+
+      if (error) throw error
+
+      loadTasks()
+    } catch (error: any) {
+      console.error('Error updating task status:', error)
+      alert('Error updating task status: ' + error.message)
+    }
   }
 
   // Helper function to generate time options (15-minute intervals, 24 hours)
@@ -1055,6 +1107,87 @@ export default function ContactDetailPage() {
               )}
             </div>
           )}
+          </div>
+        )}
+
+        {/* Tasks Section - Only show if tasks exist */}
+        {tasks.length > 0 && (
+          <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>Tasks</h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {tasks.map((task) => (
+                <div
+                  key={task.id}
+                  style={{
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    background: task.status === 'Completed' ? '#f9fafb' : '#ffffff',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '16px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                        <div style={{
+                          fontSize: '15px',
+                          fontWeight: '500',
+                          color: task.status === 'Completed' ? '#6b7280' : '#111827',
+                          textDecoration: task.status === 'Completed' ? 'line-through' : 'none'
+                        }}>
+                          {task.heading}
+                        </div>
+                      </div>
+
+                      {task.description && (
+                        <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>
+                          {task.description.length > 150 ? task.description.substring(0, 150) + '...' : task.description}
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>
+                        {task.target_date && (
+                          <div><strong>Target Date:</strong> {new Date(task.target_date).toLocaleDateString('en-GB')}</div>
+                        )}
+                        {task.projects && (
+                          <div>🎬 {task.projects.title}</div>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <select
+                          value={task.status}
+                          onChange={(e) => handleTaskStatusChange(task.id, e.target.value)}
+                          style={{
+                            padding: '4px 12px',
+                            borderRadius: '6px',
+                            fontSize: '14px',
+                            border: '1px solid #d1d5db',
+                            background: '#ffffff',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value="Outstanding">Outstanding</option>
+                          <option value="In Process">In Process</option>
+                          <option value="Completed">Completed</option>
+                        </select>
+                        <Link
+                          href={`/tasks/${task.id}/edit`}
+                          style={{
+                            ...secondaryButtonStyle,
+                            fontSize: '12px',
+                            padding: '6px 12px'
+                          }}
+                        >
+                          Edit
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
