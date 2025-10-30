@@ -29,8 +29,10 @@ import {
   Badge,
   Grid,
   GridItem,
-  Select
+  Select,
+  Tooltip
 } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 import { Layout } from '@/components/Layout'
 import { useWorkspace } from '@/components/workspace/WorkspaceProvider'
 import { supabase } from '@/lib/supabase'
@@ -62,6 +64,7 @@ type Genre = {
 // Style constants removed - now using Chakra UI components
 
 export default function ProjectsPage() {
+  const router = useRouter()
   const { activeWorkspaceId } = useWorkspace()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
@@ -76,10 +79,7 @@ export default function ProjectsPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedStatus, setSelectedStatus] = useState('')
   const [selectedStage, setSelectedStage] = useState('')
-  const [showUpload, setShowUpload] = useState(false)
-  const [uploadFile, setUploadFile] = useState<File | null>(null)
-  const [uploading, setUploading] = useState(false)
-  
+
   // Sorting states
   const [sortField, setSortField] = useState<'title' | 'created_at' | null>(null)
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
@@ -333,152 +333,6 @@ export default function ProjectsPage() {
     document.body.removeChild(link)
   }
 
-  // CSV Upload Function
-  const handleFileUpload = async () => {
-    if (!uploadFile || !activeWorkspaceId) return
-
-    setUploading(true)
-    try {
-      const text = await uploadFile.text()
-      const lines = text.split('\n').map(line => line.trim()).filter(line => line)
-      
-      if (lines.length < 2) {
-        alert('CSV file must have at least a header row and one data row')
-        return
-      }
-
-      const headers = lines[0].split(',').map((h: string) => h.replace(/"/g, '').trim().toUpperCase())
-      
-      // Validate required columns
-      const requiredColumns = ['TITLE']
-      const missingColumns = requiredColumns.filter(col => !headers.includes(col))
-      if (missingColumns.length > 0) {
-        alert(`Missing required columns: ${missingColumns.join(', ')}`)
-        return
-      }
-
-      // Get reference data for matching
-      const [mediumsRes, genresRes] = await Promise.all([
-        supabase.from('mediums').select('*'),
-        supabase.from('genres').select('*')
-      ])
-
-      const mediumsMap = new Map((mediumsRes.data || []).map((m: any) => [m.name.toLowerCase(), m]))
-      const genresMap = new Map((genresRes.data || []).map((g: any) => [g.name.toLowerCase(), g]))
-
-      const projectsToInsert = []
-      const junctionData = { mediums: [], genres: [] }
-
-      // Process each row
-      for (let i = 1; i < lines.length; i++) {
-        const values = parseCSVRow(lines[i])
-        if (values.length === 0) continue
-
-        const row: any = {}
-        headers.forEach((header, index) => {
-          row[header] = values[index] ? values[index].replace(/"/g, '').trim() : ''
-        })
-
-        if (!row.TITLE) continue
-
-        // Create project data
-        const projectData = {
-          workspace_id: activeWorkspaceId,
-          title: row.TITLE,
-          logline: row.LOGLINE || null,
-          status: row.STATUS || null,
-          stage: row.STAGE || null,
-          notes: row.NOTES || null,
-          roles: ['Writer'], // Default role as requested
-          tags: row.TAGS ? row.TAGS.split(',').map((t: string) => t.trim()).filter((t: string) => t) : null
-        }
-
-        projectsToInsert.push({ data: projectData, mediums: row.MEDIUM || '', genres: row.GENRES || '' })
-      }
-
-      if (projectsToInsert.length === 0) {
-        alert('No valid projects found in CSV file')
-        return
-      }
-
-      // Insert projects and get IDs
-      for (const item of projectsToInsert) {
-        const { data: project, error } = await supabase
-          .from('projects')
-          .insert([item.data])
-          .select()
-          .single()
-
-        if (error) {
-          console.error('Error inserting project:', error)
-          continue
-        }
-
-        // Handle mediums
-        if (item.mediums) {
-          const mediumNames = item.mediums.split(',').map((m: string) => m.trim()).filter((m: string) => m)
-          for (const mediumName of mediumNames) {
-            const medium = mediumsMap.get(mediumName.toLowerCase())
-            if (medium) {
-              await supabase.from('project_mediums').insert({
-                project_id: project.id,
-                medium_id: medium.id
-              })
-            }
-          }
-        }
-
-        // Handle genres
-        if (item.genres) {
-          const genreNames = item.genres.split(',').map((g: string) => g.trim()).filter((g: string) => g)
-          for (const genreName of genreNames) {
-            const genre = genresMap.get(genreName.toLowerCase())
-            if (genre) {
-              await supabase.from('project_genres').insert({
-                project_id: project.id,
-                genre_id: genre.id
-              })
-            }
-          }
-        }
-      }
-
-      alert(`Successfully imported ${projectsToInsert.length} projects`)
-      setUploadFile(null)
-      setShowUpload(false)
-      loadProjects() // Refresh the list
-    } catch (error) {
-      console.error('Error uploading CSV:', error)
-      alert('Error uploading CSV: ' + (error as any).message)
-    }
-    setUploading(false)
-  }
-
-  // Helper function to parse CSV rows properly
-  const parseCSVRow = (row: string) => {
-    const values = []
-    let current = ''
-    let inQuotes = false
-    
-    for (let i = 0; i < row.length; i++) {
-      const char = row[i]
-      
-      if (char === '"' && (i === 0 || row[i-1] === ',')) {
-        inQuotes = true
-      } else if (char === '"' && inQuotes && (i === row.length - 1 || row[i+1] === ',')) {
-        inQuotes = false
-      } else if (char === ',' && !inQuotes) {
-        values.push(current)
-        current = ''
-      } else {
-        current += char
-      }
-    }
-    
-    values.push(current)
-    return values
-  }
-
   if (loading) {
     return (
       <Layout>
@@ -499,86 +353,72 @@ export default function ProjectsPage() {
               Manage your film projects and track submissions.
             </Text>
           </Box>
-          <Flex direction={{ base: "column", sm: "row" }} gap={3}>
-            <Button
-              onClick={() => setShowUpload(!showUpload)}
-              colorScheme="green"
-              size="md"
-              w={{ base: "full", sm: "auto" }}
-            >
-              Upload CSV
-            </Button>
-            <Button
-              onClick={exportProjectsCSV}
-              colorScheme="purple"
-              size="md"
-              w={{ base: "full", sm: "auto" }}
-            >
-              Export CSV
-            </Button>
+          <Flex gap={3} align="center">
+            {/* Icon buttons for Upload/Export - hidden on mobile */}
+            <Box display={{ base: "none", md: "flex" }} gap={2}>
+              <Tooltip label="Upload CSV" placement="bottom">
+                <IconButton
+                  icon={
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                  }
+                  aria-label="Upload CSV"
+                  onClick={() => router.push('/projects/upload')}
+                  colorScheme="gray"
+                  variant="outline"
+                  size="md"
+                />
+              </Tooltip>
+              <Tooltip label="Export CSV" placement="bottom">
+                <IconButton
+                  icon={
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                  }
+                  aria-label="Export CSV"
+                  onClick={exportProjectsCSV}
+                  colorScheme="gray"
+                  variant="outline"
+                  size="md"
+                />
+              </Tooltip>
+            </Box>
+            {/* Add Project button - always visible, full width on mobile */}
             <Button
               as={Link}
               href="/projects/new"
               colorScheme="blue"
               size="md"
-              w={{ base: "full", sm: "auto" }}
+              w={{ base: "full", md: "auto" }}
             >
               Add Project
             </Button>
           </Flex>
         </Flex>
-
-        {/* CSV Upload Form */}
-        {showUpload && (
-          <Card>
-            <CardBody>
-              <Heading size="md" color="gray.800" mb={4}>
-                Upload Projects CSV
-              </Heading>
-              <VStack align="stretch" spacing={4} mb={4}>
-                <Text fontSize="sm" color="gray.600">
-                  Upload a CSV file with columns: TITLE, LOGLINE, STATUS, STAGE, MEDIUM, GENRES, TAGS, NOTES
-                </Text>
-                <Box as="ul" fontSize="sm" color="gray.600" pl={5}>
-                  <li>TITLE is required for each row</li>
-                  <li>ROLE will default to 'Writer' for all projects</li>
-                  <li>Multiple mediums should be separated by commas (,)</li>
-                  <li>Multiple genres should be separated by commas (,)</li>
-                  <li>Multiple tags should be separated by commas (,)</li>
-                </Box>
-              </VStack>
-              
-              <VStack spacing={4}>
-                <Input
-                  type="file"
-                  accept=".csv"
-                  onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                  size="md"
-                />
-                
-                <HStack spacing={3} justify="flex-end" w="full">
-                  <Button
-                    onClick={() => setShowUpload(false)}
-                    variant="outline"
-                    size="md"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleFileUpload}
-                    isDisabled={!uploadFile || uploading}
-                    isLoading={uploading}
-                    loadingText="Uploading..."
-                    colorScheme="green"
-                    size="md"
-                  >
-                    Upload Projects
-                  </Button>
-                </HStack>
-              </VStack>
-            </CardBody>
-          </Card>
-        )}
 
         {/* Search and Filters */}
         <Card>

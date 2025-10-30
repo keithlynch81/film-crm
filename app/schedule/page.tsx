@@ -85,12 +85,31 @@ const badgeStyle = (type: string) => {
   }
 }
 
+type Contact = {
+  id: string
+  first_name: string
+  last_name: string | null
+  companies: {
+    name: string
+  } | null
+}
+
 export default function SchedulePage() {
   const { activeWorkspaceId } = useWorkspace()
   const [meetings, setMeetings] = useState<Meeting[]>([])
+  const [contacts, setContacts] = useState<Contact[]>([])
   const [talkingPoints, setTalkingPoints] = useState<{[contactId: string]: TalkingPoint[]}>({})
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past' | 'follow-ups'>('upcoming')
+  const [showAddMeetingForm, setShowAddMeetingForm] = useState(false)
+  const [newMeeting, setNewMeeting] = useState({
+    contact_id: '',
+    meeting_type: '',
+    meeting_link: '',
+    date: '',
+    time: '',
+    notes: ''
+  })
   const [editingMeeting, setEditingMeeting] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({
     meeting_type: '',
@@ -104,6 +123,7 @@ export default function SchedulePage() {
     if (activeWorkspaceId) {
       loadMeetings()
       loadTalkingPoints()
+      loadContacts()
     }
   }, [activeWorkspaceId])
 
@@ -165,6 +185,91 @@ export default function SchedulePage() {
         groupedTalkingPoints[tp.contact_id].push(tp as any)
       })
       setTalkingPoints(groupedTalkingPoints)
+    }
+  }
+
+  const loadContacts = async () => {
+    if (!activeWorkspaceId) return
+
+    const { data, error } = await supabase
+      .from('contacts')
+      .select(`
+        id,
+        first_name,
+        last_name,
+        companies:company_id (
+          name
+        )
+      `)
+      .eq('workspace_id', activeWorkspaceId)
+      .order('first_name')
+
+    if (error) {
+      console.error('Error loading contacts:', error)
+    } else {
+      setContacts((data as unknown as Contact[]) || [])
+    }
+  }
+
+  const generateTimeOptions = () => {
+    const times = []
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 15) {
+        const timeString = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+        times.push(timeString)
+      }
+    }
+    return times
+  }
+
+  const combineDateAndTime = (date: string, time: string) => {
+    if (!date || !time) return null
+    return `${date}T${time}:00`
+  }
+
+  const handleAddMeetingSubmit = async () => {
+    if (!activeWorkspaceId || !newMeeting.contact_id) {
+      alert('Please select a contact')
+      return
+    }
+
+    try {
+      const meetingData: any = {
+        workspace_id: activeWorkspaceId,
+        contact_id: newMeeting.contact_id,
+        meeting_type: newMeeting.meeting_type || null,
+        notes: newMeeting.notes || null,
+        meeting_link: newMeeting.meeting_link || null
+      }
+
+      // Combine date and time for scheduled_at
+      if (newMeeting.date && newMeeting.time) {
+        const combinedDateTime = combineDateAndTime(newMeeting.date, newMeeting.time)
+        if (combinedDateTime) {
+          meetingData.scheduled_at = new Date(combinedDateTime).toISOString()
+        }
+      }
+
+      const { error } = await supabase
+        .from('meetings')
+        .insert([meetingData])
+
+      if (error) throw error
+
+      // Reset form
+      setNewMeeting({
+        contact_id: '',
+        meeting_type: '',
+        meeting_link: '',
+        date: '',
+        time: '',
+        notes: ''
+      })
+      setShowAddMeetingForm(false)
+      loadMeetings() // Refresh the list
+    } catch (error: any) {
+      console.error('Error adding meeting:', error)
+      alert('Error adding meeting: ' + error.message)
     }
   }
 
@@ -268,12 +373,197 @@ export default function SchedulePage() {
   return (
     <Layout>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <div>
-          <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', margin: '0 0 8px 0' }}>Schedule</h1>
-          <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-            View and manage your meetings and follow-ups.
-          </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', margin: '0 0 8px 0' }}>Schedule</h1>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+              View and manage your meetings and follow-ups.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowAddMeetingForm(!showAddMeetingForm)}
+            style={{
+              padding: '10px 20px',
+              background: '#3b82f6',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#2563eb'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#3b82f6'
+            }}
+          >
+            {showAddMeetingForm ? 'Cancel' : '+ Add Meeting'}
+          </button>
         </div>
+
+        {/* Add Meeting Form */}
+        {showAddMeetingForm && (
+          <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>Add New Meeting</h2>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>
+                  Contact *
+                </label>
+                <select
+                  value={newMeeting.contact_id}
+                  onChange={(e) => setNewMeeting({...newMeeting, contact_id: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    background: '#ffffff'
+                  }}
+                >
+                  <option value="">Select a contact...</option>
+                  {contacts.map(contact => (
+                    <option key={contact.id} value={contact.id}>
+                      {contact.first_name} {contact.last_name}
+                      {contact.companies?.name ? ` (${contact.companies.name})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>
+                  Meeting Type
+                </label>
+                <input
+                  type="text"
+                  value={newMeeting.meeting_type}
+                  onChange={(e) => setNewMeeting({...newMeeting, meeting_type: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                  placeholder="e.g., General, Pitch, Follow-up"
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>
+                  Date
+                </label>
+                <input
+                  type="date"
+                  value={newMeeting.date}
+                  onChange={(e) => setNewMeeting({...newMeeting, date: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>
+                  Time
+                </label>
+                <select
+                  value={newMeeting.time}
+                  onChange={(e) => setNewMeeting({...newMeeting, time: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    background: '#ffffff'
+                  }}
+                >
+                  <option value="">Select time...</option>
+                  {generateTimeOptions().map(time => (
+                    <option key={time} value={time}>{time}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>
+                  Meeting Link
+                </label>
+                <input
+                  type="url"
+                  value={newMeeting.meeting_link}
+                  onChange={(e) => setNewMeeting({...newMeeting, meeting_link: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                  placeholder="https://zoom.us/..."
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>
+                Notes
+              </label>
+              <textarea
+                value={newMeeting.notes}
+                onChange={(e) => setNewMeeting({...newMeeting, notes: e.target.value})}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  minHeight: '80px',
+                  resize: 'vertical'
+                }}
+                placeholder="Meeting notes..."
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                onClick={handleAddMeetingSubmit}
+                style={{
+                  padding: '10px 24px',
+                  background: '#16a34a',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#15803d'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#16a34a'
+                }}
+              >
+                Add Meeting
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Filter Tabs */}
         <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb' }}>

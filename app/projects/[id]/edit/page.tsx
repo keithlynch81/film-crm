@@ -709,6 +709,7 @@ export default function EditProjectPage() {
                   <option value="One Pager">One Pager</option>
                   <option value="Treatment">Treatment</option>
                   <option value="Deck">Deck</option>
+                  <option value="Short Story">Short Story</option>
                   <option value="Draft">Draft</option>
                   <option value="Final Draft">Final Draft</option>
                 </select>

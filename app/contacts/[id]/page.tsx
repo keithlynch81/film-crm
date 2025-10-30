@@ -834,6 +834,20 @@ export default function ContactDetailPage() {
   return (
     <Layout>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* Return Button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Link
+            href="/contacts"
+            style={{
+              ...secondaryButtonStyle,
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            Return to Contacts Overview
+          </Link>
+        </div>
+
         {/* Contact Header */}
         <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px', position: 'relative' }}>
           <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', margin: '0 0 16px 0', width: '100%' }}>

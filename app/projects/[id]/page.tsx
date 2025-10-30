@@ -108,6 +108,17 @@ type Task = {
   contacts?: { first_name: string; last_name: string | null } | null
 }
 
+type ProjectLink = {
+  id: string
+  url: string
+  title: string | null
+  description: string | null
+  tags: string[] | null
+  favicon_url: string | null
+  preview_image_url: string | null
+  created_at: string
+}
+
 const buttonStyle = {
   padding: '8px 16px',
   borderRadius: '6px',
@@ -204,6 +215,10 @@ export default function ProjectDetailPage() {
   const [newCastRole, setNewCastRole] = useState('')
   const [newCrewName, setNewCrewName] = useState('')
   const [newCrewRole, setNewCrewRole] = useState('')
+  const [links, setLinks] = useState<ProjectLink[]>([])
+  const [newLinkUrl, setNewLinkUrl] = useState('')
+  const [newLinkTags, setNewLinkTags] = useState('')
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
 
   useEffect(() => {
     if (activeWorkspaceId && params.id) {
@@ -216,6 +231,7 @@ export default function ProjectDetailPage() {
       loadProducers()
       loadCast()
       loadCrew()
+      loadLinks()
     }
   }, [activeWorkspaceId, params.id])
 
@@ -415,6 +431,34 @@ export default function ProjectDetailPage() {
       console.error('Error loading crew:', error)
     } else {
       setCrew(data || [])
+    }
+  }
+
+  const loadLinks = async () => {
+    if (!activeWorkspaceId || !params.id) return
+
+    const { data, error } = await supabase
+      .from('project_links')
+      .select(`
+        link_id,
+        links:link_id (
+          id,
+          url,
+          title,
+          description,
+          tags,
+          favicon_url,
+          preview_image_url,
+          created_at
+        )
+      `)
+      .eq('project_id', params.id)
+
+    if (error) {
+      console.error('Error loading links:', error)
+    } else {
+      const linksList = data?.map(pl => pl.links).filter(link => link !== null) || []
+      setLinks(linksList as ProjectLink[])
     }
   }
 
@@ -735,37 +779,99 @@ export default function ProjectDetailPage() {
     }
   }
 
+  const addLink = async () => {
+    if (!activeWorkspaceId || !params.id || !newLinkUrl.trim()) return
+
+    try {
+      const tags = newLinkTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+
+      // Create the link
+      const { data: link, error: linkError } = await supabase
+        .from('links')
+        .insert([{
+          workspace_id: activeWorkspaceId,
+          url: newLinkUrl.trim(),
+          tags: tags.length > 0 ? tags : null,
+          created_by: (await supabase.auth.getUser()).data.user?.id
+        }])
+        .select()
+        .single()
+
+      if (linkError) throw linkError
+
+      // Associate with project
+      const { error: projectLinkError } = await supabase
+        .from('project_links')
+        .insert([{
+          project_id: params.id as string,
+          link_id: link.id
+        }])
+
+      if (projectLinkError) throw projectLinkError
+
+      setNewLinkUrl('')
+      setNewLinkTags('')
+      loadLinks()
+    } catch (error: any) {
+      console.error('Error adding link:', error)
+      alert('Error adding link: ' + error.message)
+    }
+  }
+
+  const removeLink = async (linkId: string) => {
+    if (!activeWorkspaceId || !params.id) return
+
+    try {
+      const { error } = await supabase
+        .from('project_links')
+        .delete()
+        .eq('project_id', params.id)
+        .eq('link_id', linkId)
+
+      if (error) throw error
+
+      loadLinks()
+    } catch (error: any) {
+      console.error('Error removing link:', error)
+      alert('Error removing link: ' + error.message)
+    }
+  }
+
   const renderNotesWithLinks = (text: string) => {
     // URL regex pattern that matches http/https URLs
     const urlPattern = /(https?:\/\/[^\s]+)/g
     const parts = text.split(urlPattern)
-    
-    return parts.map((part, index) => {
-      if (part.match(urlPattern)) {
-        // This is a URL
-        const displayUrl = part.length > 50 ? part.substring(0, 47) + '...' : part
-        return (
-          <a
-            key={index}
-            href={part}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: '#3b82f6',
-              textDecoration: 'underline',
-              wordBreak: 'break-all',
-              overflowWrap: 'break-word'
-            }}
-            title={part} // Show full URL on hover
-          >
-            {displayUrl}
-          </a>
-        )
-      } else {
-        // Regular text
-        return part
-      }
-    })
+
+    return (
+      <>
+        {parts.map((part, index) => {
+          if (part.match(urlPattern)) {
+            // This is a URL
+            const displayUrl = part.length > 50 ? part.substring(0, 47) + '...' : part
+            return (
+              <a
+                key={index}
+                href={part}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#3b82f6',
+                  textDecoration: 'underline',
+                  wordBreak: 'break-all',
+                  overflowWrap: 'break-word'
+                }}
+                title={part} // Show full URL on hover
+              >
+                {displayUrl}
+              </a>
+            )
+          } else {
+            // Regular text
+            return <span key={index}>{part}</span>
+          }
+        })}
+      </>
+    )
   }
 
   if (loading) {
@@ -1739,6 +1845,154 @@ export default function ProjectDetailPage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Links Section */}
+        <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0 }}>Links</h2>
+            <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
+              Save useful URLs related to this project. <Link href="/links" style={{ color: '#3b82f6' }}>Manage all links</Link>
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {/* Quick Add Form */}
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                  Quick Add Link
+                </div>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                  <input
+                    type="text"
+                    value={newLinkUrl}
+                    onChange={(e) => setNewLinkUrl(e.target.value)}
+                    placeholder="Enter URL..."
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                  />
+                  <button
+                    onClick={addLink}
+                    disabled={!newLinkUrl.trim()}
+                    style={{
+                      padding: '8px 16px',
+                      background: newLinkUrl.trim() ? '#3b82f6' : '#d1d5db',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      cursor: newLinkUrl.trim() ? 'pointer' : 'not-allowed',
+                      fontWeight: '500'
+                    }}
+                  >
+                    Add
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={newLinkTags}
+                  onChange={(e) => setNewLinkTags(e.target.value)}
+                  placeholder="Tags (comma-separated)..."
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              {/* Links List */}
+              {links.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#6b7280', padding: '32px 0', fontSize: '14px' }}>
+                  No links yet. Add one above.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {links.map((link) => (
+                    <div
+                      key={link.id}
+                      style={{
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        padding: '16px',
+                        background: '#ffffff',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '12px' }}>
+                        <div style={{ flex: 1 }}>
+                          <a
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              fontSize: '15px',
+                              fontWeight: '500',
+                              color: '#3b82f6',
+                              textDecoration: 'none',
+                              wordBreak: 'break-all'
+                            }}
+                          >
+                            {link.title || link.url}
+                          </a>
+                          {link.description && (
+                            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
+                              {link.description}
+                            </div>
+                          )}
+                          {link.tags && link.tags.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                              {link.tags.map((tag, idx) => (
+                                <span
+                                  key={idx}
+                                  style={{
+                                    padding: '4px 12px',
+                                    borderRadius: '12px',
+                                    fontSize: '12px',
+                                    fontWeight: '500',
+                                    background: '#e0f2fe',
+                                    color: '#0369a1',
+                                    display: 'inline-block'
+                                  }}
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px' }}>
+                            Added {new Date(link.created_at).toLocaleDateString('en-GB')}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removeLink(link.id)}
+                          style={{
+                            padding: '4px 8px',
+                            background: '#dc2626',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.2s'
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </Layout>
