@@ -205,9 +205,10 @@ export default function IndustryPage() {
     } else {
       // Extract unique articles
       const uniqueArticles = new Map()
-      matchData?.forEach(match => {
-        if (match.news_articles && !uniqueArticles.has(match.news_articles.id)) {
-          uniqueArticles.set(match.news_articles.id, match.news_articles)
+      matchData?.forEach((match: any) => {
+        const article = match.news_articles
+        if (article && !uniqueArticles.has(article.id)) {
+          uniqueArticles.set(article.id, article)
         }
       })
 
