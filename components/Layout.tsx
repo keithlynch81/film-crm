@@ -39,6 +39,8 @@ const navigationItems = [
   { href: '/submissions', label: 'Submissions' },
   { href: '/schedule', label: 'Schedule' },
   { href: '/tasks', label: 'Tasks' },
+  { href: '/links', label: 'Links' },
+  { href: '/industry', label: 'Industry' },
   { href: '/analytics', label: 'Analytics' },
   { href: '/notebook', label: 'Notebook' },
 ]
