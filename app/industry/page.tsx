@@ -61,7 +61,7 @@ type Article = {
   url: string
   source: string
   published_at: string
-  content_snippet: string | null
+  summary: string | null
 }
 
 type TrackedTerm = {
@@ -193,7 +193,7 @@ export default function IndustryPage() {
           url,
           source,
           published_at,
-          content_snippet
+          summary
         )
       `)
       .in('contact_id', contactIds)
@@ -236,7 +236,7 @@ export default function IndustryPage() {
             url,
             source,
             published_at,
-            content_snippet
+            summary
           )
         )
       `)
@@ -393,7 +393,7 @@ export default function IndustryPage() {
 
       const { data: articles, error: articlesError } = await supabase
         .from('news_articles')
-        .select('id, title, content_snippet')
+        .select('id, title, summary')
         .gte('published_at', ninetyDaysAgo.toISOString())
         .order('published_at', { ascending: false })
         .limit(500)
@@ -411,7 +411,7 @@ export default function IndustryPage() {
 
       for (const article of articles) {
         const titleLower = (article.title || '').toLowerCase()
-        const contentLower = (article.content_snippet || '').toLowerCase()
+        const contentLower = (article.summary || '').toLowerCase()
 
         if (titleLower.includes(termLower) || contentLower.includes(termLower)) {
           matches.push({
@@ -665,9 +665,9 @@ export default function IndustryPage() {
                               </Box>
                             </Flex>
 
-                            {article.content_snippet && (
+                            {article.summary && (
                               <Text fontSize="sm" color="gray.700" noOfLines={2}>
-                                {article.content_snippet}
+                                {article.summary}
                               </Text>
                             )}
 
