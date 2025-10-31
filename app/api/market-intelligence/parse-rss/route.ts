@@ -173,7 +173,7 @@ async function saveArticles(articles: RSSArticle[], source: string) {
         .from('news_articles')
         .insert({
           title: article.title,
-          content_snippet: article.summary, // Database uses content_snippet, not content
+          summary: article.summary, // Database column is 'summary'
           url: article.url,
           published_at: article.publishedAt,
           source: source,
