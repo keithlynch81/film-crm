@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // RSS feed URLs for industry publications
 const RSS_FEEDS = [
@@ -146,26 +146,30 @@ function cleanText(text: string): string {
 // Save articles to database
 async function saveArticles(articles: RSSArticle[], source: string) {
   if (articles.length === 0) return { saved: 0, skipped: 0 }
-  
+  if (!supabaseAdmin) {
+    console.error('Supabase admin client not configured')
+    return { saved: 0, skipped: 0 }
+  }
+
   let saved = 0
   let skipped = 0
-  
+
   for (const article of articles) {
     try {
       // Check if article already exists
-      const { data: existing } = await supabase
+      const { data: existing } = await supabaseAdmin
         .from('news_articles')
         .select('id')
         .eq('url', article.url)
         .single()
-      
+
       if (existing) {
         skipped++
         continue
       }
-      
+
       // Insert new article
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('news_articles')
         .insert({
           title: article.title,
@@ -178,19 +182,19 @@ async function saveArticles(articles: RSSArticle[], source: string) {
           image_url: article.imageUrl,
           is_processed: false
         })
-      
+
       if (error) {
         console.error('Error saving article:', error)
         continue
       }
-      
+
       saved++
     } catch (error) {
       console.error('Error processing article:', error)
       continue
     }
   }
-  
+
   return { saved, skipped }
 }
 
@@ -216,9 +220,11 @@ export async function POST(request: NextRequest) {
     }
     
     // Clean up old articles (older than 30 days)
-    const { error: cleanupError } = await supabase.rpc('cleanup_old_news_articles')
-    if (cleanupError) {
-      console.error('Error cleaning up old articles:', cleanupError)
+    if (supabaseAdmin) {
+      const { error: cleanupError } = await supabaseAdmin.rpc('cleanup_old_news_articles')
+      if (cleanupError) {
+        console.error('Error cleaning up old articles:', cleanupError)
+      }
     }
     
     return NextResponse.json({
