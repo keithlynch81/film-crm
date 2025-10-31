@@ -169,26 +169,28 @@ async function saveArticles(articles: RSSArticle[], source: string) {
       }
 
       // Insert new article
-      const { error } = await supabaseAdmin
+      const { data, error } = await supabaseAdmin
         .from('news_articles')
         .insert({
           title: article.title,
-          summary: article.summary,
-          content: article.content,
+          content_snippet: article.summary, // Database uses content_snippet, not content
           url: article.url,
           published_at: article.publishedAt,
           source: source,
-          author: article.author,
-          image_url: article.imageUrl,
           is_processed: false
         })
+        .select()
 
       if (error) {
-        console.error('Error saving article:', error)
+        console.error('Error saving article:', {
+          error,
+          article: { title: article.title, url: article.url, source }
+        })
         continue
       }
 
       saved++
+      console.log(`Saved article: ${article.title}`)
     } catch (error) {
       console.error('Error processing article:', error)
       continue
