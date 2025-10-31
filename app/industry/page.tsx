@@ -143,10 +143,10 @@ export default function IndustryPage() {
     if (!activeWorkspaceId) return
 
     setLoading(true)
+    // Load ALL mandates (not filtered by workspace) - mandates are global
     const { data, error } = await supabase
       .from('mandates')
       .select('*')
-      .eq('workspace_id', activeWorkspaceId)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -186,8 +186,8 @@ export default function IndustryPage() {
     const { data: matchData, error: matchError } = await supabase
       .from('news_contact_matches')
       .select(`
-        article_id,
-        news_articles (
+        news_article_id,
+        news_articles!news_contact_matches_news_article_id_fkey (
           id,
           title,
           url,
@@ -203,10 +203,14 @@ export default function IndustryPage() {
     if (matchError) {
       console.error('Error loading article matches:', matchError)
     } else {
+      console.log('Market Intelligence: Raw match data:', matchData?.length, 'matches')
+      console.log('Market Intelligence: Sample match:', matchData?.[0])
+
       // Extract unique articles
       const uniqueArticles = new Map()
       matchData?.forEach((match: any) => {
         const article = match.news_articles
+        console.log('Processing match:', { article_id: article?.id, title: article?.title })
         if (article && !uniqueArticles.has(article.id)) {
           uniqueArticles.set(article.id, article)
         }
@@ -215,6 +219,7 @@ export default function IndustryPage() {
       const articlesArray = Array.from(uniqueArticles.values())
         .sort((a: any, b: any) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
 
+      console.log('Market Intelligence: Final articles array:', articlesArray.length)
       setArticles(articlesArray as Article[])
     }
     setArticlesLoading(false)
@@ -276,11 +281,11 @@ export default function IndustryPage() {
   }
 
   const handleSaveMandate = async () => {
-    if (!activeWorkspaceId || !user) return
+    if (!user) return
 
     try {
       const mandateData = {
-        workspace_id: activeWorkspaceId,
+        // Remove workspace_id - mandates are now global
         buyer: mandateForm.buyer,
         sum_up: mandateForm.sum_up,
         overall_tone: mandateForm.overall_tone || null,
