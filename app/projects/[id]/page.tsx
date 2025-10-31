@@ -457,8 +457,8 @@ export default function ProjectDetailPage() {
     if (error) {
       console.error('Error loading links:', error)
     } else {
-      const linksList = data?.map(pl => pl.links).filter(link => link !== null) || []
-      setLinks(linksList as ProjectLink[])
+      const linksList = (data?.map(pl => pl.links).filter(link => link !== null) || []) as unknown as ProjectLink[]
+      setLinks(linksList)
     }
   }
 
@@ -1992,7 +1992,6 @@ export default function ProjectDetailPage() {
                 </div>
               )}
             </div>
-          </div>
         </div>
       </div>
     </Layout>
