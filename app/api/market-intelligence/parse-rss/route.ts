@@ -135,11 +135,20 @@ function cleanText(text: string): string {
   return text
     .replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1') // Remove CDATA
     .replace(/<[^>]*>/g, '') // Remove HTML tags
+    // Decode numeric HTML entities (&#039; &#8216; etc.)
+    .replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec))
+    // Decode hex HTML entities (&#x27; etc.)
+    .replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)))
+    // Decode named HTML entities
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'")
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&mdash;/g, '—')
+    .replace(/&ndash;/g, '–')
+    .replace(/&hellip;/g, '…')
+    .replace(/&amp;/g, '&') // Must be last to avoid double-decoding
     .trim()
 }
 
