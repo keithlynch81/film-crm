@@ -91,50 +91,53 @@ export default function ExtensionCallback() {
       return;
     }
 
-    // Send tokens to the extension
-    const chromeApi = (window as any).chrome;
+    const messageData = {
+      type: 'EXTENSION_AUTH_SUCCESS',
+      state,
+      access_token: session.access_token,
+      refresh_token: session.refresh_token
+    };
 
-    if (chromeApi && chromeApi.runtime && chromeApi.runtime.sendMessage) {
-      // We're in a Chrome extension context
-      chromeApi.runtime.sendMessage({
-        type: 'EXTENSION_AUTH_SUCCESS',
-        state,
-        access_token: session.access_token,
-        refresh_token: session.refresh_token
-      }, (response: any) => {
-        if (chromeApi.runtime.lastError) {
-          console.error('Extension message error:', chromeApi.runtime.lastError);
-        }
-      });
-
-      setStatus('success');
-      setMessage('Authentication successful! You can close this window.');
-
-      // Auto-close after 2 seconds
-      setTimeout(() => {
-        window.close();
-      }, 2000);
-    } else {
-      // Fallback: try to communicate via window.opener
-      if (window.opener) {
-        window.opener.postMessage({
-          type: 'EXTENSION_AUTH_SUCCESS',
-          state,
-          access_token: session.access_token,
-          refresh_token: session.refresh_token
-        }, '*');
+    // First try window.opener (most reliable for popup windows)
+    if (window.opener && !window.opener.closed) {
+      try {
+        // Post message to the opener (the extension side panel)
+        window.opener.postMessage(messageData, '*');
 
         setStatus('success');
-        setMessage('Authentication successful! You can close this window.');
+        setMessage('Authentication successful! Closing window...');
 
         setTimeout(() => {
           window.close();
-        }, 2000);
-      } else {
-        setStatus('error');
-        setMessage('Cannot communicate with extension. Please try again.');
+        }, 1500);
+        return;
+      } catch (error) {
+        console.error('window.opener.postMessage error:', error);
       }
     }
+
+    // Fallback: try chrome.runtime if we're in extension context
+    const chromeApi = (window as any).chrome;
+    if (chromeApi && chromeApi.runtime) {
+      try {
+        // Try to broadcast to the extension
+        chromeApi.runtime.sendMessage(messageData);
+
+        setStatus('success');
+        setMessage('Authentication successful! Closing window...');
+
+        setTimeout(() => {
+          window.close();
+        }, 1500);
+        return;
+      } catch (error) {
+        console.error('chrome.runtime.sendMessage error:', error);
+      }
+    }
+
+    // If we got here, neither method worked
+    setStatus('error');
+    setMessage('Cannot communicate with extension. Please try again.');
   };
 
   return (
