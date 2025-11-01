@@ -298,21 +298,21 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Overview Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }} className="hide-on-mobile">
           <div style={statCardStyle}>
             <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#3b82f6', marginBottom: '8px' }}>
               {data.totalProjects}
             </div>
             <div style={{ fontSize: '14px', color: '#6b7280' }}>Total Projects</div>
           </div>
-          
+
           <div style={statCardStyle}>
             <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#10b981', marginBottom: '8px' }}>
               {data.totalContacts}
             </div>
             <div style={{ fontSize: '14px', color: '#6b7280' }}>Total Contacts</div>
           </div>
-          
+
           <div style={statCardStyle}>
             <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#f59e0b', marginBottom: '8px' }}>
               {data.totalSubmissions}
@@ -320,6 +320,14 @@ export default function AnalyticsPage() {
             <div style={{ fontSize: '14px', color: '#6b7280' }}>Total Submissions</div>
           </div>
         </div>
+
+        <style jsx>{`
+          @media (max-width: 768px) {
+            .hide-on-mobile {
+              display: none !important;
+            }
+          }
+        `}</style>
 
         {/* Charts Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>

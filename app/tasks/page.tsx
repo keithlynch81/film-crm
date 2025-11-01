@@ -331,43 +331,43 @@ export default function TasksPage() {
         {/* Task Summary Banner */}
         {hasSummaryItems && (
           <Card bg="blue.50" borderColor="blue.200" borderWidth="1px">
-            <CardBody>
-              <Flex direction={{ base: "column", md: "row" }} gap={4} align={{ base: "stretch", md: "center" }}>
+            <CardBody py={{ base: 3, md: 4 }}>
+              <Flex direction={{ base: "column", md: "row" }} gap={{ base: 2, md: 4 }} align={{ base: "stretch", md: "center" }}>
                 <Box>
-                  <Flex align="center" gap={2} mb={2}>
-                    <Text fontSize="md" fontWeight="bold" color="gray.800">
+                  <Flex align="center" gap={2}>
+                    <Text fontSize={{ base: "sm", md: "md" }} fontWeight="bold" color="gray.800">
                       📋 Task Summary
                     </Text>
                   </Flex>
-                  <Text fontSize="sm" color="gray.600">
+                  <Text fontSize="sm" color="gray.600" display={{ base: "none", md: "block" }}>
                     Quick overview of your upcoming and overdue tasks
                   </Text>
                 </Box>
 
-                <Flex gap={3} flex={1} justify={{ base: "flex-start", md: "flex-end" }} flexWrap="wrap">
+                <Flex gap={2} flex={1} justify={{ base: "flex-start", md: "flex-end" }} flexWrap="wrap">
                   {overdueTasks.length > 0 && (
                     <Box
                       bg={summaryFilter === 'overdue' ? "red.200" : "red.100"}
                       borderColor={summaryFilter === 'overdue' ? "red.500" : "red.300"}
                       borderWidth={summaryFilter === 'overdue' ? "2px" : "1px"}
                       borderRadius="md"
-                      px={4}
-                      py={2}
+                      px={{ base: 2, md: 4 }}
+                      py={{ base: 1, md: 2 }}
                       textAlign="center"
-                      minW="120px"
+                      minW={{ base: "auto", md: "120px" }}
                       cursor="pointer"
                       transition="all 0.2s"
                       _hover={{ bg: "red.200", transform: "translateY(-2px)", shadow: "md" }}
                       onClick={() => handleSummaryFilterClick('overdue')}
                     >
-                      <Text fontSize="2xl" fontWeight="bold" color="red.700">
-                        {overdueTasks.length}
-                      </Text>
-                      <Text fontSize="xs" color="red.700" fontWeight="medium">
+                      <Text fontSize={{ base: "xs", md: "sm" }} color="red.700" fontWeight="medium">
+                        <Text as="span" fontSize={{ base: "sm", md: "2xl" }} fontWeight="bold" mr={1}>
+                          {overdueTasks.length}
+                        </Text>
                         🔴 OVERDUE
                       </Text>
                       {summaryFilter === 'overdue' && (
-                        <Text fontSize="10px" color="red.600" mt={1}>
+                        <Text fontSize="10px" color="red.600" mt={1} display={{ base: "none", md: "block" }}>
                           (filtering)
                         </Text>
                       )}
@@ -380,23 +380,23 @@ export default function TasksPage() {
                       borderColor={summaryFilter === 'today' ? "orange.500" : "orange.300"}
                       borderWidth={summaryFilter === 'today' ? "2px" : "1px"}
                       borderRadius="md"
-                      px={4}
-                      py={2}
+                      px={{ base: 2, md: 4 }}
+                      py={{ base: 1, md: 2 }}
                       textAlign="center"
-                      minW="120px"
+                      minW={{ base: "auto", md: "120px" }}
                       cursor="pointer"
                       transition="all 0.2s"
                       _hover={{ bg: "orange.200", transform: "translateY(-2px)", shadow: "md" }}
                       onClick={() => handleSummaryFilterClick('today')}
                     >
-                      <Text fontSize="2xl" fontWeight="bold" color="orange.700">
-                        {todayTasks.length}
-                      </Text>
-                      <Text fontSize="xs" color="orange.700" fontWeight="medium">
-                        🟠 DUE TODAY
+                      <Text fontSize={{ base: "xs", md: "sm" }} color="orange.700" fontWeight="medium">
+                        <Text as="span" fontSize={{ base: "sm", md: "2xl" }} fontWeight="bold" mr={1}>
+                          {todayTasks.length}
+                        </Text>
+                        🟠 TODAY
                       </Text>
                       {summaryFilter === 'today' && (
-                        <Text fontSize="10px" color="orange.600" mt={1}>
+                        <Text fontSize="10px" color="orange.600" mt={1} display={{ base: "none", md: "block" }}>
                           (filtering)
                         </Text>
                       )}
@@ -409,23 +409,23 @@ export default function TasksPage() {
                       borderColor={summaryFilter === 'week' ? "yellow.500" : "yellow.300"}
                       borderWidth={summaryFilter === 'week' ? "2px" : "1px"}
                       borderRadius="md"
-                      px={4}
-                      py={2}
+                      px={{ base: 2, md: 4 }}
+                      py={{ base: 1, md: 2 }}
                       textAlign="center"
-                      minW="120px"
+                      minW={{ base: "auto", md: "120px" }}
                       cursor="pointer"
                       transition="all 0.2s"
                       _hover={{ bg: "yellow.200", transform: "translateY(-2px)", shadow: "md" }}
                       onClick={() => handleSummaryFilterClick('week')}
                     >
-                      <Text fontSize="2xl" fontWeight="bold" color="yellow.700">
-                        {weekTasks.length}
-                      </Text>
-                      <Text fontSize="xs" color="yellow.700" fontWeight="medium">
-                        🟡 THIS WEEK
+                      <Text fontSize={{ base: "xs", md: "sm" }} color="yellow.700" fontWeight="medium">
+                        <Text as="span" fontSize={{ base: "sm", md: "2xl" }} fontWeight="bold" mr={1}>
+                          {weekTasks.length}
+                        </Text>
+                        🟡 WEEK
                       </Text>
                       {summaryFilter === 'week' && (
-                        <Text fontSize="10px" color="yellow.600" mt={1}>
+                        <Text fontSize="10px" color="yellow.600" mt={1} display={{ base: "none", md: "block" }}>
                           (filtering)
                         </Text>
                       )}
@@ -438,7 +438,7 @@ export default function TasksPage() {
         )}
 
         {/* Search and Filters */}
-        <Card>
+        <Card display={{ base: "none", md: "block" }}>
           <CardBody>
             {/* Search Bar */}
             <Flex gap={4} align="end" mb={showFilters ? 6 : 0} direction={{ base: "column", md: "row" }}>
