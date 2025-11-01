@@ -84,6 +84,10 @@ export default function LinksPage() {
   const [quickTags, setQuickTags] = useState('')
   const [quickProjectId, setQuickProjectId] = useState('')
   const [quickGenreIds, setQuickGenreIds] = useState<number[]>([])
+  const [showQuickTagSuggestions, setShowQuickTagSuggestions] = useState(false)
+
+  // Edit modal tag autocomplete
+  const [showEditTagSuggestions, setShowEditTagSuggestions] = useState(false)
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('')
@@ -174,10 +178,10 @@ export default function LinksPage() {
 
     setAdding(true)
     try {
-      // Parse tags
+      // Parse tags (normalize to lowercase for consistency)
       const tags = quickTags
         .split(',')
-        .map(tag => tag.trim())
+        .map(tag => tag.trim().toLowerCase())
         .filter(tag => tag.length > 0)
 
       // Try to fetch page title and favicon
@@ -271,10 +275,10 @@ export default function LinksPage() {
     if (!editingLink) return
 
     try {
-      // Parse tags
+      // Parse tags (normalize to lowercase for consistency)
       const tags = editFormData.tags
         .split(',')
-        .map(tag => tag.trim())
+        .map(tag => tag.trim().toLowerCase())
         .filter(tag => tag.length > 0)
 
       // Update link
@@ -393,6 +397,37 @@ export default function LinksPage() {
       .filter(Boolean)
   )).sort()
 
+  // Get tag suggestions based on current input
+  const getTagSuggestions = (input: string) => {
+    if (!input) return []
+
+    // Get the last tag being typed (after the last comma)
+    const tags = input.split(',')
+    const currentTag = tags[tags.length - 1].trim().toLowerCase()
+
+    if (!currentTag) return []
+
+    // Filter existing tags that start with the current input
+    return uniqueTags.filter(tag =>
+      tag.toLowerCase().startsWith(currentTag) &&
+      tag.toLowerCase() !== currentTag
+    )
+  }
+
+  const handleQuickTagSelect = (suggestion: string) => {
+    const tags = quickTags.split(',').map(t => t.trim())
+    tags[tags.length - 1] = suggestion
+    setQuickTags(tags.join(', ') + ', ')
+    setShowQuickTagSuggestions(false)
+  }
+
+  const handleEditTagSelect = (suggestion: string) => {
+    const tags = editFormData.tags.split(',').map(t => t.trim())
+    tags[tags.length - 1] = suggestion
+    setEditFormData(prev => ({ ...prev, tags: tags.join(', ') + ', ' }))
+    setShowEditTagSuggestions(false)
+  }
+
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
       prev.includes(tag)
@@ -485,16 +520,52 @@ export default function LinksPage() {
                   />
                 </FormControl>
 
-                <FormControl flex={1.5}>
+                <FormControl flex={1.5} position="relative">
                   <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
                     Tags
                   </FormLabel>
                   <Input
                     value={quickTags}
-                    onChange={(e) => setQuickTags(e.target.value)}
+                    onChange={(e) => {
+                      setQuickTags(e.target.value)
+                      setShowQuickTagSuggestions(true)
+                    }}
+                    onFocus={() => setShowQuickTagSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowQuickTagSuggestions(false), 200)}
                     placeholder="tag1, tag2"
                     size="md"
                   />
+                  {showQuickTagSuggestions && getTagSuggestions(quickTags).length > 0 && (
+                    <Box
+                      position="absolute"
+                      top="100%"
+                      left={0}
+                      right={0}
+                      mt={1}
+                      bg="white"
+                      border="1px solid"
+                      borderColor="gray.200"
+                      borderRadius="md"
+                      boxShadow="lg"
+                      maxH="200px"
+                      overflowY="auto"
+                      zIndex={1000}
+                    >
+                      {getTagSuggestions(quickTags).map((suggestion, index) => (
+                        <Box
+                          key={index}
+                          px={3}
+                          py={2}
+                          cursor="pointer"
+                          _hover={{ bg: "blue.50" }}
+                          fontSize="sm"
+                          onClick={() => handleQuickTagSelect(suggestion)}
+                        >
+                          {suggestion}
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
                 </FormControl>
 
                 <FormControl flex={1.5}>
@@ -713,13 +784,19 @@ export default function LinksPage() {
                     {filteredLinks.map(link => (
                       <Tr key={link.id} _hover={{ bg: "gray.50" }}>
                         <Td>
-                          {link.favicon_url && (
+                          {link.favicon_url ? (
                             <Image
                               src={link.favicon_url}
                               alt=""
                               boxSize="16px"
-                              fallback={<Box boxSize="16px" bg="gray.200" borderRadius="sm" />}
+                              objectFit="contain"
+                              onError={(e) => {
+                                // Hide broken images
+                                e.currentTarget.style.display = 'none'
+                              }}
                             />
+                          ) : (
+                            <Box boxSize="16px" bg="gray.300" borderRadius="sm" />
                           )}
                         </Td>
                         <Td>
@@ -899,14 +976,50 @@ export default function LinksPage() {
                 />
               </FormControl>
 
-              <FormControl>
+              <FormControl position="relative">
                 <FormLabel fontSize="sm">Tags (comma-separated)</FormLabel>
                 <Input
                   value={editFormData.tags}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, tags: e.target.value }))}
+                  onChange={(e) => {
+                    setEditFormData(prev => ({ ...prev, tags: e.target.value }))
+                    setShowEditTagSuggestions(true)
+                  }}
+                  onFocus={() => setShowEditTagSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowEditTagSuggestions(false), 200)}
                   placeholder="cinematography, lighting, reference"
                   size="md"
                 />
+                {showEditTagSuggestions && getTagSuggestions(editFormData.tags).length > 0 && (
+                  <Box
+                    position="absolute"
+                    top="100%"
+                    left={0}
+                    right={0}
+                    mt={1}
+                    bg="white"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    borderRadius="md"
+                    boxShadow="lg"
+                    maxH="200px"
+                    overflowY="auto"
+                    zIndex={1000}
+                  >
+                    {getTagSuggestions(editFormData.tags).map((suggestion, index) => (
+                      <Box
+                        key={index}
+                        px={3}
+                        py={2}
+                        cursor="pointer"
+                        _hover={{ bg: "blue.50" }}
+                        fontSize="sm"
+                        onClick={() => handleEditTagSelect(suggestion)}
+                      >
+                        {suggestion}
+                      </Box>
+                    ))}
+                  </Box>
+                )}
               </FormControl>
 
               <FormControl>

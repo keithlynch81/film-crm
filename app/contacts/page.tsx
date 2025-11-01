@@ -29,7 +29,8 @@ import {
   Badge,
   Grid,
   GridItem,
-  Select
+  Select,
+  Tooltip
 } from '@chakra-ui/react'
 import { Layout } from '@/components/Layout'
 import { useWorkspace } from '@/components/workspace/WorkspaceProvider'
@@ -451,29 +452,65 @@ export default function ContactsPage() {
               Manage your industry contacts and relationships.
             </Text>
           </Box>
-          <Flex direction={{ base: "column", sm: "row" }} gap={3}>
-            <Button
-              onClick={() => setShowUpload(!showUpload)}
-              colorScheme="green"
-              size="md"
-              w={{ base: "full", sm: "auto" }}
-            >
-              Upload CSV
-            </Button>
-            <Button
-              onClick={exportContactsCSV}
-              colorScheme="purple"
-              size="md"
-              w={{ base: "full", sm: "auto" }}
-            >
-              Export CSV
-            </Button>
+          <Flex gap={3} align="center">
+            {/* Icon buttons for Upload/Export - hidden on mobile */}
+            <Box display={{ base: "none", md: "flex" }} gap={2}>
+              <Tooltip label="Upload CSV" placement="bottom">
+                <IconButton
+                  icon={
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                  }
+                  aria-label="Upload CSV"
+                  onClick={() => setShowUpload(!showUpload)}
+                  colorScheme="gray"
+                  variant="outline"
+                  size="md"
+                />
+              </Tooltip>
+              <Tooltip label="Export CSV" placement="bottom">
+                <IconButton
+                  icon={
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                  }
+                  aria-label="Export CSV"
+                  onClick={exportContactsCSV}
+                  colorScheme="gray"
+                  variant="outline"
+                  size="md"
+                />
+              </Tooltip>
+            </Box>
             <Button
               as={Link}
               href="/contacts/new"
               colorScheme="blue"
               size="md"
-              w={{ base: "full", sm: "auto" }}
             >
               Add Contact
             </Button>

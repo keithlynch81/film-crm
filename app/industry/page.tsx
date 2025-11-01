@@ -761,10 +761,12 @@ export default function IndustryPage() {
                   </Card>
                 ) : (
                   <VStack spacing={3} align="stretch">
-                    {trackedTerms.map(term => (
+                    {trackedTerms
+                      .sort((a, b) => b.match_count - a.match_count)
+                      .map(term => (
                       <Card key={term.id}>
-                        <CardBody>
-                          <Flex justify="space-between" align="flex-start" mb={3}>
+                        <CardBody py={3}>
+                          <Flex justify="space-between" align="flex-start" mb={0}>
                             <Box flex={1}>
                               <Flex align="center" gap={2} mb={1}>
                                 <Heading size="md" color="gray.800">
@@ -804,11 +806,8 @@ export default function IndustryPage() {
                             />
                           </Flex>
 
-                          {term.tracked_term_matches && term.tracked_term_matches.length > 0 ? (
-                            <VStack align="stretch" spacing={2} mt={3} pt={3} borderTop="1px" borderColor="gray.200">
-                              <Text fontSize="sm" fontWeight="medium" color="gray.700">
-                                Matching Articles:
-                              </Text>
+                          {term.tracked_term_matches && term.tracked_term_matches.length > 0 && (
+                            <VStack align="stretch" spacing={2} mt={2} pt={2} borderTop="1px" borderColor="gray.200">
                               {term.tracked_term_matches.slice(0, 5).map(match => (
                                 <Box key={match.article_id} pl={3} borderLeft="2px" borderColor="blue.300">
                                   <ChakraLink
@@ -838,12 +837,6 @@ export default function IndustryPage() {
                                 </Text>
                               )}
                             </VStack>
-                          ) : (
-                            <Box mt={3} pt={3} borderTop="1px" borderColor="gray.200">
-                              <Text fontSize="sm" color="gray.500" fontStyle="italic">
-                                No matching articles found yet. New matches will appear here automatically when articles mentioning "{term.term}" are published.
-                              </Text>
-                            </Box>
                           )}
                         </CardBody>
                       </Card>

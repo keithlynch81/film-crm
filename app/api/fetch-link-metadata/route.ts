@@ -43,25 +43,27 @@ export async function GET(request: NextRequest) {
     // Try multiple methods to find the title
     let title = null
 
-    // Method 1: Look for <title> tag
-    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
-    if (titleMatch && titleMatch[1]) {
-      title = titleMatch[1].trim()
+    // Method 1: Look for Open Graph title (most reliable for modern sites like YouTube)
+    const ogTitleMatch = html.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i)
+    if (ogTitleMatch && ogTitleMatch[1]) {
+      title = ogTitleMatch[1].trim()
     }
 
-    // Method 2: Look for Open Graph title if no title found
+    // Method 2: Look for Twitter title if no OG title found
     if (!title) {
-      const ogTitleMatch = html.match(/<meta[^>]*property="og:title"[^>]*content="([^"]+)"/i)
-      if (ogTitleMatch && ogTitleMatch[1]) {
-        title = ogTitleMatch[1].trim()
+      const twitterTitleMatch = html.match(/<meta[^>]*name=["']twitter:title["'][^>]*content=["']([^"']+)["']/i)
+      if (twitterTitleMatch && twitterTitleMatch[1]) {
+        title = twitterTitleMatch[1].trim()
       }
     }
 
-    // Method 3: Look for Twitter title if still no title
+    // Method 3: Look for <title> tag (fallback, less reliable)
     if (!title) {
-      const twitterTitleMatch = html.match(/<meta[^>]*name="twitter:title"[^>]*content="([^"]+)"/i)
-      if (twitterTitleMatch && twitterTitleMatch[1]) {
-        title = twitterTitleMatch[1].trim()
+      // More robust regex that handles multiline and nested content
+      const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)
+      if (titleMatch && titleMatch[1]) {
+        // Strip any HTML tags that might be inside the title
+        title = titleMatch[1].replace(/<[^>]*>/g, '').trim()
       }
     }
 
