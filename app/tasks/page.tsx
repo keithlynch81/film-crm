@@ -310,23 +310,51 @@ export default function TasksPage() {
   return (
     <Layout>
       <VStack spacing={6} align="stretch">
-        <Flex direction={{ base: "column", md: "row" }} justify="space-between" align={{ base: "stretch", md: "center" }} gap={{ base: 4, md: 0 }}>
-          <Box>
-            <Heading size="xl" color="gray.800" mb={2}>Tasks</Heading>
-            <Text fontSize="sm" color="gray.600">
-              Manage your tasks and to-do items.
-            </Text>
-          </Box>
+        <Flex justify="space-between" align="center">
+          <Heading size="xl" color="gray.800">Tasks</Heading>
+
+          {/* Mobile: Plus icon button */}
+          <IconButton
+            as={Link}
+            href="/tasks/new"
+            icon={
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            }
+            aria-label="Add Task"
+            colorScheme="blue"
+            size="md"
+            borderRadius="md"
+            display={{ base: "flex", md: "none" }}
+          />
+
+          {/* Desktop: Full button */}
           <Button
             as={Link}
             href="/tasks/new"
             colorScheme="blue"
             size="md"
-            w={{ base: "full", md: "auto" }}
+            display={{ base: "none", md: "flex" }}
           >
             Add Task
           </Button>
         </Flex>
+
+        {/* Description text - desktop only */}
+        <Text fontSize="sm" color="gray.600" display={{ base: "none", md: "block" }}>
+          Manage your tasks and to-do items.
+        </Text>
 
         {/* Task Summary Banner */}
         {hasSummaryItems && (

@@ -445,67 +445,87 @@ export default function ContactsPage() {
   return (
     <Layout>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <Flex direction={{ base: "column", md: "row" }} justify="space-between" align={{ base: "stretch", md: "center" }} gap={{ base: 4, md: 0 }}>
-          <Box>
-            <Heading size="xl" color="gray.800" mb={2}>Contacts</Heading>
-            <Text fontSize="sm" color="gray.600">
-              Manage your industry contacts and relationships.
-            </Text>
-          </Box>
-          <Flex gap={3} align="center">
-            {/* Icon buttons for Upload/Export - hidden on mobile */}
-            <Box display={{ base: "none", md: "flex" }} gap={2}>
-              <Tooltip label="Upload CSV" placement="bottom">
-                <IconButton
-                  icon={
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="17 8 12 3 7 8"/>
-                      <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                  }
-                  aria-label="Upload CSV"
-                  onClick={() => setShowUpload(!showUpload)}
-                  colorScheme="gray"
-                  variant="outline"
-                  size="md"
-                />
-              </Tooltip>
-              <Tooltip label="Export CSV" placement="bottom">
-                <IconButton
-                  icon={
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="7 10 12 15 17 10"/>
-                      <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
-                  }
-                  aria-label="Export CSV"
-                  onClick={exportContactsCSV}
-                  colorScheme="gray"
-                  variant="outline"
-                  size="md"
-                />
-              </Tooltip>
-            </Box>
+        <Flex justify="space-between" align="center">
+          <Heading size="xl" color="gray.800">Contacts</Heading>
+
+          {/* Mobile: Plus icon button */}
+          <IconButton
+            as={Link}
+            href="/contacts/new"
+            icon={
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            }
+            aria-label="Add Contact"
+            colorScheme="blue"
+            size="md"
+            borderRadius="md"
+            display={{ base: "flex", md: "none" }}
+          />
+
+          {/* Desktop: Full buttons */}
+          <Flex gap={3} align="center" display={{ base: "none", md: "flex" }}>
+            <Tooltip label="Upload CSV" placement="bottom">
+              <IconButton
+                icon={
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                }
+                aria-label="Upload CSV"
+                onClick={() => setShowUpload(!showUpload)}
+                colorScheme="gray"
+                variant="outline"
+                size="md"
+              />
+            </Tooltip>
+            <Tooltip label="Export CSV" placement="bottom">
+              <IconButton
+                icon={
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                }
+                aria-label="Export CSV"
+                onClick={exportContactsCSV}
+                colorScheme="gray"
+                variant="outline"
+                size="md"
+              />
+            </Tooltip>
             <Button
               as={Link}
               href="/contacts/new"
@@ -516,6 +536,11 @@ export default function ContactsPage() {
             </Button>
           </Flex>
         </Flex>
+
+        {/* Description text - desktop only */}
+        <Text fontSize="sm" color="gray.600" display={{ base: "none", md: "block" }}>
+          Manage your industry contacts and relationships.
+        </Text>
 
         {/* CSV Upload Form */}
         {showUpload && (

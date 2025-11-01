@@ -585,20 +585,69 @@ export default function NotebookPage() {
     <Layout>
       <div style={{ padding: '20px' }}>
         {/* Header */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '30px'
+          marginBottom: '20px'
         }}>
-          <h1 style={{ 
-            margin: 0, 
-            fontSize: '28px', 
+          <h1 style={{
+            margin: 0,
+            fontSize: '28px',
             color: '#111827',
             fontWeight: 'bold'
           }}>
             Creative Notebook
           </h1>
+
+          {/* Mobile: Plus icon button */}
+          <button
+            onClick={() => {
+              setEditingEntry(null)
+              setFormData({
+                title: '',
+                content: '',
+                tags: '',
+                selectedMediums: [],
+                selectedGenres: [],
+                selectedIdeaTypes: [],
+                linkedProjectId: ''
+              })
+              setShowForm(!showForm)
+            }}
+            style={{
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              padding: '8px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            className="mobile-plus-button"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+
+          {/* Desktop: Full button */}
           <button
             onClick={() => {
               setEditingEntry(null)
@@ -623,10 +672,32 @@ export default function NotebookPage() {
               fontSize: '14px',
               fontWeight: '500'
             }}
+            className="desktop-button"
           >
             {showForm ? 'Cancel' : '+ New Idea'}
           </button>
         </div>
+
+        {/* Description text - desktop only */}
+        <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '10px' }} className="desktop-description">
+          Capture your creative ideas and inspiration.
+        </div>
+
+        <style jsx>{`
+          @media (max-width: 768px) {
+            .desktop-button {
+              display: none !important;
+            }
+            .desktop-description {
+              display: none !important;
+            }
+          }
+          @media (min-width: 769px) {
+            .mobile-plus-button {
+              display: none !important;
+            }
+          }
+        `}</style>
 
         {/* Search and Filters */}
         {!showForm && (

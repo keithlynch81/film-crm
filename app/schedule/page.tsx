@@ -373,13 +373,52 @@ export default function SchedulePage() {
   return (
     <Layout>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', margin: '0 0 8px 0' }}>Schedule</h1>
-            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-              View and manage your meetings and follow-ups.
-            </p>
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Schedule</h1>
+
+          {/* Mobile: Plus icon button */}
+          <button
+            onClick={() => setShowAddMeetingForm(!showAddMeetingForm)}
+            style={{
+              padding: '8px',
+              background: '#3b82f6',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '40px',
+              height: '40px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#2563eb'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#3b82f6'
+            }}
+            className="mobile-plus-button"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+
+          {/* Desktop: Full button */}
           <button
             onClick={() => setShowAddMeetingForm(!showAddMeetingForm)}
             style={{
@@ -399,10 +438,32 @@ export default function SchedulePage() {
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = '#3b82f6'
             }}
+            className="desktop-button"
           >
             {showAddMeetingForm ? 'Cancel' : '+ Add Meeting'}
           </button>
         </div>
+
+        {/* Description text - desktop only */}
+        <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }} className="desktop-description">
+          View and manage your meetings and follow-ups.
+        </p>
+
+        <style jsx>{`
+          @media (max-width: 768px) {
+            .desktop-button {
+              display: none !important;
+            }
+            .desktop-description {
+              display: none !important;
+            }
+          }
+          @media (min-width: 769px) {
+            .mobile-plus-button {
+              display: none !important;
+            }
+          }
+        `}</style>
 
         {/* Add Meeting Form */}
         {showAddMeetingForm && (
