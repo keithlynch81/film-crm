@@ -32,18 +32,18 @@ export default function ExtensionCallback() {
         }
 
         // Send tokens to the extension
-        const extensionId = chrome?.runtime?.id;
+        const chromeApi = (window as any).chrome;
 
-        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
-          // We're in a Chrome context
-          chrome.runtime.sendMessage({
+        if (chromeApi && chromeApi.runtime && chromeApi.runtime.sendMessage) {
+          // We're in a Chrome extension context
+          chromeApi.runtime.sendMessage({
             type: 'EXTENSION_AUTH_SUCCESS',
             state,
             access_token: session.access_token,
             refresh_token: session.refresh_token
-          }, (response) => {
-            if (chrome.runtime.lastError) {
-              console.error('Extension message error:', chrome.runtime.lastError);
+          }, (response: any) => {
+            if (chromeApi.runtime.lastError) {
+              console.error('Extension message error:', chromeApi.runtime.lastError);
             }
           });
 
