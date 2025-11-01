@@ -13,12 +13,30 @@ export default function ExtensionCallback() {
   useEffect(() => {
     const handleAuth = async () => {
       try {
-        // Get the current session
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Try to get the current session with retries
+        let session = null;
+        let attempts = 0;
+        const maxAttempts = 5;
 
-        if (error || !session) {
+        while (!session && attempts < maxAttempts) {
+          const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+
+          if (currentSession) {
+            session = currentSession;
+            break;
+          }
+
+          // Wait a bit before retrying
+          if (attempts < maxAttempts - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+
+          attempts++;
+        }
+
+        if (!session) {
           setStatus('error');
-          setMessage('No active session found. Please log in first.');
+          setMessage('No active session found. Please log in first, then try again.');
           return;
         }
 
