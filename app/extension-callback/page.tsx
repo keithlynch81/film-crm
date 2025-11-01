@@ -13,30 +13,52 @@ export default function ExtensionCallback() {
   useEffect(() => {
     const handleAuth = async () => {
       try {
-        // Try to get the current session with retries
+        // First check if there are auth tokens in the URL hash
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+
         let session = null;
-        let attempts = 0;
-        const maxAttempts = 5;
 
-        while (!session && attempts < maxAttempts) {
-          const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        // If we have tokens in the URL, use them
+        if (accessToken) {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || ''
+          });
 
-          if (currentSession) {
-            session = currentSession;
-            break;
+          if (error) {
+            console.error('Error setting session from hash:', error);
+          } else {
+            session = data.session;
           }
+        }
 
-          // Wait a bit before retrying
-          if (attempts < maxAttempts - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500));
+        // If no tokens in URL, try to get existing session with retries
+        if (!session) {
+          let attempts = 0;
+          const maxAttempts = 5;
+
+          while (!session && attempts < maxAttempts) {
+            const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+
+            if (currentSession) {
+              session = currentSession;
+              break;
+            }
+
+            // Wait a bit before retrying
+            if (attempts < maxAttempts - 1) {
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            attempts++;
           }
-
-          attempts++;
         }
 
         if (!session) {
           setStatus('error');
-          setMessage('No active session found. Please log in first, then try again.');
+          setMessage('No active session found. Please click the button below to authenticate.');
           return;
         }
 
@@ -182,26 +204,47 @@ export default function ExtensionCallback() {
               ✕
             </div>
             <h2 style={{ fontSize: '18px', marginBottom: '8px', color: '#111827' }}>
-              Error
+              Authentication Required
             </h2>
             <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>
               {message}
             </p>
-            <button
-              onClick={() => window.close()}
-              style={{
-                padding: '10px 20px',
-                background: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              Close
-            </button>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button
+                onClick={() => {
+                  const state = searchParams.get('state');
+                  const redirectUrl = `/extension-callback${state ? `?state=${state}` : ''}`;
+                  window.location.href = `/login?redirect=${encodeURIComponent(redirectUrl)}${state ? `&state=${state}` : ''}`;
+                }}
+                style={{
+                  padding: '10px 20px',
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => window.close()}
+                style={{
+                  padding: '10px 20px',
+                  background: 'white',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                Close
+              </button>
+            </div>
           </>
         )}
 
