@@ -39,6 +39,7 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const inviteId = searchParams.get('invite')
+  const redirectUrl = searchParams.get('redirect')
   const [inviteEmail, setInviteEmail] = useState('')
 
   // Load invite information if invite ID is present
@@ -71,14 +72,22 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (status === 'authenticated' && user) {
+      // If there's a custom redirect URL, use it
+      if (redirectUrl) {
+        const state = searchParams.get('state')
+        const fullUrl = state ? `${redirectUrl}?state=${state}` : redirectUrl
+        router.push(fullUrl)
+      }
       // If there's an invite ID, redirect to the invite page
-      if (inviteId) {
+      else if (inviteId) {
         router.push(`/invites/${inviteId}`)
-      } else {
+      }
+      // Default redirect to projects
+      else {
         router.push('/projects')
       }
     }
-  }, [status, user, router, inviteId])
+  }, [status, user, router, inviteId, redirectUrl, searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -118,11 +127,15 @@ export default function LoginPage() {
           email,
           password,
         })
-        
+
         if (error) throw error
-        
-        // Redirect based on whether there's an invite
-        if (inviteId) {
+
+        // Redirect based on parameters
+        if (redirectUrl) {
+          const state = searchParams.get('state')
+          const fullUrl = state ? `${redirectUrl}?state=${state}` : redirectUrl
+          router.push(fullUrl)
+        } else if (inviteId) {
           router.push(`/invites/${inviteId}`)
         } else {
           router.push('/projects')
