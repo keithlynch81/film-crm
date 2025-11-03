@@ -22,13 +22,18 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Fetch the page HTML
+    // Fetch the page HTML with timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; LinkMetadataBot/1.0)',
       },
-      signal: AbortSignal.timeout(5000), // 5 second timeout
+      signal: controller.signal,
     })
+
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
       return NextResponse.json(
