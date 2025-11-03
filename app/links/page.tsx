@@ -188,18 +188,21 @@ export default function LinksPage() {
       let title = null
       let faviconUrl = null
       try {
+        console.log('Fetching metadata for:', quickUrl)
         const response = await fetch(`/api/fetch-link-metadata?url=${encodeURIComponent(quickUrl)}`)
+        console.log('Metadata fetch response status:', response.status)
         if (response.ok) {
           const metadata = await response.json()
+          console.log('Metadata received:', metadata)
           title = metadata.title
           faviconUrl = metadata.favicon_url
         } else {
           const errorData = await response.json()
-          console.warn('Metadata fetch failed:', errorData.error)
+          console.warn('Metadata fetch failed:', response.status, errorData.error)
         }
       } catch (e) {
         // If metadata fetch fails, continue without it
-        console.warn('Could not fetch metadata:', e)
+        console.error('Could not fetch metadata:', e)
       }
 
       // Create link
