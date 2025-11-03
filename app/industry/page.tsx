@@ -110,6 +110,7 @@ export default function IndustryPage() {
   const [newTerm, setNewTerm] = useState('')
   const [newTermType, setNewTermType] = useState('project')
   const [addingTerm, setAddingTerm] = useState(false)
+  const [expandedTerms, setExpandedTerms] = useState<Set<string>>(new Set())
 
   // Genres for mandates
   const [genres, setGenres] = useState<Genre[]>([])
@@ -808,7 +809,7 @@ export default function IndustryPage() {
 
                           {term.tracked_term_matches && term.tracked_term_matches.length > 0 && (
                             <VStack align="stretch" spacing={2} mt={2} pt={2} borderTop="1px" borderColor="gray.200">
-                              {term.tracked_term_matches.slice(0, 5).map(match => (
+                              {(expandedTerms.has(term.id) ? term.tracked_term_matches : term.tracked_term_matches.slice(0, 5)).map(match => (
                                 <Box key={match.article_id} pl={3} borderLeft="2px" borderColor="blue.300">
                                   <ChakraLink
                                     href={match.news_articles.url}
@@ -832,9 +833,30 @@ export default function IndustryPage() {
                                 </Box>
                               ))}
                               {term.tracked_term_matches.length > 5 && (
-                                <Text fontSize="xs" color="gray.600" pl={3}>
-                                  +{term.tracked_term_matches.length - 5} more articles
-                                </Text>
+                                <Button
+                                  onClick={() => {
+                                    setExpandedTerms(prev => {
+                                      const newSet = new Set(prev)
+                                      if (newSet.has(term.id)) {
+                                        newSet.delete(term.id)
+                                      } else {
+                                        newSet.add(term.id)
+                                      }
+                                      return newSet
+                                    })
+                                  }}
+                                  variant="ghost"
+                                  size="xs"
+                                  color="blue.600"
+                                  pl={3}
+                                  fontWeight="medium"
+                                  _hover={{ bg: "blue.50" }}
+                                >
+                                  {expandedTerms.has(term.id)
+                                    ? 'Show less'
+                                    : `+${term.tracked_term_matches.length - 5} more article${term.tracked_term_matches.length - 5 !== 1 ? 's' : ''}`
+                                  }
+                                </Button>
                               )}
                             </VStack>
                           )}
