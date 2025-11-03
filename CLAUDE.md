@@ -31,7 +31,17 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - ✅ **Responsive Design**: Mobile-optimized layouts with improved desktop/mobile UX
 - ✅ **Project Attachments**: Production company, producer, cast, sales agent, financier, distributor tracking
 
-### Recently Completed: Industry Page - Expandable Article Lists ✅
+### Recently Completed: Industry Page - Mandate Visibility Fix ✅
+1. **Global Mandate Visibility** - All users can now see mandates tab and all posted mandates (was admin-only)
+2. **Admin-Only Actions** - Only keith@arecibomedia.com sees "+ Add Mandate" button
+3. **Admin-Only Edit/Delete** - Edit and Delete IconButtons wrapped in `{isAdmin && ...}` conditional
+4. **Removed Tab Conditional** - Changed `{isAdmin && <Tab>}` to `<Tab>` for universal tab access
+5. **Removed TabPanel Conditional** - Changed `{isAdmin && <TabPanel>}` to `<TabPanel>` for content visibility
+6. **Cross-Workspace Access** - Mandates visible to all users in all workspaces (no RLS filtering)
+7. **Permission Check** - `isAdmin = user.email === 'keith@arecibomedia.com'` controls button visibility
+8. **Clean UI** - Non-admin users see read-only mandate cards without action buttons
+
+### Previous Session: Industry Page - Expandable Article Lists ✅
 1. **Clickable Expand Button** - "+X more articles" now clickable (was static black text)
 2. **Per-Term Expansion** - Each tracked term (Netflix, David Zaslav, etc.) expands independently
 3. **Set-Based State** - `expandedTerms: Set<string>` tracks which terms are expanded
@@ -348,9 +358,77 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - 🎬 **Box Office Data**: External API integration for project performance tracking
 
 ---
-*Last Updated: Industry Page Expandable Articles - "+X more articles" button now clickable with per-term expansion/collapse*
+*Last Updated: Industry Page Mandate Visibility - All users can now view mandates, admin-only controls for add/edit/delete*
 
-## Session Summary (Industry Page - Expandable Article Lists):
+## Session Summary (Industry Page - Mandate Visibility Fix):
+
+### User Request:
+"The posted mandate (for FX) is only visible for my login (keith@arecibomedia.com), when it's meant to be visible for all logins on all workspaces. It's just that it should only be my login who can Add Mandates via the button (this button shouldn't appear for any other user)."
+
+### Problem Identified:
+The entire "Mandates" tab was hidden from non-admin users:
+- Line 506: `{isAdmin && <Tab fontWeight="medium">Mandates</Tab>}` - Tab only visible to admin
+- Line 513: `{isAdmin && <TabPanel px={0}>` - TabPanel content only rendered for admin
+- Result: Non-admin users couldn't see the Mandates tab at all
+
+### Solution Implemented:
+**File Modified**: `/home/keith/app/industry/page.tsx`
+
+1. **Made Mandates Tab Universal** (line 506):
+   - Removed: `{isAdmin && <Tab>...}`
+   - Changed to: `<Tab fontWeight="medium">Mandates</Tab>`
+   - Now visible to all authenticated users
+
+2. **Made Mandates Content Universal** (line 513):
+   - Removed: `{isAdmin && <TabPanel px={0}>}`
+   - Changed to: `<TabPanel px={0}>`
+   - Content now loads for all users
+
+3. **Restricted Add Button to Admin** (lines 519-527):
+   ```tsx
+   {isAdmin && (
+     <Button
+       onClick={() => openMandateModal()}
+       colorScheme="blue"
+       size="sm"
+     >
+       + Add Mandate
+     </Button>
+   )}
+   ```
+
+4. **Restricted Edit/Delete Buttons to Admin** (lines 594-623):
+   ```tsx
+   {isAdmin && (
+     <HStack spacing={2}>
+       <IconButton ... aria-label="Edit mandate" ... />
+       <IconButton ... aria-label="Delete mandate" ... />
+     </HStack>
+   )}
+   ```
+
+### Technical Details:
+- **Admin Check**: `setIsAdmin(user.email === 'keith@arecibomedia.com')` (line 121)
+- **Database Query**: `loadMandates()` loads ALL mandates without workspace filtering (line 148-150)
+- **RLS Policy**: Mandates table has global read access for all authenticated users
+- **Write Permissions**: Only admin can create, update, or delete mandates (UI controls)
+
+### Result:
+- ✅ **All users see Mandates tab** in Industry page navigation
+- ✅ **All users see all mandates** (FX mandate, etc.) regardless of workspace
+- ✅ **Only keith@arecibomedia.com sees** "+ Add Mandate" button
+- ✅ **Only keith@arecibomedia.com sees** Edit/Delete IconButtons on mandate cards
+- ✅ **Non-admin users** get read-only view of mandates
+
+### Commit & Deployment:
+- ✅ Committed with message: "Fix mandates visibility: Show Mandates tab to all users, restrict Add/Edit/Delete buttons to admin only"
+- ✅ Pushed to GitHub (commit hash: fae5162)
+- ✅ Automatic Vercel deployment triggered
+- ✅ Changes live in production
+
+---
+
+## Previous Session Summary (Industry Page - Expandable Article Lists):
 
 ### User Request:
 The Industry page's Track tab showed tracked terms (like "Netflix") with article counts (e.g., "7 matches") but only displayed 5 articles. Below the articles was static black text "+2 more articles" that was not clickable, preventing users from seeing all articles. User requested:
