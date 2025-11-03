@@ -805,7 +805,7 @@ export default function LinksPage() {
                             <Box boxSize="16px" bg="gray.300" borderRadius="sm" />
                           )}
                         </Td>
-                        <Td>
+                        <Td maxW="400px">
                           <VStack align="start" spacing={1}>
                             <ChakraLink
                               href={link.url}
@@ -814,6 +814,11 @@ export default function LinksPage() {
                               fontWeight="medium"
                               fontSize="sm"
                               _hover={{ textDecoration: "underline" }}
+                              noOfLines={1}
+                              display="block"
+                              overflow="hidden"
+                              textOverflow="ellipsis"
+                              whiteSpace="nowrap"
                             >
                               {link.title || link.url}
                             </ChakraLink>
