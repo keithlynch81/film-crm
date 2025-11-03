@@ -82,7 +82,8 @@ export default function LinksPage() {
   // Quick-add form
   const [quickUrl, setQuickUrl] = useState('')
   const [quickTags, setQuickTags] = useState('')
-  const [quickProjectId, setQuickProjectId] = useState('')
+  const [quickSelectedTags, setQuickSelectedTags] = useState<string[]>([])
+  const [quickProjectIds, setQuickProjectIds] = useState<string[]>([])
   const [quickGenreIds, setQuickGenreIds] = useState<number[]>([])
   const [showQuickTagSuggestions, setShowQuickTagSuggestions] = useState(false)
 
@@ -178,11 +179,14 @@ export default function LinksPage() {
 
     setAdding(true)
     try {
-      // Parse tags (normalize to lowercase for consistency)
-      const tags = quickTags
+      // Parse tags from text input (normalize to lowercase for consistency)
+      const typedTags = quickTags
         .split(',')
         .map(tag => tag.trim().toLowerCase())
         .filter(tag => tag.length > 0)
+
+      // Combine selected tags with typed tags (remove duplicates)
+      const allTags = Array.from(new Set([...quickSelectedTags, ...typedTags]))
 
       // Try to fetch page title and favicon
       let title = null
@@ -213,7 +217,7 @@ export default function LinksPage() {
           url: quickUrl,
           title: title,
           favicon_url: faviconUrl,
-          tags: tags.length > 0 ? tags : null,
+          tags: allTags.length > 0 ? allTags : null,
           created_by: user.id
         }])
         .select()
@@ -221,14 +225,16 @@ export default function LinksPage() {
 
       if (linkError) throw linkError
 
-      // Associate with project if selected
-      if (quickProjectId && link) {
+      // Associate with projects if selected
+      if (quickProjectIds.length > 0 && link) {
         const { error: junctionError } = await supabase
           .from('project_links')
-          .insert([{
-            project_id: quickProjectId,
-            link_id: link.id
-          }])
+          .insert(
+            quickProjectIds.map(projectId => ({
+              project_id: projectId,
+              link_id: link.id
+            }))
+          )
 
         if (junctionError) throw junctionError
       }
@@ -250,7 +256,8 @@ export default function LinksPage() {
       // Reset form
       setQuickUrl('')
       setQuickTags('')
-      setQuickProjectId('')
+      setQuickSelectedTags([])
+      setQuickProjectIds([])
       setQuickGenreIds([])
 
       // Reload links
@@ -396,6 +403,22 @@ export default function LinksPage() {
     )
   }
 
+  const toggleQuickTag = (tag: string) => {
+    setQuickSelectedTags(prev =>
+      prev.includes(tag)
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    )
+  }
+
+  const toggleQuickProject = (projectId: string) => {
+    setQuickProjectIds(prev =>
+      prev.includes(projectId)
+        ? prev.filter(id => id !== projectId)
+        : [...prev, projectId]
+    )
+  }
+
   // Get unique tags for filtering
   const uniqueTags = Array.from(new Set(
     links
@@ -512,98 +535,123 @@ export default function LinksPage() {
             <Heading size="md" color="gray.800" mb={4}>
               Add New Link
             </Heading>
-            <VStack spacing={3} align="stretch">
-              <Flex gap={3} align="flex-end" direction={{ base: "column", lg: "row" }}>
-                <FormControl flex={2}>
-                  <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
-                    URL
-                  </FormLabel>
-                  <Input
-                    value={quickUrl}
-                    onChange={(e) => setQuickUrl(e.target.value)}
-                    placeholder="https://example.com"
-                    size="md"
-                  />
-                </FormControl>
-
-                <FormControl flex={1.5} position="relative">
-                  <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
-                    Tags
-                  </FormLabel>
-                  <Input
-                    value={quickTags}
-                    onChange={(e) => {
-                      setQuickTags(e.target.value)
-                      setShowQuickTagSuggestions(true)
-                    }}
-                    onFocus={() => setShowQuickTagSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowQuickTagSuggestions(false), 200)}
-                    placeholder="tag1, tag2"
-                    size="md"
-                  />
-                  {showQuickTagSuggestions && getTagSuggestions(quickTags).length > 0 && (
-                    <Box
-                      position="absolute"
-                      top="100%"
-                      left={0}
-                      right={0}
-                      mt={1}
-                      bg="white"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      borderRadius="md"
-                      boxShadow="lg"
-                      maxH="200px"
-                      overflowY="auto"
-                      zIndex={1000}
-                    >
-                      {getTagSuggestions(quickTags).map((suggestion, index) => (
-                        <Box
-                          key={index}
-                          px={3}
-                          py={2}
-                          cursor="pointer"
-                          _hover={{ bg: "blue.50" }}
-                          fontSize="sm"
-                          onClick={() => handleQuickTagSelect(suggestion)}
-                        >
-                          {suggestion}
-                        </Box>
-                      ))}
-                    </Box>
-                  )}
-                </FormControl>
-
-                <FormControl flex={1.5}>
-                  <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
-                    Project
-                  </FormLabel>
-                  <Select
-                    value={quickProjectId}
-                    onChange={(e) => setQuickProjectId(e.target.value)}
-                    size="md"
-                  >
-                    <option value="">None</option>
-                    {projects.map(project => (
-                      <option key={project.id} value={project.id}>
-                        {project.title}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <Button
-                  onClick={handleQuickAdd}
-                  isDisabled={!quickUrl || adding}
-                  isLoading={adding}
-                  colorScheme="blue"
+            <VStack spacing={4} align="stretch">
+              {/* URL Field */}
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                  URL
+                </FormLabel>
+                <Input
+                  value={quickUrl}
+                  onChange={(e) => setQuickUrl(e.target.value)}
+                  placeholder="https://example.com"
                   size="md"
-                  flexShrink={0}
-                >
-                  Add Link
-                </Button>
-              </Flex>
+                />
+              </FormControl>
 
+              {/* Tags Selection (Pill Buttons) */}
+              {uniqueTags.length > 0 && (
+                <FormControl>
+                  <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                    Tags ({quickSelectedTags.length} selected)
+                  </FormLabel>
+                  <Wrap spacing={2}>
+                    {uniqueTags.map(tag => (
+                      <WrapItem key={tag}>
+                        <Button
+                          onClick={() => toggleQuickTag(tag)}
+                          colorScheme={quickSelectedTags.includes(tag) ? "purple" : "gray"}
+                          variant={quickSelectedTags.includes(tag) ? "solid" : "outline"}
+                          size="sm"
+                          borderRadius="full"
+                        >
+                          {tag}
+                        </Button>
+                      </WrapItem>
+                    ))}
+                  </Wrap>
+                </FormControl>
+              )}
+
+              {/* New Tags Input */}
+              <FormControl position="relative">
+                <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                  Add New Tags
+                </FormLabel>
+                <Input
+                  value={quickTags}
+                  onChange={(e) => {
+                    setQuickTags(e.target.value)
+                    setShowQuickTagSuggestions(true)
+                  }}
+                  onFocus={() => setShowQuickTagSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowQuickTagSuggestions(false), 200)}
+                  placeholder="tag1, tag2"
+                  size="md"
+                />
+                {showQuickTagSuggestions && getTagSuggestions(quickTags).length > 0 && (
+                  <Box
+                    position="absolute"
+                    top="100%"
+                    left={0}
+                    right={0}
+                    mt={1}
+                    bg="white"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    borderRadius="md"
+                    boxShadow="lg"
+                    maxH="200px"
+                    overflowY="auto"
+                    zIndex={1000}
+                  >
+                    {getTagSuggestions(quickTags).map((suggestion, index) => (
+                      <Box
+                        key={index}
+                        px={3}
+                        py={2}
+                        cursor="pointer"
+                        _hover={{ bg: "blue.50" }}
+                        fontSize="sm"
+                        onClick={() => handleQuickTagSelect(suggestion)}
+                      >
+                        {suggestion}
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </FormControl>
+
+              {/* Projects Selection (Checkboxes) */}
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                  Associated Projects ({quickProjectIds.length} selected)
+                </FormLabel>
+                <VStack align="stretch" spacing={2} maxH="200px" overflowY="auto" border="1px" borderColor="gray.200" borderRadius="md" p={3}>
+                  {projects.map(project => (
+                    <Box
+                      key={project.id}
+                      as="label"
+                      display="flex"
+                      alignItems="center"
+                      cursor="pointer"
+                      _hover={{ bg: "gray.50" }}
+                      p={2}
+                      borderRadius="md"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={quickProjectIds.includes(project.id)}
+                        onChange={() => toggleQuickProject(project.id)}
+                        style={{ marginRight: '8px' }}
+                      />
+                      <Text fontSize="sm">{project.title}</Text>
+                    </Box>
+                  ))}
+                </VStack>
+              </FormControl>
+
+              {/* Genres Selection (Pill Buttons) */}
               <FormControl>
                 <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
                   Genres ({quickGenreIds.length} selected)
@@ -624,6 +672,18 @@ export default function LinksPage() {
                   ))}
                 </Wrap>
               </FormControl>
+
+              {/* Add Link Button */}
+              <Button
+                onClick={handleQuickAdd}
+                isDisabled={!quickUrl || adding}
+                isLoading={adding}
+                colorScheme="blue"
+                size="md"
+                alignSelf="flex-start"
+              >
+                Add Link
+              </Button>
             </VStack>
           </CardBody>
         </Card>
