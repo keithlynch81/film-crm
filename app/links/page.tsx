@@ -96,6 +96,7 @@ export default function LinksPage() {
   const [selectedProjectFilter, setSelectedProjectFilter] = useState('')
   const [selectedGenreFilter, setSelectedGenreFilter] = useState<number[]>([])
   const [showFilters, setShowFilters] = useState(false)
+  const [showAddForm, setShowAddForm] = useState(false)
 
   // Edit modal
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -532,10 +533,23 @@ export default function LinksPage() {
         {/* Quick Add Form */}
         <Card>
           <CardBody>
-            <Heading size="md" color="gray.800" mb={4}>
-              Add New Link
-            </Heading>
-            <VStack spacing={4} align="stretch">
+            <Flex
+              justify="space-between"
+              align="center"
+              cursor="pointer"
+              onClick={() => setShowAddForm(!showAddForm)}
+              mb={showAddForm ? 4 : 0}
+            >
+              <Heading size="md" color="gray.800">
+                Add New Link
+              </Heading>
+              <Text fontSize="lg" color="gray.600" transition="transform 0.2s">
+                {showAddForm ? '▲' : '▼'}
+              </Text>
+            </Flex>
+
+            {showAddForm && (
+              <VStack spacing={4} align="stretch">
               {/* URL Field */}
               <FormControl>
                 <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
@@ -685,6 +699,7 @@ export default function LinksPage() {
                 Add Link
               </Button>
             </VStack>
+            )}
           </CardBody>
         </Card>
 
