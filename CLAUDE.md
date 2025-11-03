@@ -31,7 +31,17 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - ✅ **Responsive Design**: Mobile-optimized layouts with improved desktop/mobile UX
 - ✅ **Project Attachments**: Production company, producer, cast, sales agent, financier, distributor tracking
 
-### Recently Completed: Links Page Collapsible Form ✅
+### Recently Completed: Industry Page - Expandable Article Lists ✅
+1. **Clickable Expand Button** - "+X more articles" now clickable (was static black text)
+2. **Per-Term Expansion** - Each tracked term (Netflix, David Zaslav, etc.) expands independently
+3. **Set-Based State** - `expandedTerms: Set<string>` tracks which terms are expanded
+4. **Show 5 by Default** - First 5 articles visible, rest hidden until expanded
+5. **Chakra Button Component** - Replaced Text with Button (ghost variant, blue.600, hover effect)
+6. **Toggle Logic** - Click expands to show all articles, click again collapses back to 5
+7. **Dynamic Text** - Button shows "+X more articles" when collapsed, "Show less" when expanded
+8. **Proper Scope** - Fixed on Industry page's Track tab (app/industry/page.tsx:812, 836-860)
+
+### Previous Session: Links Page Collapsible Form ✅
 1. **Collapsible Add Form** - "Add New Link" section now collapses/expands with click (collapsed by default)
 2. **Visual Indicator** - Up/down arrow shows current state (▼ when collapsed, ▲ when expanded)
 3. **Consistent Pattern** - Matches existing "Search & Filters" collapsible behavior on same page
@@ -338,9 +348,103 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - 🎬 **Box Office Data**: External API integration for project performance tracking
 
 ---
-*Last Updated: Links Page Collapsible Form - "Add New Link" section now collapses by default for cleaner page layout*
+*Last Updated: Industry Page Expandable Articles - "+X more articles" button now clickable with per-term expansion/collapse*
 
-## Session Summary (Links Page Collapsible Form):
+## Session Summary (Industry Page - Expandable Article Lists):
+
+### User Request:
+The Industry page's Track tab showed tracked terms (like "Netflix") with article counts (e.g., "7 matches") but only displayed 5 articles. Below the articles was static black text "+2 more articles" that was not clickable, preventing users from seeing all articles. User requested:
+1. Show maximum 5 articles by default
+2. Make the "+X more articles" text clickable
+3. Clicking should expand to show all articles
+4. Provide a way to collapse back to 5
+
+### Initial Investigation - Wrong File:
+- **Mistake**: Initially modified `/home/keith/app/contacts/[id]/page.tsx` (contact detail page)
+- **Why Wrong**: Assumed the issue was on contact pages based on RSS tracking context
+- **User Feedback**: "I'm not seeing those changes on either the Vercel site (which has successfully built) or the local site. The +2 more articles is still black unclickable text."
+- **Recovery**: Used grep to search for "more article" text across all files
+
+### Finding the Correct Location:
+- **Grep Search**: Found text in 5 files, identified correct location at `/home/keith/app/industry/page.tsx:835-837`
+- **Actual Location**: Industry page's "Track" tab, showing tracked terms with their matched articles
+- **Context**: Track tab displays terms like "Netflix", "David Zaslav", etc., with their article matches
+
+### Implementation:
+- **File Modified**: `/home/keith/app/industry/page.tsx`
+- **Lines Changed**:
+  - Line 113: Added `expandedTerms` state
+  - Line 812: Modified article map to conditionally slice
+  - Lines 836-860: Replaced static Text with interactive Button
+
+### Technical Changes:
+1. **State Variable** (line 113):
+   ```typescript
+   const [expandedTerms, setExpandedTerms] = useState<Set<string>>(new Set())
+   ```
+
+2. **Conditional Article Display** (line 812):
+   ```typescript
+   {(expandedTerms.has(term.id) ? term.tracked_term_matches : term.tracked_term_matches.slice(0, 5)).map(match => (
+     // Article display JSX
+   ))}
+   ```
+
+3. **Clickable Button** (lines 836-860):
+   ```typescript
+   {term.tracked_term_matches.length > 5 && (
+     <Button
+       onClick={() => {
+         setExpandedTerms(prev => {
+           const newSet = new Set(prev)
+           if (newSet.has(term.id)) {
+             newSet.delete(term.id)
+           } else {
+             newSet.add(term.id)
+           }
+           return newSet
+         })
+       }}
+       variant="ghost"
+       size="xs"
+       color="blue.600"
+       pl={3}
+       fontWeight="medium"
+       _hover={{ bg: "blue.50" }}
+     >
+       {expandedTerms.has(term.id)
+         ? 'Show less'
+         : `+${term.tracked_term_matches.length - 5} more article${term.tracked_term_matches.length - 5 !== 1 ? 's' : ''}`
+       }
+     </Button>
+   )}
+   ```
+
+### Key Features:
+- **Set Data Structure**: Efficient tracking of which terms are expanded (O(1) lookups)
+- **Toggle Logic**: Click once adds to Set (expand), click again removes from Set (collapse)
+- **Independent Expansion**: Each tracked term expands/collapses independently
+- **Dynamic Text**: Button text changes based on state ("Show less" vs "+X more articles")
+- **Proper Pluralization**: Handles singular "article" vs plural "articles"
+- **Chakra UI Button**: Ghost variant with blue color and hover background
+- **Conditional Rendering**: Button only appears when articles > 5
+
+### Critical Learning:
+**Verify exact location before implementing fixes.** Initial assumption led to modifying wrong file. Direct search for UI text (grep "more article") revealed actual location. This highlights importance of:
+1. Confirming which page/component has the issue
+2. Using search tools to find exact text location
+3. Verifying changes are visible before committing
+
+### Commit & Deployment:
+- ✅ Fixed wrong file modifications (reset commit, removed .local, recommitted)
+- ✅ Applied correct fix to Industry page
+- ✅ Committed with message: "Make tracked term article list expandable on Industry page: clickable '+X more articles' button shows all matches"
+- ✅ Pushed to GitHub successfully
+- ✅ User confirmed: "that's working"
+
+---
+
+## Previous Session Summary (Links Page Collapsible Form):
 
 ### User Request:
 Make the "Add New Link" section collapsible on the Links page (similar to the "Search & Filters" section), with the form collapsed by default.
