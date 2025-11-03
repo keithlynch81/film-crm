@@ -13,13 +13,34 @@ export async function GET(request: NextRequest) {
     }
 
     // Validate URL format
+    let urlObj
     try {
-      new URL(url)
+      urlObj = new URL(url)
     } catch {
       return NextResponse.json(
         { error: 'Invalid URL format' },
         { status: 400 }
       )
+    }
+
+    // Special handling for YouTube URLs using oEmbed API
+    if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
+      try {
+        const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`
+        const oembedResponse = await fetch(oembedUrl)
+
+        if (oembedResponse.ok) {
+          const oembedData = await oembedResponse.json()
+          return NextResponse.json({
+            title: oembedData.title || null,
+            favicon_url: 'https://www.youtube.com/s/desktop/3fd9a6f6/img/favicon.ico',
+            url: url,
+          })
+        }
+      } catch (e) {
+        console.log('YouTube oEmbed failed, falling back to HTML parsing:', e)
+        // Fall through to regular HTML parsing
+      }
     }
 
     // Fetch the page HTML with timeout
