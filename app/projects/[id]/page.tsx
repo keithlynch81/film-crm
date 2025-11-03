@@ -2051,8 +2051,13 @@ export default function ProjectDetailPage() {
                                 fontWeight: '500',
                                 color: '#3b82f6',
                                 textDecoration: 'none',
-                                wordBreak: 'break-all'
+                                maxWidth: '400px',
+                                display: 'block',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
                               }}
+                              title={link.title || link.url}
                             >
                               {link.title || link.url}
                             </a>
