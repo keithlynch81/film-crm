@@ -31,7 +31,17 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - ✅ **Responsive Design**: Mobile-optimized layouts with improved desktop/mobile UX
 - ✅ **Project Attachments**: Production company, producer, cast, sales agent, financier, distributor tracking
 
-### Recently Completed: Links Page Quick Add Form Restructure ✅
+### Recently Completed: Links Page Collapsible Form ✅
+1. **Collapsible Add Form** - "Add New Link" section now collapses/expands with click (collapsed by default)
+2. **Visual Indicator** - Up/down arrow shows current state (▼ when collapsed, ▲ when expanded)
+3. **Consistent Pattern** - Matches existing "Search & Filters" collapsible behavior on same page
+4. **State Management** - `showAddForm` state with `useState(false)` for default collapsed state
+5. **Click Handler** - `onClick={() => setShowAddForm(!showAddForm)}` toggles visibility
+6. **Conditional Rendering** - Form fields wrapped in `{showAddForm && (...)}` for show/hide
+7. **Clean Default View** - Page loads with form hidden, reducing visual clutter
+8. **Easy Access** - Single click expands full form with all fields (tags, projects, genres)
+
+### Previous Session: Links Page Quick Add Form Restructure ✅
 1. **Enhanced Tag Selection** - Added pill buttons for selecting existing workspace tags (purple colorScheme)
 2. **Multi-Project Association** - Changed from single dropdown to multi-select checkboxes (matches edit modal UX)
 3. **Improved Layout** - Vertical stack layout with clear sections: URL → Tags → New Tags → Projects → Genres
@@ -328,9 +338,62 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - 🎬 **Box Office Data**: External API integration for project performance tracking
 
 ---
-*Last Updated: Links Page Quick Add Form Restructure - Enhanced UX with tag pill buttons, multi-project selection, and improved vertical layout*
+*Last Updated: Links Page Collapsible Form - "Add New Link" section now collapses by default for cleaner page layout*
 
-## Session Summary (Links Page Quick Add Form Restructure):
+## Session Summary (Links Page Collapsible Form):
+
+### User Request:
+Make the "Add New Link" section collapsible on the Links page (similar to the "Search & Filters" section), with the form collapsed by default.
+
+### Implementation:
+- **File Modified**: `/home/keith/app/links/page.tsx`
+- **Lines Changed**: Line 99 (state variable) + lines 536-702 (collapsible UI structure)
+
+### Technical Changes:
+1. **State Variable** (line 99):
+   - Added `const [showAddForm, setShowAddForm] = useState(false)` - false makes it collapsed by default
+
+2. **Collapsible Header** (lines 536-549):
+   ```tsx
+   <Flex
+     justify="space-between"
+     align="center"
+     cursor="pointer"
+     onClick={() => setShowAddForm(!showAddForm)}
+     mb={showAddForm ? 4 : 0}
+   >
+     <Heading size="md" color="gray.800">Add New Link</Heading>
+     <Text fontSize="lg" color="gray.600" transition="transform 0.2s">
+       {showAddForm ? '▲' : '▼'}
+     </Text>
+   </Flex>
+   ```
+
+3. **Conditional Form Rendering** (lines 551-702):
+   - Wrapped entire VStack form in `{showAddForm && (...)}`
+   - All form fields (URL, Tags, Projects, Genres) only render when showAddForm is true
+
+### Key Features:
+- **Default Collapsed**: Form hidden on page load for cleaner initial view
+- **Toggle on Click**: Click anywhere on the "Add New Link" header to expand/collapse
+- **Arrow Indicator**: Down arrow (▼) when collapsed, up arrow (▲) when expanded
+- **Smooth Transition**: transition="transform 0.2s" on arrow for subtle animation
+- **Consistent Pattern**: Exact same UI/UX as "Search & Filters" collapsible section
+
+### Technical Issue Encountered:
+- Initial syntax error during compilation was a Next.js development server caching issue
+- **Solution**: Killed old dev server instances and started fresh with `npm run dev`
+- Code was syntactically correct - restarting server cleared the error
+
+### Commit & Deployment:
+- ✅ Committed with message: "Make Add New Link section collapsed by default on Links page"
+- ✅ Pushed to GitHub (commit hash: 26da6be)
+- ✅ Automatic Vercel deployment triggered
+- ✅ Clean compilation, no errors
+
+---
+
+## Previous Session Summary (Links Page Quick Add Form Restructure):
 
 ### User Request:
 Restructure the Quick Add form on the Links page to:
