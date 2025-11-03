@@ -15,6 +15,9 @@ import {
   Card,
   CardBody,
   Text,
+  Wrap,
+  WrapItem,
+  Checkbox,
   useToast
 } from '@chakra-ui/react'
 import { Layout } from '@/components/Layout'
@@ -38,7 +41,7 @@ export default function NewTaskPage() {
   const [heading, setHeading] = useState('')
   const [description, setDescription] = useState('')
   const [projectId, setProjectId] = useState('')
-  const [contactId, setContactId] = useState('')
+  const [contactIds, setContactIds] = useState<string[]>([])
   const [targetDate, setTargetDate] = useState('')
   const [priority, setPriority] = useState('3')
   const [status, setStatus] = useState('Outstanding')
@@ -83,6 +86,14 @@ export default function NewTaskPage() {
     }
   }
 
+  const toggleContact = (contactId: string) => {
+    setContactIds(prev =>
+      prev.includes(contactId)
+        ? prev.filter(id => id !== contactId)
+        : [...prev, contactId]
+    )
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -102,16 +113,18 @@ export default function NewTaskPage() {
       heading: heading.trim(),
       description: description.trim() || null,
       project_id: projectId || null,
-      contact_id: contactId || null,
+      contact_id: contactIds.length > 0 ? contactIds[0] : null, // Keep first contact for backward compatibility
       target_date: targetDate || null,
       priority: parseInt(priority),
       status,
       created_by: (await supabase.auth.getUser()).data.user?.id
     }
 
-    const { error } = await supabase
+    const { data: task, error } = await supabase
       .from('tasks')
       .insert([taskData])
+      .select()
+      .single()
 
     if (error) {
       console.error('Error creating task:', error)
@@ -122,14 +135,32 @@ export default function NewTaskPage() {
         duration: 5000,
       })
       setSaving(false)
-    } else {
-      toast({
-        title: 'Task created successfully',
-        status: 'success',
-        duration: 3000,
-      })
-      router.push('/tasks')
+      return
     }
+
+    // Associate task with multiple contacts
+    if (contactIds.length > 0 && task) {
+      const { error: junctionError } = await supabase
+        .from('task_contacts')
+        .insert(
+          contactIds.map(contactId => ({
+            task_id: task.id,
+            contact_id: contactId
+          }))
+        )
+
+      if (junctionError) {
+        console.error('Error linking contacts:', junctionError)
+        // Don't fail the whole operation if junction inserts fail
+      }
+    }
+
+    toast({
+      title: 'Task created successfully',
+      status: 'success',
+      duration: 3000,
+    })
+    router.push('/tasks')
   }
 
   return (
@@ -192,23 +223,33 @@ export default function NewTaskPage() {
                   </Select>
                 </FormControl>
 
-                {/* Contact Link */}
+                {/* Contact Links (Multiple) */}
                 <FormControl>
                   <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
-                    Link to Contact (Optional)
+                    Link to Contacts ({contactIds.length} selected)
                   </FormLabel>
-                  <Select
-                    value={contactId}
-                    onChange={(e) => setContactId(e.target.value)}
-                    size="md"
-                  >
-                    <option value="">No Contact</option>
-                    {contacts.map((contact) => (
-                      <option key={contact.id} value={contact.id}>
-                        {contact.first_name} {contact.last_name || ''}
-                      </option>
-                    ))}
-                  </Select>
+                  <Box border="1px" borderColor="gray.200" borderRadius="md" p={3} maxH="200px" overflowY="auto">
+                    {contacts.length === 0 ? (
+                      <Text fontSize="sm" color="gray.500">No contacts available</Text>
+                    ) : (
+                      <Wrap spacing={2}>
+                        {contacts.map((contact) => (
+                          <WrapItem key={contact.id}>
+                            <Checkbox
+                              isChecked={contactIds.includes(contact.id)}
+                              onChange={() => toggleContact(contact.id)}
+                              colorScheme="blue"
+                              size="sm"
+                            >
+                              <Text fontSize="sm">
+                                {contact.first_name} {contact.last_name || ''}
+                              </Text>
+                            </Checkbox>
+                          </WrapItem>
+                        ))}
+                      </Wrap>
+                    )}
+                  </Box>
                 </FormControl>
 
                 {/* Target Date, Priority, Status Row */}

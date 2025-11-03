@@ -45,6 +45,7 @@ type Task = {
   created_at: string
   projects?: { title: string } | null
   contacts?: { first_name: string; last_name: string | null } | null
+  task_contacts?: { contacts: { id: string; first_name: string; last_name: string | null } }[]
 }
 
 type Project = {
@@ -96,7 +97,10 @@ export default function TasksPage() {
       .select(`
         *,
         projects(title),
-        contacts(first_name, last_name)
+        contacts(first_name, last_name),
+        task_contacts(
+          contacts(id, first_name, last_name)
+        )
       `)
       .eq('workspace_id', activeWorkspaceId)
 
@@ -258,8 +262,10 @@ export default function TasksPage() {
     // Project filter
     const matchesProject = !selectedProject || task.project_id === selectedProject
 
-    // Contact filter
-    const matchesContact = !selectedContact || task.contact_id === selectedContact
+    // Contact filter - check both old contact_id and new task_contacts
+    const matchesContact = !selectedContact ||
+      task.contact_id === selectedContact ||
+      (task.task_contacts && task.task_contacts.some(tc => tc.contacts.id === selectedContact))
 
     return matchesSearch && matchesStatus && matchesPriority && matchesProject && matchesContact
   })
@@ -680,8 +686,10 @@ export default function TasksPage() {
                             {task.projects && (
                               <Text>🎬 {task.projects.title}</Text>
                             )}
-                            {task.contacts && (
-                              <Text>👤 {task.contacts.first_name} {task.contacts.last_name || ''}</Text>
+                            {task.task_contacts && task.task_contacts.length > 0 && (
+                              <Text>
+                                👤 {task.task_contacts.map(tc => `${tc.contacts.first_name} ${tc.contacts.last_name || ''}`).join(', ')}
+                              </Text>
                             )}
                           </Flex>
 
@@ -771,7 +779,9 @@ export default function TasksPage() {
                             )}
                             <Flex gap={2} fontSize="xs" color="gray.600" flexWrap="wrap">
                               {task.projects && <Text>🎬 {task.projects.title}</Text>}
-                              {task.contacts && <Text>👤 {task.contacts.first_name} {task.contacts.last_name || ''}</Text>}
+                              {task.task_contacts && task.task_contacts.length > 0 && (
+                                <Text>👤 {task.task_contacts.map(tc => `${tc.contacts.first_name} ${tc.contacts.last_name || ''}`).join(', ')}</Text>
+                              )}
                             </Flex>
                           </VStack>
                         </Td>
