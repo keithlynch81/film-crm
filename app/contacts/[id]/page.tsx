@@ -275,6 +275,8 @@ export default function ContactDetailPage() {
   const [potentialMatches, setPotentialMatches] = useState<Project[]>([])
   const [talkingPoints, setTalkingPoints] = useState<TalkingPoint[]>([])
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([])
+  const [allNewsArticles, setAllNewsArticles] = useState<NewsArticle[]>([])
+  const [showAllArticles, setShowAllArticles] = useState(false)
   const [loadingNews, setLoadingNews] = useState(false)
   const [tasks, setTasks] = useState<Task[]>([])
 
@@ -470,7 +472,6 @@ export default function ContactDetailPage() {
         .in('id', articleIds)
         .gte('published_at', twoMonthsAgoISO)
         .order('published_at', { ascending: false })
-        .limit(10)
 
       console.log('📰 Articles query result:', { articlesData, error })
 
@@ -503,7 +504,8 @@ export default function ContactDetailPage() {
       })
 
       console.log('✅ Found', articlesWithMatches.length, 'articles for contact')
-      setNewsArticles(articlesWithMatches)
+      setAllNewsArticles(articlesWithMatches)
+      setNewsArticles(articlesWithMatches.slice(0, 5)) // Show first 5 by default
     } catch (error) {
       console.error('❌ Error loading news articles:', error)
     } finally {
@@ -1173,11 +1175,67 @@ export default function ContactDetailPage() {
                   </div>
                 )
               })}
-              
-              {newsArticles.length >= 10 && (
-                <div style={{ textAlign: 'center', padding: '16px', fontSize: '12px', color: '#6b7280' }}>
-                  Showing 10 most recent articles. More intelligence available as news is published.
-                </div>
+
+              {allNewsArticles.length > 5 && !showAllArticles && (
+                <button
+                  onClick={() => {
+                    setNewsArticles(allNewsArticles)
+                    setShowAllArticles(true)
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: '#f9fafb',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    color: '#3b82f6',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    fontWeight: '500'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#eff6ff'
+                    e.currentTarget.style.borderColor = '#3b82f6'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#f9fafb'
+                    e.currentTarget.style.borderColor = '#e5e7eb'
+                  }}
+                >
+                  +{allNewsArticles.length - 5} more article{allNewsArticles.length - 5 !== 1 ? 's' : ''}
+                </button>
+              )}
+
+              {showAllArticles && allNewsArticles.length > 5 && (
+                <button
+                  onClick={() => {
+                    setNewsArticles(allNewsArticles.slice(0, 5))
+                    setShowAllArticles(false)
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: '#f9fafb',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    color: '#6b7280',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    fontWeight: '500'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#eff6ff'
+                    e.currentTarget.style.color = '#3b82f6'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#f9fafb'
+                    e.currentTarget.style.color = '#6b7280'
+                  }}
+                >
+                  Show less
+                </button>
               )}
             </div>
           )}
