@@ -10,7 +10,7 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - **Authentication**: Supabase Auth with email confirmation
 - **Architecture**: Multi-workspace with role-based access (owner/admin/member)
 
-## Current Status - TASKS SYSTEM WITH INTERACTIVE REMINDERS COMPLETE ✨
+## Current Status - CHROME EXTENSION COMPLETE ✨
 
 ### Core Features Working:
 - ✅ **Projects Management**: Create, edit, view, delete projects with mediums, genres, budget ranges, pinning
@@ -18,6 +18,8 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - ✅ **Submissions Tracking**: Create and edit submissions linked to projects and contacts
 - ✅ **Schedule Management**: Meeting and event scheduling with links and talking points
 - ✅ **Tasks Management**: Full CRUD with priority-based organization and interactive filtering
+- ✅ **Links Management**: Save URLs with tags, associate with multiple projects, workspace-level organization
+- ✅ **Chrome Extension**: Fiink browser extension for quick link saving with workspace selection and metadata fetching
 - ✅ **Multi-Workspace System**: Users can belong to multiple workspaces with different roles
 - ✅ **Workspace Invitations**: Shareable invite links with email confirmation flow
 - ✅ **Authentication**: Complete signup/login flow with email verification
@@ -29,7 +31,53 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - ✅ **Responsive Design**: Mobile-optimized layouts with improved desktop/mobile UX
 - ✅ **Project Attachments**: Production company, producer, cast, sales agent, financier, distributor tracking
 
-### Recently Completed: Tasks System with Interactive Reminders ✅
+### Recently Completed: Links Page Quick Add Form Restructure ✅
+1. **Enhanced Tag Selection** - Added pill buttons for selecting existing workspace tags (purple colorScheme)
+2. **Multi-Project Association** - Changed from single dropdown to multi-select checkboxes (matches edit modal UX)
+3. **Improved Layout** - Vertical stack layout with clear sections: URL → Tags → New Tags → Projects → Genres
+4. **Combined Tag System** - Users can both select existing tags AND type new ones, automatically combined without duplicates
+5. **Selection Indicators** - Count displays show "Tags (2 selected)", "Projects (3 selected)", "Genres (1 selected)"
+6. **Scrollable Project List** - maxH="200px" with overflowY="auto" for workspaces with many projects
+7. **State Management** - New `quickSelectedTags` and `quickProjectIds` (array) state variables
+8. **Toggle Functions** - Added `toggleQuickTag()` and `toggleQuickProject()` for pill/checkbox interactions
+9. **Conditional Rendering** - Tag selection only appears if user has previously created tags
+10. **Consistent UX** - Quick Add form now matches Edit modal's multi-select patterns
+
+### Previous Session: Chrome Extension (Fiink) ✅
+1. **Authentication Flow** - Fixed Supabase URL and API key mismatches between old and new projects
+2. **PostMessage Integration** - Secure cross-window communication for auth tokens from web app to extension
+3. **Workspace Selection** - Dropdown to select workspace before saving links
+4. **Simplified UI Flow** - Two-step process: workspace selection → click "Save Link" → detailed form appears
+5. **Metadata Fetching** - Proper Open Graph title extraction for YouTube and other modern sites
+6. **Tab Tracking** - Automatic URL updates when user switches browser tabs (Chrome tabs API)
+7. **Extension Branding** - Renamed from "Film CRM - Link Saver" to "Fiink"
+8. **Complete CRUD** - Full link creation with tags, projects, genres, and metadata
+9. **Auto-suggest Tags** - Tag autocomplete based on existing workspace tags
+10. **Error Handling** - Graceful fallbacks for metadata fetch failures
+
+### Previous Session: Industry Page Cross-Workspace Fixes ✅
+1. **Market Intelligence Tab Fixed** - Articles now display correctly across all workspaces
+2. **Mandates Global Access** - Mandates now visible in all workspaces (no workspace filtering)
+3. **Column Name Fix** - Changed `article_id` to `news_article_id` in Market Intelligence queries
+4. **RLS Policy Updates** - Fixed mandates policies to allow global read access for all authenticated users
+5. **Database Query Optimization** - Proper foreign key hints for news article joins
+6. **Deployment Success** - All fixes deployed to Vercel production environment
+7. **Cross-Workspace Testing** - Verified functionality in both "The Lynch Brothers" and "Extra Workspace"
+8. **HTML Entity Cleanup** - All 201 existing articles cleaned of HTML entities (&#8216;, &#039;, etc.)
+
+### Previous Session: Links Management System - Initial Build ✅
+1. **Database Schema** - Full `links` and `project_links` tables with RLS policies and GIN indexes
+2. **Main Links Page** - Table view with URL, title, tags, associated projects, and date added
+3. **Quick-Add Form** - Fast URL entry with optional tags and project association (now enhanced with multi-select)
+4. **Edit Modal** - Full link details with multi-project checkbox selection
+5. **Independent Tag System** - User-created tags separate from project tags with filter buttons
+6. **Project Integration** - Collapsible Links section on project detail pages
+7. **Many-to-Many Relationships** - Links can be associated with multiple projects via junction table
+8. **Workspace Isolation** - Proper RLS policies for workspace-level link organization
+9. **Mobile Navigation** - Links tab visible on mobile hamburger menu
+10. **Card Display** - Clean card view on project pages with tags and metadata
+
+### Previous Session: Tasks System with Interactive Reminders ✅
 1. **Complete Tasks CRUD** - Full task management with heading, description, target date, priority (1-5), status (Outstanding/In Process/Completed)
 2. **Tasks Integration** - Tasks sections on project and contact detail pages (only show when tasks linked)
 3. **Interactive Summary Banner** - Clickable boxes showing overdue/today/this week task counts with visual filtering
@@ -64,6 +112,7 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - `submissions` - Project submissions to contacts
 - `meetings` - Scheduled meetings and events (includes meeting_link field)
 - `tasks` - Task management with priority, status, target dates, links to projects/contacts
+- `links` - URL bookmarks with tags, title, description, and metadata (workspace-level)
 - `contact_talking_points` - Talking points linking contacts to projects for meeting prep
 - `notifications` - System notifications (working for contact creation)
 
@@ -76,6 +125,7 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 ### Junction Tables:
 - `project_mediums`, `project_genres`, `project_budget_ranges`
 - `contact_mediums`, `contact_genres`, `contact_budget_ranges`
+- `project_links` - Many-to-many relationship between projects and links
 
 ### Reference Data:
 - `mediums` (Film, TV, Streaming, etc.)
@@ -110,16 +160,24 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 │   ├── submissions/        # Submission tracking pages
 │   ├── schedule/           # Meeting scheduling with links and talking points
 │   ├── tasks/              # Task management with interactive summary banner
+│   ├── links/              # URL bookmark management with tags and project associations
 │   ├── analytics/          # Analytics dashboard with CSS charts
 │   ├── admin/market-intelligence/  # Market Intelligence admin and debug tools
 │   ├── workspace/manage/   # Workspace management page
 │   ├── invites/[id]/      # Invite acceptance page
+│   ├── extension-callback/ # Chrome extension auth callback page
 │   └── login/             # Authentication page
 ├── components/
-│   ├── Layout.tsx         # Main navigation with Fiink logo, Analytics, and Tasks tabs
+│   ├── Layout.tsx         # Main navigation with Fiink logo, Links, Analytics, and Tasks tabs
 │   └── workspace/         # Workspace-related components
 ├── lib/
 │   └── supabase.ts       # Supabase client (includes supabaseAdmin for service role)
+├── chrome-extension/       # Fiink Chrome Extension (Manifest V3)
+│   ├── manifest.json      # Extension manifest with permissions and host permissions
+│   ├── sidepanel.html     # Side panel UI with workspace selector and link form
+│   ├── sidepanel.js       # Main extension logic (auth, metadata fetch, link saving)
+│   ├── background.js      # Service worker for tab tracking
+│   └── assets/            # Extension icons (16x16, 48x48, 128x128)
 ├── supabase/
 │   └── migration.sql     # Complete database schema
 ├── market-intelligence-migration.sql  # Market Intelligence tables (APPLIED ✅)
@@ -129,6 +187,7 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 ├── fix-notification-functions.sql  # Notification badge functions (APPLIED ✅)
 ├── add-project-pinning.sql  # Project pinning column and index (APPLIED ✅)
 ├── create-tasks-table.sql  # Tasks table schema (APPLIED ✅)
+├── links-migration.sql     # Links and project_links tables with RLS (APPLIED ✅)
 ├── project-attachments-migration.sql  # Project attachments system (NEEDS TO BE APPLIED ❌)
 ├── project-attachments-update.sql  # Cast/crew role fields (NEEDS TO BE APPLIED ❌)
 └── public/
@@ -147,6 +206,7 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - `fix-notification-functions.sql` - Notification badge functions (APPLIED ✅)
 - `add-project-pinning.sql` - Project pinning functionality (APPLIED ✅)
 - `create-tasks-table.sql` - Tasks table with RLS policies (APPLIED ✅)
+- `links-migration.sql` - Links and project_links tables (APPLIED ✅)
 - `project-attachments-migration.sql` - Project attachments (NEEDS TO BE APPLIED ❌)
 - `project-attachments-update.sql` - Cast/crew roles (NEEDS TO BE APPLIED ❌)
 
@@ -200,10 +260,11 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 
 ### System Status:
 - ✅ **All Core Features**: Complete and deployed to production
+- ✅ **Chrome Extension**: Fiink extension fully functional with workspace selection and metadata fetching
 - ✅ **Database Migrations**: All applied except project attachments (optional enhancement)
 - ✅ **Responsive Design**: Mobile and desktop fully optimized
 - ✅ **Multi-Workspace**: Working with proper RLS isolation
-- ✅ **Authentication**: Email verification flow complete
+- ✅ **Authentication**: Email verification flow complete (web + extension)
 - ✅ **Notifications**: Badge counts and dropdown working
 
 ### Optional Future Enhancements:
@@ -237,6 +298,18 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - ✅ **User Experience**: Full notification system working - badge count, dropdown, mark as read functionality
 
 ### Key Technical Achievements This Session:
+- **Enhanced Form UX**: Restructured Quick Add form from horizontal Flex to vertical VStack for better organization
+- **Multi-Select Pattern**: Implemented consistent checkbox pattern for projects (matching edit modal)
+- **Tag Pill Buttons**: Added clickable purple pill buttons for selecting existing workspace tags
+- **State Array Management**: Changed `quickProjectId` (string) to `quickProjectIds` (string[]) for multi-select
+- **Tag Combination Logic**: `Array.from(new Set([...quickSelectedTags, ...typedTags]))` removes duplicates
+- **Conditional Rendering**: Tag selection section only shows when `uniqueTags.length > 0`
+- **Scrollable Containers**: maxH="200px" with overflowY="auto" for long project lists
+- **Selection Counters**: Dynamic count displays in FormLabel (e.g., "Tags (2 selected)")
+- **Database Batch Inserts**: `quickProjectIds.map()` creates multiple project_links records in one operation
+- **Form Reset Arrays**: `setQuickSelectedTags([])` and `setQuickProjectIds([])` on successful submission
+
+### Previous Session Achievements:
 - **Tasks Table Schema**: Complete RLS policies with workspace isolation
 - **Interactive Filtering**: State management for summary banner click handlers
 - **Visual Feedback System**: Dynamic background colors based on filter selection
@@ -246,6 +319,8 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - **Consistent Styling**: Unified status dropdown appearance across all task views
 
 ### Next Session Ideas:
+- 📦 **Chrome Web Store**: Publish Fiink extension to Chrome Web Store for public distribution
+- 🦊 **Firefox Extension**: Port Fiink to Firefox using WebExtensions API
 - 📧 **Email Reminders Setup**: Implement Resend API for daily task digests
 - 📊 **Submission Analytics**: Track response times and success rates by contact
 - 🎯 **Smart Suggestions**: AI-powered contact recommendations based on project attributes
@@ -253,4 +328,99 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - 🎬 **Box Office Data**: External API integration for project performance tracking
 
 ---
-*Last Updated: End of Tasks System session - Interactive summary banner with clickable filtering, project pinning, and comprehensive task management*
+*Last Updated: Links Page Quick Add Form Restructure - Enhanced UX with tag pill buttons, multi-project selection, and improved vertical layout*
+
+## Session Summary (Links Page Quick Add Form Restructure):
+
+### User Request:
+Restructure the Quick Add form on the Links page to:
+1. Add tag selection section with pill buttons (similar to genres) for previously created user tags
+2. Move the new tag input field from inline position to below tag selection buttons
+3. Change Project field from single-select dropdown to multi-select checkboxes (matching edit modal functionality)
+
+### Implementation:
+- **File Modified**: `/home/keith/app/links/page.tsx`
+- **Lines Changed**: ~150 lines restructured (state variables, toggle functions, handleQuickAdd, form JSX)
+
+### Technical Changes:
+1. **State Variables** (lines 85-86):
+   - Added `quickSelectedTags: string[]` for tracking tag pill selections
+   - Changed `quickProjectId: string` → `quickProjectIds: string[]` for multi-project support
+
+2. **Toggle Functions** (lines 400-420):
+   - Created `toggleQuickTag(tag: string)` - adds/removes tags from selection
+   - Created `toggleQuickProject(projectId: string)` - adds/removes projects from selection
+
+3. **handleQuickAdd() Updates** (lines 177-270):
+   - Parse typed tags: `quickTags.split(',').map().filter()`
+   - Combine with selected tags: `Array.from(new Set([...quickSelectedTags, ...typedTags]))`
+   - Handle multiple projects: `quickProjectIds.map(projectId => ({ project_id, link_id }))`
+   - Reset new state: `setQuickSelectedTags([])`, `setQuickProjectIds([])`
+
+4. **Form Restructure** (lines 538-687):
+   ```
+   Old Layout (Horizontal Flex):
+   [URL] [Tags Input] [Project Dropdown] [Add Button]
+   [Genres Pills]
+
+   New Layout (Vertical Stack):
+   [URL]
+   [Tag Pills - existing tags] (conditional)
+   [Add New Tags Input]
+   [Projects Checkboxes] (scrollable)
+   [Genres Pills]
+   [Add Button]
+   ```
+
+### Key Features:
+- **Purple Tag Pills**: colorScheme="purple" for tag selections (distinct from green genres)
+- **Scrollable Project List**: VStack with maxH="200px", overflowY="auto", border, padding
+- **Selection Counters**: "Tags (2 selected)", "Projects (3 selected)", "Genres (1 selected)"
+- **Conditional Rendering**: Tag pills only show if `uniqueTags.length > 0`
+- **Duplicate Prevention**: Set removes duplicates when combining tag sources
+- **Consistent Patterns**: Checkbox UI matches edit modal exactly
+
+### Commit & Deployment:
+- ✅ Committed with detailed message explaining all changes
+- ✅ Pushed to GitHub (triggers automatic Vercel deployment)
+- ✅ No TypeScript errors, clean compilation
+
+---
+
+## Previous Session Summary (Chrome Extension - Fiink):
+
+### Issues Identified and Fixed:
+1. **Extension Not Logging In** - Root cause: Using old Supabase URL (zflxnfhqgzmfkpcilzqm) instead of new project URL (hqefgtuczwjffuydjwmb)
+2. **Invalid API Key Error** - Root cause: Anon key had wrong signature for new Supabase project
+3. **YouTube Title Showing "- Youtube"** - Root cause: Metadata fetch happening too early (before form visible), falling back to Chrome tab title
+4. **Tab Changes Not Updating URL** - Root cause: No listeners for Chrome tab events
+
+### Changes Made:
+- **chrome-extension/manifest.json**: Updated name to "Fiink", changed host_permissions to new Supabase URL
+- **chrome-extension/sidepanel.js** (lines 4-5): Updated SUPABASE_URL and SUPABASE_ANON_KEY to new project credentials
+- **chrome-extension/sidepanel.js** (lines 51-61): Added Chrome tabs event listeners (onActivated, onUpdated) for tab tracking
+- **chrome-extension/sidepanel.js** (lines 258-265): Removed premature metadata fetching from loadCurrentTab()
+- **chrome-extension/sidepanel.js** (lines 280-314): Modified handleQuickSave() to fetch metadata when user clicks "Save Link"
+- **chrome-extension/sidepanel.html**: Added workspace selector dropdown, restructured UI for two-step flow
+
+### Technical Implementation:
+- **Authentication Flow**: Extension opens film-crm.vercel.app/extension-callback in popup → user logs in → callback page posts tokens via window.opener.postMessage → extension catches message and sets Supabase session
+- **Metadata Fetching**: Calls /api/fetch-link-metadata which extracts Open Graph titles (og:title) for proper YouTube video titles
+- **Workspace Integration**: Queries workspace_members table with join to load user's workspaces, allows selection before saving
+- **Tab Tracking**: Chrome tabs API listeners automatically update current URL when user switches tabs or navigates
+
+### Key Learnings:
+- Chrome Extension Manifest V3 requires explicit host_permissions for Supabase and web app domains
+- Fetch metadata at point of user interaction (button click), not on page load for better UX
+- window.opener.postMessage is more reliable than chrome.runtime.sendMessage for cross-window communication
+- JWT signatures must match the Supabase project exactly - copy from dashboard Settings → API
+- Chrome tabs listeners need null checks for currentUser and currentWorkspaceId to avoid errors
+
+### Verified Working:
+✅ Extension logs in successfully via popup window with postMessage auth flow
+✅ Workspace selector loads all user workspaces from database
+✅ "Save Link" button fetches metadata and shows detailed form
+✅ YouTube titles display correctly (e.g., "5 Trends Reshaping Filmmaking")
+✅ Tab switching automatically updates current URL in extension
+✅ Links save to database with tags, projects, genres, and metadata
+✅ Extension branded as "Fiink" throughout UI and manifest
