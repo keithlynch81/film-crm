@@ -804,12 +804,30 @@ export default function ProjectDetailPage() {
     try {
       const tags = newLinkTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
 
-      // Create the link
+      // Fetch metadata for the URL
+      let title = null
+      let faviconUrl = null
+
+      try {
+        const metadataResponse = await fetch(`/api/fetch-link-metadata?url=${encodeURIComponent(newLinkUrl.trim())}`)
+        if (metadataResponse.ok) {
+          const metadata = await metadataResponse.json()
+          title = metadata.title || null
+          faviconUrl = metadata.favicon_url || null
+        }
+      } catch (metadataError) {
+        console.error('Error fetching metadata:', metadataError)
+        // Continue without metadata if fetch fails
+      }
+
+      // Create the link with metadata
       const { data: link, error: linkError } = await supabase
         .from('links')
         .insert([{
           workspace_id: activeWorkspaceId,
           url: newLinkUrl.trim(),
+          title: title,
+          favicon_url: faviconUrl,
           tags: tags.length > 0 ? tags : null,
           created_by: (await supabase.auth.getUser()).data.user?.id
         }])
@@ -2009,20 +2027,36 @@ export default function ProjectDetailPage() {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '12px' }}>
                         <div style={{ flex: 1 }}>
-                          <a
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              fontSize: '15px',
-                              fontWeight: '500',
-                              color: '#3b82f6',
-                              textDecoration: 'none',
-                              wordBreak: 'break-all'
-                            }}
-                          >
-                            {link.title || link.url}
-                          </a>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {link.favicon_url && (
+                              <img
+                                src={link.favicon_url}
+                                alt=""
+                                style={{
+                                  width: '16px',
+                                  height: '16px',
+                                  flexShrink: 0
+                                }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none'
+                                }}
+                              />
+                            )}
+                            <a
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                fontSize: '15px',
+                                fontWeight: '500',
+                                color: '#3b82f6',
+                                textDecoration: 'none',
+                                wordBreak: 'break-all'
+                              }}
+                            >
+                              {link.title || link.url}
+                            </a>
+                          </div>
                           {link.description && (
                             <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
                               {link.description}
