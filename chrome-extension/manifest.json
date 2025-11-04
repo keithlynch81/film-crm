@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Fiink",
+  "version": "1.0.0",
+  "description": "Save links to your Fiink workspace with tags and projects",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "sidePanel",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://hqefgtuczwjffuydjwmb.supabase.co/*",
+    "https://film-crm.vercel.app/*"
+  ],
+  "externally_connectable": {
+    "matches": ["https://film-crm.vercel.app/*"]
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "Open Fiink Link Saver"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  }
+}

@@ -39,6 +39,7 @@ import {
   Image
 } from '@chakra-ui/react'
 import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
 import { Layout } from '@/components/Layout'
 import { useWorkspace } from '@/components/workspace/WorkspaceProvider'
 import { supabase } from '@/lib/supabase'
@@ -575,9 +576,24 @@ export default function IndustryPage() {
                               )}
 
                               {mandate.key_traits && (
-                                <Text fontSize="sm" color="gray.600" mb={2}>
-                                  <strong>Key Traits They Want:</strong> {mandate.key_traits}
-                                </Text>
+                                <Box mb={2}>
+                                  <Text fontSize="sm" color="gray.600" fontWeight="bold" mb={1}>
+                                    Key Traits They Want:
+                                  </Text>
+                                  <Box
+                                    fontSize="sm"
+                                    color="gray.600"
+                                    sx={{
+                                      '& p': { marginBottom: '0.5rem', lineHeight: '1.4' },
+                                      '& ul': { marginLeft: '1.25rem', marginBottom: '0.5rem', lineHeight: '1.4' },
+                                      '& li': { marginBottom: '0.25rem' },
+                                      '& strong': { fontWeight: 'bold' },
+                                      '& em': { fontStyle: 'italic' }
+                                    }}
+                                  >
+                                    <ReactMarkdown>{mandate.key_traits}</ReactMarkdown>
+                                  </Box>
+                                </Box>
                               )}
 
                               {mandate.in_short && (
@@ -937,12 +953,16 @@ export default function IndustryPage() {
 
               <FormControl>
                 <FormLabel fontSize="sm">KEY TRAITS THEY WANT</FormLabel>
+                <Text fontSize="xs" color="gray.500" mb={2}>
+                  Use markdown: **bold**, *italic*, bullet points with - or *
+                </Text>
                 <Textarea
                   value={mandateForm.key_traits}
                   onChange={(e) => setMandateForm(prev => ({ ...prev, key_traits: e.target.value }))}
-                  placeholder="e.g., Strong female lead, international locations, based on true story"
-                  rows={3}
+                  placeholder="e.g., **What they want:**&#10;- High-octane, global action shows (*Reacher*, *Jack Ryan*)&#10;- Female-led thrillers (*Better Sister*)"
+                  rows={8}
                   size="md"
+                  fontFamily="monospace"
                 />
               </FormControl>
 

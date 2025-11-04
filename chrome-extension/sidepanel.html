@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Film CRM - Link Saver</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: #f9fafb;
+      color: #111827;
+      width: 100%;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .container {
+      padding: 16px;
+    }
+
+    .header {
+      background: #3b82f6;
+      color: white;
+      padding: 16px;
+      margin: -16px -16px 16px -16px;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .login-section {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid #e5e7eb;
+      text-align: center;
+    }
+
+    .login-section h2 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: #111827;
+    }
+
+    .login-section p {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-primary:disabled {
+      background: #93c5fd;
+      cursor: not-allowed;
+    }
+
+    .quick-add-section {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .url-preview {
+      background: #f3f4f6;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #6b7280;
+      word-break: break-all;
+      margin-bottom: 12px;
+    }
+
+    .user-info {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #166534;
+    }
+
+    .logout-link {
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .logout-link:hover {
+      text-decoration: underline;
+    }
+
+    .success-message {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      color: #166534;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6b7280;
+    }
+
+    .tag-input-wrapper {
+      position: relative;
+    }
+
+    .tag-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 10;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .tag-suggestion {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .tag-suggestion:hover {
+      background: #f9fafb;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎬 Film CRM</h1>
+      <p>Save links to your workspace</p>
+    </div>
+
+    <div id="loading" class="loading">
+      Loading...
+    </div>
+
+    <div id="login-view" class="hidden">
+      <div class="login-section">
+        <h2>Sign In Required</h2>
+        <p>Log in to your Film CRM account to save links</p>
+        <button id="login-btn" class="btn btn-primary">Log In</button>
+      </div>
+    </div>
+
+    <div id="main-view" class="hidden">
+      <div id="user-info" class="user-info">
+        Logged in as <strong id="user-email"></strong><br>
+        <a id="logout-link" class="logout-link">Log out</a>
+      </div>
+
+      <div id="success-message" class="success-message hidden"></div>
+      <div id="error-message" class="error-message hidden"></div>
+
+      <div class="quick-add-section">
+        <h2 style="font-size: 16px; margin-bottom: 12px;">Quick Add Link</h2>
+
+        <div class="url-preview" id="current-url">
+          Loading current page...
+        </div>
+
+        <!-- Workspace Selector -->
+        <div class="form-group">
+          <label>Workspace</label>
+          <select id="workspace-select">
+            <option value="">Loading workspaces...</option>
+          </select>
+        </div>
+
+        <!-- Simple Save Button -->
+        <button id="quick-save-btn" class="btn btn-primary">
+          Save Link
+        </button>
+
+        <!-- Expanded Form (hidden initially) -->
+        <form id="detailed-form" class="hidden">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="link-title" placeholder="Auto-fetched from page" required>
+          </div>
+
+          <div class="form-group">
+            <label>Tags (comma-separated)</label>
+            <div class="tag-input-wrapper">
+              <input type="text" id="link-tags" placeholder="e.g., cinematography, lighting">
+              <div id="tag-suggestions" class="tag-suggestions hidden"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Projects (optional)</label>
+            <select id="link-projects" multiple size="4">
+              <option value="">No projects yet</option>
+            </select>
+            <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">Hold Ctrl/Cmd to select multiple</p>
+          </div>
+
+          <div class="form-group">
+            <label>Genres (optional)</label>
+            <select id="link-genres" multiple size="4">
+              <option value="">No genres</option>
+            </select>
+            <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">Hold Ctrl/Cmd to select multiple</p>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="save-btn">
+            Save Link
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="supabase.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
