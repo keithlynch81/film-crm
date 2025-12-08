@@ -31,7 +31,17 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - ✅ **Responsive Design**: Mobile-optimized layouts with improved desktop/mobile UX
 - ✅ **Project Attachments**: Production company, producer, cast, sales agent, financier, distributor tracking
 
-### Recently Completed: Industry Page - Mandate Visibility Fix ✅
+### Recently Completed: Industry Page - Mandate Markdown Formatting ✅
+1. **ReactMarkdown Integration** - Installed and integrated react-markdown for rich text rendering
+2. **Bold & Italic Support** - `**bold text**` and `*italic text*` markdown syntax now renders properly
+3. **Bullet Points** - Markdown lists with `-` or `*` render as proper bullet points
+4. **Reduced Line Spacing** - Custom CSS with lineHeight: '1.4' and tight margins for compact display
+5. **Helper Text in Form** - Added guidance: "Use markdown: **bold**, *italic*, bullet points with - or *"
+6. **Monospace Textarea** - Form input uses monospace font for better markdown visibility while typing
+7. **Custom Styling** - CSS overrides for `<p>`, `<ul>`, `<li>`, `<strong>`, `<em>` elements
+8. **Preserved Formatting** - Key Traits section now displays exactly as formatted in source document
+
+### Previous Session: Industry Page - Mandate Visibility Fix ✅
 1. **Global Mandate Visibility** - All users can now see mandates tab and all posted mandates (was admin-only)
 2. **Admin-Only Actions** - Only keith@arecibomedia.com sees "+ Add Mandate" button
 3. **Admin-Only Edit/Delete** - Edit and Delete IconButtons wrapped in `{isAdmin && ...}` conditional
@@ -230,15 +240,14 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - **Database**: Supabase hosted PostgreSQL
 
 ## Important SQL Files Status:
-- `supabase/migration.sql` - Main database schema with RLS policies (APPLIED ✅)
-- `talking-points-migration.sql` - Talking points table (APPLIED ✅)
-- `add-meeting-link.sql` - Meeting link field (APPLIED ✅)
-- `fix-notification-functions.sql` - Notification badge functions (APPLIED ✅)
-- `add-project-pinning.sql` - Project pinning functionality (APPLIED ✅)
-- `create-tasks-table.sql` - Tasks table with RLS policies (APPLIED ✅)
-- `links-migration.sql` - Links and project_links tables (APPLIED ✅)
-- `project-attachments-migration.sql` - Project attachments (NEEDS TO BE APPLIED ❌)
-- `project-attachments-update.sql` - Cast/crew roles (NEEDS TO BE APPLIED ❌)
+- `supabase/migration.sql` - **CONSOLIDATED** main database schema with ALL migrations included ✅
+  - Includes: Core schema, RLS policies, talking points, meeting links, notifications, project pinning, tasks, task_contacts, links, and all functions
+  - **This is now the single source of truth** - all separate migration files have been consolidated into this file
+  - Running `npx supabase db reset` will apply all migrations from this file
+- `project-attachments-migration.sql` - Project attachments (OPTIONAL - not included in main migration.sql)
+- `project-attachments-update.sql` - Cast/crew roles (OPTIONAL - not included in main migration.sql)
+
+**Note**: Separate migration files (talking-points-migration.sql, add-meeting-link.sql, fix-notification-functions.sql, add-project-pinning.sql, create-tasks-table.sql, links-migration.sql, task-contacts-migration.sql) are now consolidated into the main migration.sql file. They are kept for reference only.
 
 ## Design System
 ### Chakra UI Integration:
@@ -358,9 +367,96 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - 🎬 **Box Office Data**: External API integration for project performance tracking
 
 ---
-*Last Updated: Industry Page Mandate Visibility - All users can now view mandates, admin-only controls for add/edit/delete*
+*Last Updated: Industry Page Mandate Markdown Formatting - Rich text rendering with bold, italic, and bullet points*
 
-## Session Summary (Industry Page - Mandate Visibility Fix):
+## Session Summary (Industry Page - Mandate Markdown Formatting):
+
+### User Request:
+"On the Mandates tab on Industry page, the formatting of the Key Traits They Want section is bad. I'd like it to be spaced out in a more readable way like the original text that I copied and pasted in. Is there any sort of formatting that could be brought in so that the text field keeps the same formatting as that is pasted in?"
+
+### Problem Identified:
+The Key Traits They Want field was displaying as plain text without any formatting:
+- No line breaks preserved (all text ran together)
+- No bold or italic formatting from source
+- No bullet points
+- Large gaps between lines
+
+### Solution Implemented:
+**File Modified**: `/home/keith/app/industry/page.tsx`
+
+1. **Installed react-markdown**:
+   ```bash
+   npm install react-markdown --save
+   ```
+
+2. **Imported ReactMarkdown** (line 42):
+   ```tsx
+   import ReactMarkdown from 'react-markdown'
+   ```
+
+3. **Updated Display Section** (lines 578-597):
+   - Replaced simple Text component with ReactMarkdown wrapper
+   - Added custom CSS styling via `sx` prop for proper rendering
+   - Set tight line heights (1.4) and small margins (0.25rem for list items)
+
+4. **Enhanced Form Input** (lines 954-967):
+   - Added helper text explaining markdown syntax
+   - Increased textarea rows from 3 to 8 for more space
+   - Applied monospace font for better markdown visibility
+   - Updated placeholder with markdown examples
+
+### Technical Implementation:
+```tsx
+<Box
+  fontSize="sm"
+  color="gray.600"
+  sx={{
+    '& p': { marginBottom: '0.5rem', lineHeight: '1.4' },
+    '& ul': { marginLeft: '1.25rem', marginBottom: '0.5rem', lineHeight: '1.4' },
+    '& li': { marginBottom: '0.25rem' },
+    '& strong': { fontWeight: 'bold' },
+    '& em': { fontStyle: 'italic' }
+  }}
+>
+  <ReactMarkdown>{mandate.key_traits}</ReactMarkdown>
+</Box>
+```
+
+### Markdown Syntax Guide:
+Users can now format content using:
+- `**bold text**` → **bold text**
+- `*italic text*` → *italic text*
+- `- bullet point` or `* bullet point` → • bullet point
+- Line breaks preserved automatically
+
+### Result:
+- ✅ **Rich text rendering** with bold, italic, and bullet points
+- ✅ **Reduced line spacing** with 1.4 line height (was default 1.6+)
+- ✅ **Proper bullet points** with left margin and tight spacing
+- ✅ **Helper text** guides users on markdown syntax in form
+- ✅ **Monospace input** makes markdown easier to write and edit
+
+### Commit & Deployment:
+- ✅ Committed with message: "Add markdown rendering for mandate key traits: support bold, italic, bullet points with reduced line spacing"
+- ✅ Pushed to GitHub (commit hash: 23479b9)
+- ✅ Automatic Vercel deployment triggered
+- ✅ 79 packages added (react-markdown and dependencies)
+
+### Usage Instructions:
+To use markdown formatting in existing mandates:
+1. Click Edit on a mandate
+2. In the Key Traits They Want field, use markdown syntax:
+   ```markdown
+   **What they want:**
+   - High-octane, global action shows (*Reacher*, *Jack Ryan*)
+   - Female-led thrillers (*Better Sister*, *Ride or Die*)
+   - Genre IP with built-in audiences (sci-fi, fantasy, adventure)
+   ```
+3. Save - the content will render with proper formatting
+
+---
+
+## Previous Session Summary (Industry Page - Mandate Visibility Fix):
 
 ### User Request:
 "The posted mandate (for FX) is only visible for my login (keith@arecibomedia.com), when it's meant to be visible for all logins on all workspaces. It's just that it should only be my login who can Add Mandates via the button (this button shouldn't appear for any other user)."

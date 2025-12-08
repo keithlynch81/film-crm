@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSearchParams } from 'next/navigation';
 
-export default function ExtensionCallback() {
+function ExtensionCallbackContent() {
   const [status, setStatus] = useState<'loading' | 'login' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Processing authentication...');
   const [email, setEmail] = useState('');
@@ -332,5 +332,37 @@ export default function ExtensionCallback() {
         `}</style>
       </div>
     </div>
+  );
+}
+
+export default function ExtensionCallback() {
+  return (
+    <Suspense fallback={
+      <>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          background: '#f9fafb',
+        }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '4px solid #e5e7eb',
+            borderTop: '4px solid #3b82f6',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }} />
+        </div>
+      </>
+    }>
+      <ExtensionCallbackContent />
+    </Suspense>
   );
 }
