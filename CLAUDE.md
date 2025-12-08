@@ -4,7 +4,7 @@
 A complete Next.js 14 + Supabase Film CRM application for managing film projects, contacts, submissions, and workspace collaboration. Built with TypeScript, App Router, and Row Level Security (RLS).
 
 ## Tech Stack
-- **Frontend**: Next.js 14 (App Router), TypeScript, React
+- **Frontend**: Next.js 15.5.7 (App Router), TypeScript, React
 - **Backend**: Supabase (PostgreSQL with RLS)
 - **Styling**: Inline CSS (blue pill design system)
 - **Authentication**: Supabase Auth with email confirmation
@@ -31,7 +31,17 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - ✅ **Responsive Design**: Mobile-optimized layouts with improved desktop/mobile UX
 - ✅ **Project Attachments**: Production company, producer, cast, sales agent, financier, distributor tracking
 
-### Recently Completed: Industry Page - Mandate Markdown Formatting ✅
+### Recently Completed: Critical Security Update - Next.js 15 Upgrade ✅
+1. **CVE-2025-55182 Patched** - Upgraded Next.js 14.0.4 → 15.5.7 to fix critical RCE vulnerability
+2. **Vercel Security Alert** - Responded to Vercel blocking vulnerable deployments with public exploits
+3. **Suspense Boundaries** - Wrapped useSearchParams() in <Suspense> for login and extension-callback pages
+4. **TypeScript Configuration** - Excluded desk-flow/** subdirectory from compilation to prevent conflicts
+5. **Webpack Configuration** - Updated next.config.js to ignore desk-flow in watch options
+6. **Build Verification** - All 38 routes compiled successfully with zero vulnerabilities
+7. **Production Deployment** - Committed (b6ecd72) and pushed to GitHub, triggering Vercel auto-deployment
+8. **Zero Vulnerabilities** - npm audit shows 0 vulnerabilities after security patches applied
+
+### Previous Session: Industry Page - Mandate Markdown Formatting ✅
 1. **ReactMarkdown Integration** - Installed and integrated react-markdown for rich text rendering
 2. **Bold & Italic Support** - `**bold text**` and `*italic text*` markdown syntax now renders properly
 3. **Bullet Points** - Markdown lists with `-` or `*` render as proper bullet points
@@ -367,9 +377,224 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - 🎬 **Box Office Data**: External API integration for project performance tracking
 
 ---
-*Last Updated: Industry Page Mandate Markdown Formatting - Rich text rendering with bold, italic, and bullet points*
+*Last Updated: December 8, 2025 - Critical Security Update (Next.js 15.5.7 Upgrade to Fix CVE-2025-55182)*
 
-## Session Summary (Industry Page - Mandate Markdown Formatting):
+## Session Summary (December 8, 2025 - Critical Security Update):
+
+### User Request:
+Received critical security alert from Vercel regarding CVE-2025-55182, a critical RCE (Remote Code Execution) vulnerability affecting React Server Components in Next.js. Vercel blocked all new deployments of vulnerable Next.js versions and required immediate upgrade to patched versions (15.0.5, 15.1.9, 15.2.6, 15.3.6, 15.4.8, 15.5.7, or 16.0.7).
+
+### Problem Identified:
+- **Current Version**: Next.js 14.0.4 (vulnerable to CVE-2025-55182)
+- **Security Risk**: Critical RCE vulnerability with public exploits available
+- **Deployment Impact**: Vercel blocking all new deployments until patched
+- **desk-flow Project**: Already on Next.js 15.1.9 (secure)
+
+### Solution Implemented:
+
+#### 1. Next.js Version Upgrade ✅
+**Files Modified**: `package.json`, `package-lock.json`
+- Upgraded `next`: 14.0.4 → **15.5.7** (patched stable version)
+- Upgraded `eslint-config-next`: 14.0.4 → **15.5.7** (matching version)
+- Installation: `npm install` (added 15 packages, removed 9, changed 19)
+- **Result**: 0 vulnerabilities after npm audit fix
+
+#### 2. Next.js 15 Breaking Change Fixes ✅
+
+**Breaking Change**: Next.js 15 requires `useSearchParams()` to be wrapped in Suspense boundaries
+
+**File 1: `/app/extension-callback/page.tsx`**
+- Added `Suspense` import from React
+- Renamed `ExtensionCallback` → `ExtensionCallbackContent`
+- Created new default export `ExtensionCallback` wrapping content in `<Suspense>`
+- Added loading fallback with spinning animation
+- Pattern: Split component into content + wrapper with Suspense boundary
+
+**File 2: `/app/login/page.tsx`**
+- Added `Suspense` import from React
+- Renamed `LoginPage` → `LoginPageContent`
+- Created new default export `LoginPage` wrapping content in `<Suspense>`
+- Added simple loading fallback
+- Same pattern as extension-callback page
+
+#### 3. TypeScript Configuration Fix ✅
+
+**File: `tsconfig.json`**
+- **Problem**: TypeScript compiler checking desk-flow subdirectory files during build
+- **Error**: `Cannot find module '@/lib/supabase/client'` in desk-flow files
+- **Solution**: Added `"desk-flow/**"` to exclude array
+- **Result**: TypeScript no longer type-checks desk-flow project
+
+#### 4. Webpack Configuration Fix ✅
+
+**File: `next.config.js`**
+- Added webpack configuration to ignore desk-flow directory
+- Set `watchOptions.ignored` to `['**/desk-flow/**', '**/node_modules/**']`
+- Prevents webpack from watching/bundling desk-flow files
+- Clean separation between Film CRM and desk-flow projects
+
+### Build & Deployment Results:
+
+**Production Build:**
+```bash
+npm run build
+```
+
+**Results:**
+- ✅ **Compiled successfully** in 6.4s with Next.js 15.5.7
+- ✅ **All 38 routes** generated successfully
+- ✅ **Static pages**: 38/38 built without errors
+- ✅ **Zero vulnerabilities** after npm audit fix
+- ⚠️ Node.js 18 deprecation warnings (non-blocking, Vercel uses Node 20+)
+
+**Routes Built:**
+- 1 landing page, 37 dynamic/static app routes
+- All API endpoints compiled successfully
+- All page components with proper SSR/SSG configurations
+
+**Git Operations:**
+```bash
+git add -A
+git commit -m "CRITICAL SECURITY: Upgrade Next.js to 15.5.7..."
+git push origin main
+```
+
+**Commit Details:**
+- **Commit Hash**: b6ecd72
+- **Files Changed**: 10 files (1,361 insertions, 277 deletions)
+- **Changed Files**:
+  - `package.json`, `package-lock.json` (version upgrades)
+  - `app/extension-callback/page.tsx` (Suspense wrapper)
+  - `app/login/page.tsx` (Suspense wrapper)
+  - `tsconfig.json` (exclude desk-flow)
+  - `next.config.js` (webpack ignore)
+  - `next-env.d.ts` (auto-generated)
+  - `.gitignore`, `CLAUDE.md` (documentation)
+  - `supabase/migration.sql` (consolidated schema)
+
+**Vercel Deployment:**
+- ✅ Pushed to GitHub successfully
+- ✅ Automatic Vercel deployment triggered
+- ✅ Production build will use patched Next.js 15.5.7
+- ✅ Deployment unblocked (no longer using vulnerable version)
+
+### Technical Implementation Details:
+
+**Suspense Boundary Pattern:**
+```typescript
+// Before (Next.js 14):
+export default function LoginPage() {
+  const searchParams = useSearchParams() // Direct usage
+  // ... component code
+}
+
+// After (Next.js 15):
+function LoginPageContent() {
+  const searchParams = useSearchParams() // Used in content component
+  // ... component code
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
+  )
+}
+```
+
+**TypeScript Exclusion:**
+```json
+{
+  "exclude": [
+    "node_modules",
+    "filmcontact/**",
+    "supabase/functions/**",
+    "desk-flow/**"  // Added to prevent conflicts
+  ]
+}
+```
+
+**Webpack Configuration:**
+```javascript
+const nextConfig = {
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  webpack: (config) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ['**/desk-flow/**', '**/node_modules/**'],
+    }
+    return config
+  },
+}
+```
+
+### Security Impact:
+
+**Before:**
+- Vulnerable to CVE-2025-55182 RCE exploit
+- Public exploits available targeting vulnerability
+- Vercel blocking new deployments
+- Threat activity significantly increased
+
+**After:**
+- Protected by Next.js 15.5.7 security patches
+- CVE-2025-55182 vulnerability fully patched
+- 0 npm vulnerabilities (all resolved)
+- Vercel deployments unblocked
+- Production site secure and updated
+
+### Key Learnings:
+
+1. **Next.js 15 Breaking Changes**:
+   - `useSearchParams()` requires Suspense boundaries for streaming support
+   - Pattern: Split component into content + wrapper for clean separation
+   - Suspense enables better loading states and progressive rendering
+
+2. **Major Version Upgrades**:
+   - Next.js 14 → 15 is a major version jump but relatively smooth
+   - Build process auto-upgraded to 15.5.7 (latest stable in 15.x line)
+   - Most breaking changes caught during build with clear error messages
+
+3. **Multi-Project Monorepo Issues**:
+   - TypeScript compiler checks all .tsx files in directory tree by default
+   - Need explicit exclusions for subdirectories with different dependencies
+   - Webpack also needs configuration to ignore unrelated projects
+
+4. **Security Response Process**:
+   - Critical CVE alerts require immediate action
+   - Vercel's deployment blocking enforces security compliance
+   - Upgrading to latest patched version (not just minimum) recommended
+
+### Production Status:
+
+- **URL**: https://film-crm.vercel.app
+- **Next.js Version**: 15.5.7 (security patched)
+- **Vulnerabilities**: 0 (all fixed)
+- **Build Status**: ✅ Passing (38/38 routes)
+- **Deployment**: ✅ Auto-deploying to Vercel production
+- **Estimated Deploy Time**: 2-3 minutes
+
+### Recommendations:
+
+1. **Dependency Management**:
+   - Set up Dependabot or Renovate for automated dependency updates
+   - Subscribe to Next.js security advisories
+   - Keep Next.js updated to receive future security patches
+
+2. **Monitoring**:
+   - Monitor Vercel deployment dashboard for successful build
+   - Verify production site loads correctly after deployment
+   - Check for any runtime errors in production logs
+
+3. **Future Upgrades**:
+   - Consider upgrading to React 19 (recommended for Next.js 15)
+   - Keep Node.js version updated (Vercel uses 20+ automatically)
+   - Review other dependencies for security vulnerabilities regularly
+
+---
+
+## Previous Session Summary (Industry Page - Mandate Markdown Formatting):
 
 ### User Request:
 "On the Mandates tab on Industry page, the formatting of the Key Traits They Want section is bad. I'd like it to be spaced out in a more readable way like the original text that I copied and pasted in. Is there any sort of formatting that could be brought in so that the text field keeps the same formatting as that is pasted in?"
