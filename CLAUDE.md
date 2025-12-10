@@ -31,7 +31,17 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - ✅ **Responsive Design**: Mobile-optimized layouts with improved desktop/mobile UX
 - ✅ **Project Attachments**: Production company, producer, cast, sales agent, financier, distributor tracking
 
-### Recently Completed: Critical Security Update - Next.js 15 Upgrade ✅
+### Recently Completed: Project Reorganization ✅
+1. **Dedicated Subfolder** - Moved entire Film CRM app from `/home/keith/` to `/home/keith/film-crm/`
+2. **Git History Preserved** - Moved `.git` directory first, maintaining complete commit history
+3. **Clean Separation** - Linux home directory files remain in `/home/keith/` (bash configs, credentials, etc.)
+4. **Independent Projects** - `desk-flow/` project remains separate at `/home/keith/desk-flow/`
+5. **Updated .gitignore** - Removed `desk-flow/` reference (no longer in repo scope)
+6. **GitHub Structure Unchanged** - Repository `keithlynch81/film-crm` still has files at root level
+7. **No Vercel Changes Needed** - Root Directory setting remains blank (files still at repo root)
+8. **Cleaner Development** - Film CRM now in dedicated directory separate from Linux system files
+
+### Previous Session: Critical Security Update - Next.js 15 Upgrade ✅
 1. **CVE-2025-55182 Patched** - Upgraded Next.js 14.0.4 → 15.5.7 to fix critical RCE vulnerability
 2. **Vercel Security Alert** - Responded to Vercel blocking vulnerable deployments with public exploits
 3. **Suspense Boundaries** - Wrapped useSearchParams() in <Suspense> for login and extension-callback pages
@@ -202,8 +212,11 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - Shareable invitation links (manual distribution)
 
 ## File Structure
+**Local Development Path:** `/home/keith/film-crm/` (organized in dedicated subfolder)
+**Git Repository:** `keithlynch81/film-crm` (files at root level in repo)
+
 ```
-/home/keith/
+/home/keith/film-crm/
 ├── app/                     # Next.js App Router pages
 │   ├── projects/           # Project management pages with CSV import/export, pinning
 │   ├── contacts/           # Contact management pages with CSV import/export + Market Intelligence
@@ -244,10 +257,14 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
     └── fiink_logo.png    # Brand logo
 ```
 
+**Note:** The project was reorganized from `/home/keith/` into `/home/keith/film-crm/` for cleaner separation from Linux system files. The git repository structure remains unchanged (files at root level).
+
 ## Environment Setup
 - **Platform**: Ubuntu on Windows 10 PC
-- **Development**: `npm run dev` on localhost:3001
+- **Local Path**: `/home/keith/film-crm/` (project root directory)
+- **Development**: `npm run dev` on localhost:3001 (run from `/home/keith/film-crm/`)
 - **Database**: Supabase hosted PostgreSQL
+- **Git Remote**: `keithlynch81/film-crm` on GitHub
 
 ## Important SQL Files Status:
 - `supabase/migration.sql` - **CONSOLIDATED** main database schema with ALL migrations included ✅
@@ -377,7 +394,7 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - 🎬 **Box Office Data**: External API integration for project performance tracking
 
 ---
-*Last Updated: December 8, 2025 - Critical Security Update (Next.js 15.5.7 Upgrade to Fix CVE-2025-55182)*
+*Last Updated: December 10, 2025 - Project Reorganization (Moved to /home/keith/film-crm/ subfolder)*
 
 ## Session Summary (December 8, 2025 - Critical Security Update):
 
