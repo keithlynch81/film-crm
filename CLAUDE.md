@@ -1,12 +1,12 @@
 # Film CRM - Project Context and Status
 
 ## Project Overview
-A complete Next.js 14 + Supabase Film CRM application for managing film projects, contacts, submissions, and workspace collaboration. Built with TypeScript, App Router, and Row Level Security (RLS).
+A complete Next.js 16 + Supabase Film CRM application for managing film projects, contacts, submissions, and workspace collaboration. Built with TypeScript, React 19, App Router, and Row Level Security (RLS).
 
 ## Tech Stack
-- **Frontend**: Next.js 15.5.7 (App Router), TypeScript, React
+- **Frontend**: Next.js 16.0.10 (App Router with Turbopack), TypeScript, React 19.2.3
 - **Backend**: Supabase (PostgreSQL with RLS)
-- **Styling**: Inline CSS (blue pill design system)
+- **Styling**: Chakra UI + Inline CSS (blue pill design system)
 - **Authentication**: Supabase Auth with email confirmation
 - **Architecture**: Multi-workspace with role-based access (owner/admin/member)
 
@@ -31,7 +31,19 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - ✅ **Responsive Design**: Mobile-optimized layouts with improved desktop/mobile UX
 - ✅ **Project Attachments**: Production company, producer, cast, sales agent, financier, distributor tracking
 
-### Recently Completed: Project Reorganization ✅
+### Recently Completed: Major Version Upgrades - Next.js 16 & React 19 ✅
+1. **Security Vulnerability Alert** - New vulnerabilities affecting React 19.0.0-19.2.1 and Next.js 13.x-16.x
+2. **Next.js Major Upgrade** - Upgraded 15.5.7 → 16.0.10 (fixes Server Actions exposure and DoS vulnerabilities)
+3. **React Major Upgrade** - Upgraded 18.2.0 → 19.2.3 (patched version beyond vulnerable 19.0.0-19.2.1 range)
+4. **ESLint Upgrade** - Upgraded 8.56.0 → 9.39.1 (required peer dependency for Next.js 16)
+5. **TypeScript Types Updated** - React types 18.2.45 → 19.2.7, React-DOM types 18.2.18 → 19.2.3
+6. **Turbopack Configuration** - Added `turbopack: {}` config to acknowledge Next.js 16 default bundler
+7. **Webpack Config Removed** - Removed desk-flow ignore configuration (no longer needed after reorganization)
+8. **Zero Vulnerabilities** - npm audit shows 0 vulnerabilities after all patches applied
+9. **Node.js Requirement** - Next.js 16 requires Node.js >=20.9.0 (Vercel uses Node 20+ automatically)
+10. **Production Deployment** - Committed (1d75dbc, f5fc1a0) and deployed successfully to Vercel with Turbopack
+
+### Previous Session: Project Reorganization ✅
 1. **Dedicated Subfolder** - Moved entire Film CRM app from `/home/keith/` to `/home/keith/film-crm/`
 2. **Git History Preserved** - Moved `.git` directory first, maintaining complete commit history
 3. **Clean Separation** - Linux home directory files remain in `/home/keith/` (bash configs, credentials, etc.)
@@ -394,7 +406,102 @@ A complete Next.js 14 + Supabase Film CRM application for managing film projects
 - 🎬 **Box Office Data**: External API integration for project performance tracking
 
 ---
-*Last Updated: December 10, 2025 - Project Reorganization (Moved to /home/keith/film-crm/ subfolder)*
+
+## Session Summary (December 12, 2025 - Major Version Upgrades):
+
+### User Request:
+Received notification of new security vulnerabilities affecting React 19.0.0-19.2.1 and Next.js 13.x-16.x. User requested upgrading both to the latest secure versions (React 19.2.3 and Next.js 16.0.10).
+
+### Problem Identified:
+- **Current Versions**: Next.js 15.5.7, React 18.2.0
+- **Security Risk**: Next.js in vulnerable range (13.x-16.x), React below vulnerable range but outdated
+- **Solution**: Upgrade to latest stable versions for maximum security
+
+### Solution Implemented:
+
+#### 1. React & React-DOM Upgrade ✅
+**Command**: `npm install react@19.2.3 react-dom@19.2.3`
+- Upgraded `react`: 18.2.0 → **19.2.3** (beyond vulnerable 19.0.0-19.2.1 range)
+- Upgraded `react-dom`: 18.2.0 → **19.2.3**
+- **Result**: Major version upgrade with new features (React Compiler, Actions, use() hook)
+
+#### 2. Next.js & ESLint Upgrade ✅
+**Command**: `npm install next@16.0.10 eslint-config-next@16.0.10 eslint@^9.0.0`
+- Upgraded `next`: 15.5.7 → **16.0.10** (patches Server Actions exposure and DoS vulnerabilities)
+- Upgraded `eslint`: 8.56.0 → **9.39.1** (required peer dependency for Next.js 16)
+- Upgraded `eslint-config-next`: 15.5.7 → **16.0.10**
+- **Result**: Major version upgrade with Turbopack as default bundler
+
+#### 3. TypeScript Types Update ✅
+**Command**: `npm install --save-dev @types/react@latest @types/react-dom@latest`
+- Upgraded `@types/react`: 18.2.45 → **19.2.7**
+- Upgraded `@types/react-dom`: 18.2.18 → **19.2.3**
+- **Result**: Type definitions matching React 19
+
+#### 4. Security Audit Fix ✅
+**Command**: `npm audit fix`
+- Fixed remaining moderate severity vulnerabilities
+- **Result**: 0 vulnerabilities (down from 3 high/moderate)
+
+#### 5. Turbopack Configuration Fix ✅
+**File Modified**: `next.config.js`
+- **Issue**: Next.js 16 uses Turbopack by default, but config had webpack configuration without turbopack acknowledgment
+- **Solution**: Added empty `turbopack: {}` config, removed webpack ignore configuration
+- **Reason**: desk-flow directory no longer in project scope after reorganization
+- **Result**: Clean Turbopack build without errors
+
+### Deployment Results:
+
+**First Deployment (Security Updates):**
+- **Commit**: 1d75dbc - "CRITICAL SECURITY: Upgrade to Next.js 16.0.10 and React 19.2.3"
+- **Status**: Build failed - Turbopack configuration error
+
+**Second Deployment (Turbopack Fix):**
+- **Commit**: f5fc1a0 - "Fix Next.js 16 Turbopack configuration"
+- **Status**: ✅ Build succeeded with Turbopack
+- **Build Time**: ~2-3 minutes
+- **Production URL**: https://film-crm.vercel.app
+
+### Technical Details:
+
+**Node.js Requirement:**
+- Next.js 16 requires Node.js >=20.9.0
+- Local development uses Node.js 18.19.1 (incompatible for local builds)
+- Vercel uses Node.js 20+ automatically (production builds work fine)
+
+**Turbopack vs Webpack:**
+- Next.js 16 defaults to Turbopack (faster bundler)
+- Previous webpack config only ignored desk-flow directory
+- After project reorganization, webpack config no longer needed
+- Empty `turbopack: {}` acknowledges Turbopack usage
+
+**Security Status:**
+- ✅ **0 vulnerabilities** after all patches
+- ✅ **Next.js 16.0.10** - Patched Server Actions exposure and DoS vulnerabilities
+- ✅ **React 19.2.3** - Beyond vulnerable 19.0.0-19.2.1 range
+- ✅ **All dependencies updated** to compatible versions
+
+### Key Learnings:
+
+1. **Major Version Upgrades**: Next.js 15→16 and React 18→19 are significant upgrades with breaking changes
+2. **Turbopack Default**: Next.js 16 uses Turbopack by default, requiring explicit configuration or migration
+3. **Peer Dependencies**: ESLint 9+ required for Next.js 16, must upgrade together
+4. **Node.js Versions**: Local Node.js version doesn't affect Vercel deployments (Vercel uses Node 20+)
+5. **Empty Config Pattern**: Empty `turbopack: {}` is valid way to acknowledge Turbopack usage without custom config
+
+### Files Modified:
+- `package.json` - Updated all dependency versions
+- `package-lock.json` - Updated dependency tree (696 insertions, 451 deletions)
+- `next.config.js` - Removed webpack config, added turbopack config
+
+### Production Status:
+- ✅ **Deployed to Vercel** with Next.js 16 and React 19
+- ✅ **All routes built successfully** with Turbopack
+- ✅ **Zero security vulnerabilities** in npm audit
+- ✅ **Production site fully operational** at https://film-crm.vercel.app
+
+---
+*Last Updated: December 12, 2025 - Major Version Upgrades (Next.js 16.0.10, React 19.2.3)*
 
 ## Session Summary (December 8, 2025 - Critical Security Update):
 
