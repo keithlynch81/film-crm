@@ -1,14 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Exclude desk-flow subdirectory from the build
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-  webpack: (config) => {
-    config.watchOptions = {
-      ...config.watchOptions,
-      ignored: ['**/desk-flow/**', '**/node_modules/**'],
-    }
-    return config
-  },
+  // Empty turbopack config to acknowledge Next.js 16 Turbopack default
+  // Removed webpack config as desk-flow is now in separate directory
+  turbopack: {},
 }
 
 module.exports = nextConfig
